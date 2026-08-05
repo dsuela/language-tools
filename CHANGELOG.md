@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Add a release command that prepares, validates, publishes and monitors a version
 - Publish release VSIX packages automatically to the Visual Studio Marketplace
 
 ## 0.3.0 (2026-08-04)
