@@ -110,3 +110,4 @@ editors expose the same Symfony language features.
     :maxdepth: 1
 
     editors/vscode
+    editors/neovim
