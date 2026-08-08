@@ -145,6 +145,7 @@ final class ReleaseCommand
         $this->run([$this->root.'/tools/test-neovim'], $this->root);
         $this->run(['composer', 'server:benchmark'], $this->root);
         $this->run(['composer', 'tree-sitter:build-sidecar'], $this->root);
+        $this->run(['composer', 'runtime-refresh:benchmark'], $this->root);
 
     }
 
