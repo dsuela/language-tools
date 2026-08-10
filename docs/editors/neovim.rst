@@ -144,8 +144,7 @@ Pass Symfony project settings through ``settings``:
     })
 
 ``phpCommand`` is an argument list used to run the project bridge. For example,
-use ``{ 'symfony', 'php' }`` with Symfony CLI or
-``{ 'ddev', 'exec', 'php' }`` with DDEV.
+use ``{ 'symfony', 'php' }`` with Symfony CLI.
 
 ``consolePath``, ``environment``, ``debug``, ``runtimeIndexing``,
 ``project_roots``, ``trace`` and ``translationDiagnostics`` have the same

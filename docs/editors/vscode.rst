@@ -140,10 +140,9 @@ Untrusted workspaces remain in static-only mode. See
 static-only behavior.
 
 ``symfonyLsp.phpCommand`` is an argument array used to run the project bridge.
-For example, use ``["symfony", "php"]`` for Symfony CLI or
-``["ddev", "exec", "php"]`` for DDEV. The command must be compatible with the
-Symfony application. ``symfonyLsp.consolePath`` selects the project console
-used for normal cache maintenance.
+For example, use ``["symfony", "php"]`` for Symfony CLI. The command must be
+compatible with the Symfony application. ``symfonyLsp.consolePath`` selects the
+project console used for normal cache maintenance.
 
 ``symfonyLsp.environment`` selects the Symfony runtime whose effective metadata
 is indexed. Runtime indexing requires ``symfonyLsp.debug`` to be ``true``.
