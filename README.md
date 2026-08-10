@@ -65,4 +65,6 @@ stylua --check lsp lua editor/neovim/tests
 
 ## License
 
-Symfony LSP is available under the [MIT License](LICENSE).
+Symfony LSP is available under the [MIT License](LICENSE). Distributions also
+include the applicable [third-party notices](THIRD_PARTY_NOTICES.md) and license
+texts.

@@ -10,3 +10,8 @@ trust, Twig file associations, index status and index management commands.
 
 See the [Symfony LSP documentation](https://github.com/symfony/lsp) for
 installation, configuration and supported integrations.
+
+## License
+
+The extension is available under the MIT License. Packages include the
+applicable third-party notices and license texts.

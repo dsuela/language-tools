@@ -2,6 +2,7 @@ node_modules/
 src/
 Makefile
 test/
+tools/
 out/**
 !out/extension.js
 tsconfig.json

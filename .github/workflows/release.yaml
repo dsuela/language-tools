@@ -51,7 +51,7 @@ jobs:
               run: |
                   curl -fsSL https://github.com/crazywhalecc/static-php-cli/releases/download/2.8.5/spc-${{ matrix.spc }}.tar.gz -o spc.tar.gz
                   tar -xzf spc.tar.gz
-                  curl -fsSL https://dl.static-php.dev/static-php-cli/common/php-8.4.20-micro-${{ matrix.spc }}.tar.gz -o micro.tar.gz
+                  curl -fsSL https://dl.static-php.dev/static-php-cli/minimal/php-8.4.20-micro-${{ matrix.spc }}.tar.gz -o micro.tar.gz
                   tar -xzf micro.tar.gz
                   mkdir -p buildroot/bin
                   mv micro.sfx buildroot/bin/micro.sfx
@@ -67,7 +67,10 @@ jobs:
                   mkdir -p "dist/symfony-lsp-$VERSION-$PLATFORM"
                   cp build/symfony-lsp "dist/symfony-lsp-$VERSION-$PLATFORM/symfony-lsp"
                   cp var/build/tree_sitter_cli/symfony-lsp-tree-sitter "dist/symfony-lsp-$VERSION-$PLATFORM/symfony-lsp-tree-sitter"
-                  cp LICENSE "dist/symfony-lsp-$VERSION-$PLATFORM/LICENSE"
+                  cp LICENSE THIRD_PARTY_NOTICES.md "dist/symfony-lsp-$VERSION-$PLATFORM/"
+                  cp -R THIRD_PARTY_LICENSES "dist/symfony-lsp-$VERSION-$PLATFORM/"
+                  test -f "dist/symfony-lsp-$VERSION-$PLATFORM/THIRD_PARTY_LICENSES/runtime/src_php-src_0.txt"
+                  test -f "dist/symfony-lsp-$VERSION-$PLATFORM/THIRD_PARTY_LICENSES/tree-sitter/tree-sitter-twig-LICENSE"
                   "dist/symfony-lsp-$VERSION-$PLATFORM/symfony-lsp" --version
                   EXPECTED_VERSION=dev
                   if [ "$GITHUB_REF_TYPE" = tag ]; then EXPECTED_VERSION="${VERSION#v}"; fi
@@ -105,7 +108,7 @@ jobs:
               working-directory: var/build/release
               run: |
                   Invoke-WebRequest https://github.com/crazywhalecc/static-php-cli/releases/download/2.8.5/spc-windows-x64.exe -OutFile spc.exe
-                  Invoke-WebRequest https://dl.static-php.dev/static-php-cli/windows/spc-max/php-8.4.20-micro-win.zip -OutFile micro.zip
+                  Invoke-WebRequest https://dl.static-php.dev/static-php-cli/windows/spc-min/php-8.4.20-micro-win.zip -OutFile micro.zip
                   Expand-Archive micro.zip -DestinationPath micro
                   New-Item -ItemType Directory -Force buildroot/bin | Out-Null
                   Move-Item micro/micro.sfx buildroot/bin/micro.sfx
@@ -122,7 +125,10 @@ jobs:
                   New-Item -ItemType Directory -Force "dist/$package" | Out-Null
                   Copy-Item build/symfony-lsp.exe "dist/$package/symfony-lsp.exe"
                   Copy-Item var/build/tree_sitter_cli/Release/symfony-lsp-tree-sitter.exe "dist/$package/symfony-lsp-tree-sitter.exe"
-                  Copy-Item LICENSE "dist/$package/LICENSE"
+                  Copy-Item -Path LICENSE, THIRD_PARTY_NOTICES.md -Destination "dist/$package/"
+                  Copy-Item -Path THIRD_PARTY_LICENSES -Destination "dist/$package/THIRD_PARTY_LICENSES" -Recurse
+                  if (!(Test-Path "dist/$package/THIRD_PARTY_LICENSES/runtime/src_php-src_0.txt")) { throw 'Runtime licenses are missing.' }
+                  if (!(Test-Path "dist/$package/THIRD_PARTY_LICENSES/tree-sitter/tree-sitter-twig-LICENSE")) { throw 'Tree-sitter licenses are missing.' }
                   & "dist/$package/symfony-lsp.exe" --version
                   $tree = "{{ path('homepage') }}" | & "dist/$package/symfony-lsp-tree-sitter.exe" twig | ConvertFrom-Json
                   if ($tree.nodes.Count -eq 0) { throw 'The Tree-sitter sidecar returned no nodes.' }
@@ -188,7 +194,7 @@ jobs:
                           exit 1
                           ;;
                   esac
-                  rm -f editor/vscode/server/LICENSE
+                  rm -rf editor/vscode/server/LICENSE editor/vscode/server/THIRD_PARTY_LICENSES editor/vscode/server/THIRD_PARTY_NOTICES.md
                   test -f "editor/vscode/server/$EXECUTABLE"
                   test -f "editor/vscode/server/$SIDECAR"
                   if [[ "$EXECUTABLE" != *.exe ]]; then chmod +x editor/vscode/server/*; fi
@@ -220,6 +226,10 @@ jobs:
                   npx vsce ls | grep -Fx 'images/icon.png'
                   npx vsce ls | grep -Fx "server/$EXECUTABLE"
                   npx vsce ls | grep -Fx "server/$SIDECAR"
+                  npx vsce ls | grep -Fx 'THIRD_PARTY_NOTICES.md'
+                  npx vsce ls | grep -Fx 'THIRD_PARTY_LICENSES/runtime/src_php-src_0.txt'
+                  npx vsce ls | grep -Fx 'THIRD_PARTY_LICENSES/tree-sitter/tree-sitter-twig-LICENSE'
+                  npx vsce ls | grep -Fx 'THIRD_PARTY_LICENSES/vscode/vscode-languageclient/LICENSE'
             - uses: actions/upload-artifact@v7
               with:
                   name: symfony-lsp-${{ github.ref_name }}-vscode-${{ matrix.target }}

@@ -9,4 +9,6 @@
 /editor/vscode/out/
 /editor/vscode/dist/
 /editor/vscode/server/
+/editor/vscode/THIRD_PARTY_LICENSES/
+/editor/vscode/THIRD_PARTY_NOTICES.md
 /editor/vscode/*.vsix

@@ -35,11 +35,13 @@
   ],
   "main": "./out/extension.js",
   "scripts": {
-    "check": "tsc -p ./ --noEmit && tsc -p ./tsconfig.test.json --noEmit",
+    "check": "tsc -p ./ --noEmit && tsc -p ./tsconfig.test.json --noEmit && npm run check:licenses",
+    "check:licenses": "node test/checkLicenses.mjs",
     "compile": "npm run check && esbuild src/extension.ts --bundle --platform=node --format=cjs --outfile=out/extension.js --external:vscode",
     "compile:production": "npm run check && esbuild src/extension.ts --bundle --platform=node --format=cjs --minify --outfile=out/extension.js --external:vscode",
     "compile-tests": "tsc -p ./tsconfig.test.json",
     "package": "npm run compile:production && vsce package",
+    "prepackage": "node tools/prepareLicenses.mjs",
     "test:e2e": "npm run compile && npm run compile-tests && node out/test/runTest.js"
   },
   "dependencies": {
