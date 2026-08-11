@@ -1,7 +1,7 @@
 {
-  "name": "symfony-lsp",
+  "name": "lsp",
   "displayName": "Symfony LSP",
-  "publisher": "symfonycorp",
+  "publisher": "symfony",
   "description": "Symfony-aware completion, navigation and diagnostics through Symfony LSP",
   "version": "0.6.0",
   "license": "MIT",

@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Publish VS Code extensions under the symfony Marketplace publisher
 - Keep application errors out of runtime snapshots and index status responses
 - Verify downloaded build tools and PHP runtimes before creating release binaries
 - Include third-party licenses and the minimal PHP runtime in release packages

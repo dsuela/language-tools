@@ -7,7 +7,7 @@ images="$root/docs/vscode-guide/images"
 code_command="${CODE:-code}"
 demo_repository="${SYMFONY_DEMO_REPOSITORY:-https://github.com/symfony/demo.git}"
 demo_revision="${SYMFONY_DEMO_REVISION:-HEAD}"
-extension='symfonycorp.symfony-lsp'
+extension='symfony.lsp'
 twig_extension='whatwedo.twig'
 keep_state="${KEEP_VSCODE_GUIDE_STATE:-0}"
 
@@ -229,7 +229,7 @@ if is_selected install-extension; then
     launchers+=("$!")
     wait_for_cdp "$install_port"
     sleep 5
-    node "$cdp" "$install_port" wait 'document.title.includes("Extension: Symfony LSP") && document.body.innerText.includes("symfonycorp.symfony-lsp") && document.body.innerText.includes("Install")' 90
+    node "$cdp" "$install_port" wait "document.title.includes(\"Extension: Symfony LSP\") && document.body.innerText.includes(\"$extension\") && document.body.innerText.includes(\"Install\")" 90
     node "$cdp" "$install_port" evaluate "$clean_ui" >/dev/null
     sleep 1
     node "$cdp" "$install_port" evaluate "$clean_ui" >/dev/null
