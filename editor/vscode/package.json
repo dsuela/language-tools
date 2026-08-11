@@ -1,6 +1,6 @@
 {
   "name": "language-tools",
-  "displayName": "Symfony LSP",
+  "displayName": "Symfony Language Tools",
   "publisher": "symfony",
   "description": "Symfony-aware completion, navigation and diagnostics through Symfony LSP",
   "version": "0.8.0",

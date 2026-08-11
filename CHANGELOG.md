@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Name the VS Code extension Symfony Language Tools
+
 ## 0.8.0 (2026-08-11)
 
 - Publish the VS Code extension as symfony.language-tools

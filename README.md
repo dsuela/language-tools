@@ -11,7 +11,7 @@ Doctrine metadata.
 
 ## Installation
 
-Install the self-contained VS Code extension from the
+Install the self-contained Symfony Language Tools extension from the
 [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=symfony.language-tools):
 
 ```console

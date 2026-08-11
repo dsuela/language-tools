@@ -229,7 +229,7 @@ if is_selected install-extension; then
     launchers+=("$!")
     wait_for_cdp "$install_port"
     sleep 5
-    node "$cdp" "$install_port" wait "document.title.includes(\"Extension: Symfony LSP\") && document.body.innerText.includes(\"$extension\") && document.body.innerText.includes(\"Install\")" 90
+    node "$cdp" "$install_port" wait "document.title.includes(\"Extension: Symfony Language Tools\") && document.body.innerText.includes(\"$extension\") && document.body.innerText.includes(\"Install\")" 90
     node "$cdp" "$install_port" evaluate "$clean_ui" >/dev/null
     sleep 1
     node "$cdp" "$install_port" evaluate "$clean_ui" >/dev/null

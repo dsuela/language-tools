@@ -13,7 +13,7 @@ workflow.
 Installing the Extension
 ------------------------
 
-Install a stable Symfony LSP release from the Visual Studio Marketplace:
+Install the stable Symfony Language Tools extension from the Marketplace:
 
 .. code-block:: terminal
 
