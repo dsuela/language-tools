@@ -8,11 +8,11 @@
   "icon": "images/icon.png",
   "repository": {
     "type": "git",
-    "url": "https://github.com/symfony/lsp.git"
+    "url": "https://github.com/symfony/language-tools.git"
   },
-  "homepage": "https://github.com/symfony/lsp",
+  "homepage": "https://github.com/symfony/language-tools",
   "bugs": {
-    "url": "https://github.com/symfony/lsp/issues"
+    "url": "https://github.com/symfony/language-tools/issues"
   },
   "engines": {
     "vscode": "^1.91.0"

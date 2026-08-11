@@ -13,7 +13,7 @@ setup function:
 
 .. code-block:: lua
 
-    vim.pack.add({ 'https://github.com/symfony/lsp' })
+    vim.pack.add({ 'https://github.com/symfony/language-tools' })
 
     require('symfony_lsp').setup()
 
@@ -36,7 +36,7 @@ Add this plugin specification when using `lazy.nvim`_:
 .. code-block:: lua
 
     {
-        'symfony/lsp',
+        'symfony/language-tools',
         config = function()
             require('symfony_lsp').setup()
         end,

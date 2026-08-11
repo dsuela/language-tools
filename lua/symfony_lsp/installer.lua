@@ -178,7 +178,7 @@ function M.install(version, options, callback)
   local archive_name = M.archive(version, platform)
   local archive_path = join(temporary, archive_name)
   local checksums_path = join(temporary, 'SHA256SUMS')
-  local base_url = options.base_url or 'https://github.com/symfony/lsp/releases/download'
+  local base_url = options.base_url or 'https://github.com/symfony/language-tools/releases/download'
   local release_url = base_url .. '/v' .. version
 
   local function fail(message)

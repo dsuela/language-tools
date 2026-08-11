@@ -24,7 +24,7 @@ Neovim 0.12 or later can install the first-party plugin and matching server
 directly with `vim.pack`:
 
 ```lua
-vim.pack.add({ 'https://github.com/symfony/lsp' })
+vim.pack.add({ 'https://github.com/symfony/language-tools' })
 require('symfony_lsp').setup()
 ```
 
@@ -33,8 +33,8 @@ Neovim 0.11.3 is also supported through lazy.nvim. See the
 statuslines, custom settings and troubleshooting.
 
 Standalone server archives for Linux, macOS, and Windows are available from
-[GitHub Releases](https://github.com/symfony/lsp/releases). Each archive contains
-the language server and its matching Tree-sitter sidecar.
+[GitHub Releases](https://github.com/symfony/language-tools/releases). Each
+archive contains the language server and its matching Tree-sitter sidecar.
 
 ## Requirements
 
