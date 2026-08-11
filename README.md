@@ -11,6 +11,8 @@ Doctrine metadata.
 
 ## Installation
 
+### Visual Studio Code
+
 Install the self-contained Symfony Language Tools extension from the
 [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=symfony.language-tools):
 
@@ -18,23 +20,48 @@ Install the self-contained Symfony Language Tools extension from the
 code --install-extension symfony.language-tools
 ```
 
-Add `--pre-release` to install a version with a prerelease suffix.
+Add `--pre-release` to install a version with a prerelease suffix. See the
+[Visual Studio Code guide](docs/editors/vscode.rst) for configuration and
+troubleshooting.
+
+### Neovim
 
 Neovim 0.12 or later can install the first-party plugin and matching server
-directly with `vim.pack`:
+with `vim.pack`:
 
 ```lua
 vim.pack.add({ 'https://github.com/symfony/language-tools' })
 require('symfony_lsp').setup()
 ```
 
-Neovim 0.11.3 is also supported through lazy.nvim. See the
-[Neovim guide](docs/editors/neovim.rst) for workspace trust, index commands,
-statuslines, custom settings and troubleshooting.
+Neovim 0.11.3 or later can install the plugin with lazy.nvim:
 
-Standalone server archives for Linux, macOS, and Windows are available from
-[GitHub Releases](https://github.com/symfony/language-tools/releases). Each
-archive contains the language server and its matching Tree-sitter sidecar.
+```lua
+{
+    'symfony/language-tools',
+    config = function()
+        require('symfony_lsp').setup()
+    end,
+}
+```
+
+See the [Neovim guide](docs/editors/neovim.rst) for workspace trust, index
+commands, statuslines, custom settings and troubleshooting.
+
+### Standalone Server
+
+Download the archive for your platform from
+[GitHub Releases](https://github.com/symfony/language-tools/releases). Extract
+it and keep the `symfony-lsp` language server and
+`symfony-lsp-tree-sitter` sidecar in the same directory. Verify the server
+before configuring your Language Server Protocol client:
+
+```console
+./symfony-lsp --version
+```
+
+See the [standalone installation guide](docs/index.rst#installing-a-release)
+for supported platforms, checksum verification and source installation.
 
 ## Requirements
 
