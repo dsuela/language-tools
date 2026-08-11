@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Focus public documentation on installation, supported behavior and troubleshooting
+
 ## 0.8.1 (2026-08-11)
 
 - Validate Neovim package installation from tagged checkouts
