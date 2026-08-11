@@ -20,16 +20,17 @@ code --install-extension symfonycorp.symfony-lsp
 
 Add `--pre-release` to install a version with a prerelease suffix.
 
-Neovim 0.11.3 or later can install the first-party plugin and matching server
-directly from this repository:
+Neovim 0.12 or later can install the first-party plugin and matching server
+directly with `vim.pack`:
 
 ```lua
 vim.pack.add({ 'https://github.com/symfony/lsp' })
 require('symfony_lsp').setup()
 ```
 
-See the [Neovim guide](docs/editors/neovim.rst) for lazy.nvim, workspace trust,
-index commands, statuslines, custom settings and troubleshooting.
+Neovim 0.11.3 is also supported through lazy.nvim. See the
+[Neovim guide](docs/editors/neovim.rst) for workspace trust, index commands,
+statuslines, custom settings and troubleshooting.
 
 Standalone server archives for Linux, macOS, and Windows are available from
 [GitHub Releases](https://github.com/symfony/lsp/releases). Each archive contains
