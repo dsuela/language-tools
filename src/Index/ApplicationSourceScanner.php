@@ -91,9 +91,9 @@ final class ApplicationSourceScanner
             $progressMessage = 'Source indexing canceled';
 
             throw $error;
-        } catch (\Throwable $error) {
+        } catch (\Throwable) {
             $progressMessage = 'Source indexing failed';
-            $this->statuses->sourceFailed($project, $error);
+            $this->statuses->sourceFailed($project);
         } finally {
             $this->progress->end($progress, $progressMessage);
         }

@@ -170,7 +170,7 @@ final class ProjectRuntimeInitializerTest extends TestCase
             new BridgeInstaller($source, 'test', new Filesystem()),
             new CapturingProcessRunner(new ProcessResult(0, json_encode([
                 'schemaVersion' => 1,
-                'errors' => [['section' => 'routes', 'message' => 'missing environment']],
+                'errors' => [['section' => 'routes', 'message' => 'CANARY_RUNTIME_SECTION_ERROR']],
                 'sections' => [
                     'routes' => ['complete' => true, 'items' => [['name' => 'replacement', 'path' => '/replacement']]],
                     'container' => ['complete' => true, 'items' => [
@@ -190,7 +190,7 @@ final class ProjectRuntimeInitializerTest extends TestCase
             $initializer->initialize($project);
             self::fail('The section error was not reported.');
         } catch (\RuntimeException $error) {
-            self::assertStringContainsString('missing environment', $error->getMessage());
+            self::assertSame('The project bridge could not load runtime metadata: routes.', $error->getMessage());
         }
         self::assertSame('app.mailer', $serviceIndexes->forProject($project)->get('app.mailer')?->id());
         self::assertSame('existing', $routeIndexes->forProject($project)->get('existing')?->name());
@@ -203,7 +203,7 @@ final class ProjectRuntimeInitializerTest extends TestCase
         file_put_contents($source, '<?php');
         $initializer = new ProjectRuntimeInitializer(
             new BridgeInstaller($source, 'test', new Filesystem()),
-            new CapturingProcessRunner(new ProcessResult(1, '', 'broken container')),
+            new CapturingProcessRunner(new ProcessResult(1, '', 'CANARY_RUNTIME_STDERR')),
             new RuntimeSnapshotLoaderRegistry([
                 new ProjectRouteSnapshotLoader(new RouteIndexRegistry()),
             ]),
@@ -211,7 +211,7 @@ final class ProjectRuntimeInitializerTest extends TestCase
         );
 
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('broken container');
+        $this->expectExceptionMessage('The project bridge failed with status 1.');
 
         $initializer->initialize(new Project(
             $this->temporaryDirectory,

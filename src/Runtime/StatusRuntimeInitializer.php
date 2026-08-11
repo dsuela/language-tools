@@ -27,7 +27,7 @@ final class StatusRuntimeInitializer implements RuntimeInitializerInterface
 
             throw $error;
         } catch (\Throwable $error) {
-            $this->statuses->runtimeFailed($project, $error);
+            $this->statuses->runtimeFailed($project);
 
             throw $error;
         }

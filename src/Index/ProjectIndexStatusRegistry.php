@@ -22,9 +22,9 @@ final class ProjectIndexStatusRegistry
         $this->section($project, 'source', 'ready');
     }
 
-    public function sourceFailed(Project $project, \Throwable $error): void
+    public function sourceFailed(Project $project): void
     {
-        $this->section($project, 'source', 'failed', $error->getMessage());
+        $this->section($project, 'source', 'failed', 'Source indexing failed.');
     }
 
     public function runtimeIndexing(Project $project): void
@@ -43,10 +43,10 @@ final class ProjectIndexStatusRegistry
         $this->section($project, 'runtime', 'stale');
     }
 
-    public function runtimeFailed(Project $project, \Throwable $error): void
+    public function runtimeFailed(Project $project): void
     {
         $state = isset($this->hasRuntimeSnapshot[$project->rootPath()]) ? 'stale' : 'failed';
-        $this->section($project, 'runtime', $state, $error->getMessage());
+        $this->section($project, 'runtime', $state, 'Runtime indexing failed.');
     }
 
     /**

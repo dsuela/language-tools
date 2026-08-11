@@ -105,9 +105,12 @@ final class SymfonyLspBridgeContext
         @rmdir($directory);
     }
 
-    public function addError(string $section, string $message): void
+    public function addError(string $section): void
     {
-        $this->errors[] = ['section' => $section, 'message' => $message];
+        $this->errors[] = [
+            'section' => $section,
+            'message' => sprintf('Unable to load the "%s" runtime metadata section.', $section),
+        ];
     }
 
     public function errors(): array

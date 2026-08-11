@@ -101,15 +101,15 @@ foreach ($requestedSections as $sectionName) {
         if (is_array($section)) {
             $sections[$sectionName] = $section;
         }
-    } catch (Throwable $error) {
-        $context->addError($sectionName, $error->getMessage());
+    } catch (Throwable) {
+        $context->addError($sectionName);
     }
 }
 
 try {
     $context->shutdown();
-} catch (Throwable $error) {
-    $context->addError('runtime', $error->getMessage());
+} catch (Throwable) {
+    $context->addError('runtime');
 }
 
 $result = [

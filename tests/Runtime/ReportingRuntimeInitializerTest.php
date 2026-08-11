@@ -19,7 +19,7 @@ final class ReportingRuntimeInitializerTest extends TestCase
         $statuses = new ProjectIndexStatusRegistry();
         $project = new Project('/workspace', 'file:///workspace', '^8.0');
         $statuses->runtimeReady($project);
-        $statuses->runtimeFailed($project, new \RuntimeException('failed'));
+        $statuses->runtimeFailed($project);
         $initializer = new ReportingRuntimeInitializer($this->failingInitializer(), $client, $statuses);
 
         $initializer->initialize($project);
@@ -38,7 +38,7 @@ final class ReportingRuntimeInitializerTest extends TestCase
         $client = new ReportingClient();
         $statuses = new ProjectIndexStatusRegistry();
         $project = new Project('/workspace', 'file:///workspace', '^8.0');
-        $statuses->runtimeFailed($project, new \RuntimeException('failed'));
+        $statuses->runtimeFailed($project);
         $initializer = new ReportingRuntimeInitializer($this->failingInitializer(), $client, $statuses);
 
         $initializer->initialize($project);

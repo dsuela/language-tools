@@ -37,7 +37,7 @@ final class ProjectRuntimeInitializer implements RuntimeInitializerInterface
         ], $project->rootPath(), $cancellation);
 
         if (0 !== $result->exitCode()) {
-            throw new \RuntimeException(\sprintf('The project bridge failed with status %d: %s', $result->exitCode(), trim($result->stderr())));
+            throw new \RuntimeException(\sprintf('The project bridge failed with status %d.', $result->exitCode()));
         }
 
         try {
@@ -52,22 +52,28 @@ final class ProjectRuntimeInitializer implements RuntimeInitializerInterface
 
         $errors = $snapshot['errors'] ?? null;
         $loadableSnapshot = $snapshot;
-        $messages = [];
+        $failedSections = [];
         foreach (\is_array($errors) ? $errors : [] as $error) {
             if (!\is_array($error)) {
                 continue;
             }
-            if (\is_string($error['section'] ?? null) && \is_array($loadableSnapshot['sections'] ?? null)) {
-                unset($loadableSnapshot['sections'][$error['section']]);
+            $section = $error['section'] ?? null;
+            if (!\is_string($section)) {
+                continue;
             }
-            if (\is_string($error['message'] ?? null)) {
-                $messages[] = $error['message'];
+            if (\is_array($loadableSnapshot['sections'] ?? null)) {
+                unset($loadableSnapshot['sections'][$section]);
+            }
+            if ('runtime' === $section || \in_array($section, $sections, true)) {
+                $failedSections[$section] = true;
             }
         }
         $this->snapshotLoaders->load($project, $loadableSnapshot);
 
         if (\is_array($errors) && [] !== $errors) {
-            throw new \RuntimeException('The project bridge could not load runtime metadata: '.implode('; ', $messages));
+            $detail = [] === $failedSections ? '' : ': '.implode(', ', array_keys($failedSections));
+
+            throw new \RuntimeException('The project bridge could not load runtime metadata'.$detail.'.');
         }
     }
 }
