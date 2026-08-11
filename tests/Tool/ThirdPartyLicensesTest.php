@@ -78,6 +78,10 @@ final class ThirdPartyLicensesTest extends TestCase
         self::assertStringContainsString('static-php-cli/minimal/php-8.4.20-micro-', $workflow);
         self::assertStringContainsString('| PHP 8.4.20 | PHP License 3.01 |', $notices);
         self::assertStringContainsString('static-php-cli/windows/spc-min/php-8.4.20-micro-win.zip', $workflow);
+        self::assertSame(4, substr_count($workflow, 'spc_checksum:'));
+        self::assertSame(4, substr_count($workflow, 'micro_checksum:'));
+        self::assertStringContainsString("throw 'Invalid static-php-cli checksum.'", $workflow);
+        self::assertStringContainsString("throw 'Invalid PHP micro-runtime checksum.'", $workflow);
         self::assertGreaterThanOrEqual(2, substr_count($workflow, 'THIRD_PARTY_NOTICES.md'));
         self::assertGreaterThanOrEqual(4, substr_count($workflow, 'THIRD_PARTY_LICENSES'));
     }
