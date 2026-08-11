@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.7.0 (2026-08-11)
 
 - Publish VS Code extensions under the symfony Marketplace publisher
 - Keep application errors out of runtime snapshots and index status responses
