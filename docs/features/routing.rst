@@ -2,8 +2,8 @@ Routing Integration
 ===================
 
 The routing integration understands effective route names and parameters in the
-selected Symfony environment. It combines ``debug:router`` metadata with PHP,
-YAML and Twig source indexes.
+selected Symfony environment, together with their application-owned PHP, YAML
+and Twig declarations and references.
 
 Supported Contexts
 ------------------
@@ -104,11 +104,3 @@ diagnosed.
 
 Diagnostics are limited to open PHP and Twig files and high-confidence Symfony
 contexts. They update while typing and are cleared when the file closes.
-
-Static and Runtime Indexing
----------------------------
-
-Runtime metadata comes from
-``debug:router --format=json --show-aliases``. The source index scans
-application-owned PHP and Twig files, ``config/routes.yaml`` and YAML files
-under ``config/routes/``. Unsaved documents overlay the disk-backed index.

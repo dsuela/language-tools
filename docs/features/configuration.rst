@@ -1,10 +1,9 @@
 Bundle Configuration
 ====================
 
-Symfony LSP extracts configuration trees for installed bundles from Symfony's
-public Config component APIs. The trees reflect the selected environment and
-include node types, required and default markers, enum values, examples,
-deprecations, children and prototype nodes.
+Symfony LSP understands configuration trees for installed bundles in the
+selected environment, including node types, required and default markers, enum
+values, examples, deprecations, children and prototype nodes.
 
 Completion
 ----------

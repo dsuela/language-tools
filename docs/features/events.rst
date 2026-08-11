@@ -1,10 +1,9 @@
 Events and Listeners
 ====================
 
-The Events integration combines the effective event dispatcher graph with
-application-owned PHP and YAML source indexes. It understands event classes,
-legacy event names, listeners, subscribers, priorities and recognized dispatch
-sites in the configured Symfony environment.
+The Events integration understands effective event classes, legacy event names,
+listeners, subscribers, priorities and recognized dispatch sites in the
+configured Symfony environment.
 
 Completion
 ----------
@@ -54,11 +53,3 @@ A class-level ``AsEventListener`` attribute that explicitly names a method is
 reported when that method doesn't exist in the class. Unknown event names aren't
 diagnosed because the event dispatcher accepts events without registered
 listeners.
-
-Static and Runtime Indexing
----------------------------
-
-The runtime bridge reads ``debug:event-dispatcher --format=json`` and normalizes
-event names, listener classes, methods and priorities. The source index scans
-application-owned PHP and YAML files. Unsaved documents overlay the disk-backed
-index immediately.

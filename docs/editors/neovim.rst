@@ -143,8 +143,8 @@ Pass Symfony project settings through ``settings``:
         trace = 'off',
     })
 
-``phpCommand`` is an argument list used to run the project bridge. For example,
-use ``{ 'symfony', 'php' }`` with Symfony CLI.
+``phpCommand`` is the argument list used to inspect the Symfony application.
+For example, use ``{ 'symfony', 'php' }`` with Symfony CLI.
 
 ``consolePath``, ``environment``, ``debug``, ``runtimeIndexing``,
 ``project_roots``, ``trace`` and ``translationDiagnostics`` have the same

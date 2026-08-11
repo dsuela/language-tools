@@ -8,10 +8,10 @@ features are independent of any particular editor.
 Requirements
 ------------
 
-The standalone language server supports Symfony applications using a
-FrameworkBundle branch listed in Symfony's `release metadata`_. The application
-still needs PHP and Composer. Configure the project bridge to use a PHP command
-accepted by the application's Symfony branch.
+The standalone language server supports maintained Symfony versions listed in
+Symfony's `release metadata`_. The application must have its Composer
+dependencies installed and provide a PHP command compatible with its Symfony
+version.
 
 Installing a Release
 --------------------
@@ -46,7 +46,7 @@ running it.
 Installing the Server from Source
 ---------------------------------
 
-Source installations require PHP 8.4 or later and Composer 2. Clone this
+Source installations require PHP 8.4.1 or later and Composer 2. Clone this
 repository outside the Symfony application that you want to edit. Install the
 server dependencies and build the bundled Twig and YAML parser extension:
 
@@ -76,9 +76,8 @@ or reload the editor:
 
     $ ./symfony-lsp --version
 
-Each server release uses a separate persistent index namespace. The first
-workspace initialization rebuilds the source index when the server version
-changes.
+The first workspace initialization after an upgrade rebuilds the project
+index.
 
 .. _`release metadata`: https://symfony.com/releases.json
 
@@ -93,17 +92,10 @@ Language Server Protocol capabilities:
 
     features/index
 
-Development
------------
-
-.. toctree::
-    :maxdepth: 1
-
-
 Editor Integrations
 -------------------
 
-Editor pages only cover installation and editor-specific configuration. All
+Editor pages cover installation, configuration and troubleshooting. All
 editors expose the same Symfony language features.
 
 .. toctree::

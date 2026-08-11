@@ -22,7 +22,7 @@ Validation
 Constraint and constraint-option completion is available in PHP attributes and
 YAML validation mappings. Symfony's installed constraints and their constructor
 options come from runtime reflection. Application constraint classes extending
-``Constraint`` are added by the source index.
+``Constraint`` are recognized from project files.
 
 Definitely unknown options are diagnosed only when the constraint itself is
 known. Go to Definition and Find All References connect application constraint

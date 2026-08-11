@@ -2,22 +2,22 @@ Dependency Injection: Services and Parameters
 =============================================
 
 The dependency injection integration understands effective services, aliases,
-autowiring types and parameter names from the compiled Symfony container. A
-static index adds precise locations for application-owned YAML declarations and
-recognized PHP ``#[Autowire]`` attributes.
+autowiring types and parameter names from the selected Symfony environment. It
+also finds application-owned YAML declarations and recognized PHP
+``#[Autowire]`` attributes.
 
 Supported Declarations and References
 -------------------------------------
 
-The YAML index recognizes:
+Symfony LSP recognizes these YAML declarations and references:
 
 * service and parameter declarations;
 * ``@service`` and ``%parameter%`` references;
 * aliases and decorators;
 * tags and bindings.
 
-The PHP index recognizes service and parameter references in
-``#[Autowire]`` attributes. Dynamic references aren't indexed.
+Symfony LSP also recognizes service and parameter references in PHP
+``#[Autowire]`` attributes. Dynamic references aren't recognized.
 
 Completion
 ----------
@@ -94,29 +94,14 @@ A rename to an existing service or parameter name is rejected.
 Diagnostics
 -----------
 
-After a complete runtime container snapshot is available, definitely unknown
+After complete runtime container metadata is available, definitely unknown
 service and parameter references are reported as errors. Optional service
 references such as ``@?app.mailer`` aren't diagnosed. Unknown tags are accepted
 because applications and compiler passes can define their own tags.
 
-Secret-Handling Boundary
-------------------------
+Privacy
+-------
 
-The project bridge runs these structured commands for container metadata:
-
-* ``debug:container --format=json --show-hidden``;
-* ``debug:container --types --format=json``;
-* ``debug:container --parameters --format=json``.
-
-The parameter command is used internally only. The bridge keeps parameter names
-and deprecations, then discards values before creating the runtime snapshot.
-Values never enter static indexes, logs, hover output or other Language Server
-Protocol responses.
-
-Static and Runtime Indexing
----------------------------
-
-The runtime snapshot provides effective services and parameters from the
-selected Symfony environment. The static index scans application-owned YAML and
-PHP files for declarations, references and service classes. Unsaved documents
-overlay the disk-backed facts immediately.
+Parameter values aren't required for these features. Symfony LSP uses parameter
+names and deprecation metadata without including values in indexes, logs, hover
+output or other Language Server Protocol responses.

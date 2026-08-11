@@ -38,20 +38,6 @@ install it directly:
 
     $ code --install-extension /path/to/downloaded-extension.vsix
 
-Building the Extension from Source
-----------------------------------
-
-Development builds require Node.js and npm. Build and package the extension
-from the repository root:
-
-.. code-block:: terminal
-
-    $ make -C editor/vscode
-
-This creates ``editor/vscode/symfony-lsp-0.8.1.vsix``. Source builds don't
-contain a standalone server; configure ``symfonyLsp.serverPath`` before
-installing this package.
-
 Twig Support
 ------------
 
@@ -70,30 +56,6 @@ Optional extensions can provide those editor features alongside Symfony LSP:
 
 Some extensions associate Twig files with the ``html`` language. Symfony LSP
 also recognizes ``.twig`` files in that configuration.
-
-Automated Extension Tests
--------------------------
-
-The extension test suite launches an isolated VS Code Extension Development
-Host against the Symfony runtime fixture. Install the fixture dependencies,
-then run the tests:
-
-.. code-block:: terminal
-
-    $ cd tests/Fixtures/RuntimeApplication
-    $ composer update
-    $ cd ../../../editor/vscode
-    $ npm ci
-    $ npm run test:e2e
-
-The first run downloads a matching VS Code build into
-``editor/vscode/.vscode-test/``. The suite covers server lifecycle, routing,
-dependency injection, Twig templates, translations, environment variables,
-bundle configuration, Messenger, Events, Security, AssetMapper, importmaps,
-Stimulus, Live Components and Doctrine.
-Installed extensions are disabled inside the test host to keep completion,
-hover, navigation, diagnostics and code lens results deterministic. This doesn't
-change the regular VS Code profile.
 
 Index Status and Commands
 -------------------------
@@ -139,10 +101,11 @@ Untrusted workspaces remain in static-only mode. See
 :doc:`Symfony integrations </features/index>` for runtime indexing and
 static-only behavior.
 
-``symfonyLsp.phpCommand`` is an argument array used to run the project bridge.
-For example, use ``["symfony", "php"]`` for Symfony CLI. The command must be
-compatible with the Symfony application. ``symfonyLsp.consolePath`` selects the
-project console used for normal cache maintenance.
+``symfonyLsp.phpCommand`` is the argument array used to inspect the Symfony
+application. For example, use ``["symfony", "php"]`` for Symfony CLI. The
+command must be compatible with the Symfony application.
+``symfonyLsp.consolePath`` selects the project console used for normal cache
+maintenance.
 
 ``symfonyLsp.environment`` selects the Symfony runtime whose effective metadata
 is indexed. Runtime indexing requires ``symfonyLsp.debug`` to be ``true``.
@@ -183,11 +146,7 @@ platform's native crash reports. On macOS, they are stored under
 
 * the installed extension package matches the extension host's platform;
 * a configured ``symfonyLsp.serverPath`` points to an executable file;
-* the extension was rebuilt after updating files under ``editor/vscode/``;
 * the workspace settings contain a valid project PHP command.
-
-Run ``composer install`` after updating server dependencies. Rebuild and
-reinstall the VSIX after updating the extension.
 
 .. _`visual VS Code guide`: ../vscode-guide/index.html
 .. _`visual feature catalog`: ../vscode-guide/features.html

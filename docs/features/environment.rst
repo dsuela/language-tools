@@ -1,10 +1,9 @@
 Environment Variables
 =====================
 
-Symfony LSP indexes environment variable declarations from ``.env`` files and
-references from ``%env(...)%`` expressions. The index stores names, locations,
-processor chains and whether a declaration has a default. It never stores or
-returns environment variable values.
+Symfony LSP recognizes environment variable declarations from ``.env`` files
+and references from ``%env(...)%`` expressions. It uses names, locations,
+processor chains and default availability without storing or returning values.
 
 Completion
 ----------
@@ -37,10 +36,8 @@ processor result types that are incompatible with a statically known bundle
 configuration type. A missing declaration isn't an error because the variable
 can be supplied by the shell, a deployment platform or a secrets provider.
 
-Security
---------
+Privacy
+-------
 
-The runtime bridge discovers processor names and types through Symfony's public
-``EnvVarProcessorInterface`` metadata. It doesn't execute the ``env-vars``
-console command. Environment values aren't included in snapshots, hover output,
-logs or Language Server Protocol responses.
+Environment values aren't included in indexes, hover output, logs or Language
+Server Protocol responses.

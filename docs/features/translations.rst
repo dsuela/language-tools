@@ -15,9 +15,9 @@ placeholder completion are available in statically recognized call arguments.
 Resources
 ---------
 
-Definitions are indexed from YAML, JSON, XLIFF and PHP resources under a
+Definitions are read from YAML, JSON, XLIFF and PHP resources under a
 ``translations/`` directory. Nested YAML and JSON keys use dot notation.
-Unsaved resource changes overlay the disk-backed index.
+Unsaved resource changes are available immediately.
 
 Hover and Navigation
 --------------------
@@ -42,5 +42,5 @@ Enable missing-key diagnostics in a project or workspace-folder setting:
     }
 
 The setting is resource-scoped, so each folder in a multi-root workspace can
-choose independently. Runtime catalogue messages are kept inside workspace
-snapshots and aren't written to logs or telemetry.
+choose independently. Runtime catalogue messages aren't written to logs or
+telemetry.

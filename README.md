@@ -1,13 +1,13 @@
-# Symfony LSP
+# Symfony Language Tools
 
-Symfony LSP adds Symfony-aware completion, hover, navigation, references,
-diagnostics, code actions, rename support, and code lenses while working
-alongside a general PHP language server.
+Symfony Language Tools adds Symfony-aware completion, hover, navigation,
+references, diagnostics, code actions, rename support and code lenses through
+Symfony LSP. It works alongside a general PHP language server.
 
-It understands routing, dependency injection, Twig, translations, environment
+Features cover routing, dependency injection, Twig, translations, environment
 variables, bundle configuration, Messenger, events, Security, forms,
-validation, serializer metadata, AssetMapper, Stimulus, Live Components, and
-Doctrine metadata.
+validation, serializer metadata, AssetMapper, Stimulus, Live Components and
+Doctrine. See the [supported integrations](docs/features/index.rst) for details.
 
 ## Installation
 
@@ -53,8 +53,8 @@ commands, statuslines, custom settings and troubleshooting.
 Download the archive for your platform from
 [GitHub Releases](https://github.com/symfony/language-tools/releases). Extract
 it and keep the `symfony-lsp` language server and
-`symfony-lsp-tree-sitter` sidecar in the same directory. Verify the server
-before configuring your Language Server Protocol client:
+`symfony-lsp-tree-sitter` sidecar in the same directory. On Unix, verify the
+server before configuring your Language Server Protocol client:
 
 ```console
 ./symfony-lsp --version
@@ -65,34 +65,26 @@ for supported platforms, checksum verification and source installation.
 
 ## Requirements
 
-Symfony LSP supports FrameworkBundle branches listed in Symfony's
-[`supported_versions`](https://symfony.com/releases.json) release metadata. The
-application needs PHP and Composer so the project bridge can inspect its
-compiled Symfony metadata.
+Symfony Language Tools supports maintained Symfony versions listed in Symfony's
+[release metadata](https://symfony.com/releases.json). Runtime indexing requires
+the application's Composer dependencies to be installed and a PHP command
+compatible with its Symfony version.
 
 ## Documentation
 
-Start with the [Symfony LSP documentation](docs/index.rst) for supported
-integrations, installation, editor configuration, architecture, testing, and
-release procedures.
+- [Supported Symfony integrations](docs/features/index.rst)
+- [Visual Studio Code guide](docs/editors/vscode.rst)
+- [Neovim guide](docs/editors/neovim.rst)
+- [Standalone server guide](docs/index.rst)
+- [Changelog](CHANGELOG.md)
 
-## Development
+## Security
 
-A source checkout requires PHP 8.4 or later, Composer 2, Node.js, npm, Neovim
-0.11.3 or later, StyLua and a C build toolchain:
-
-```console
-composer install
-composer tree-sitter:build
-composer test
-composer phpstan
-composer cs-check
-stylua --check lsp lua editor/neovim/tests
-./tools/test-neovim
-```
+Read the [security policy](SECURITY.md) to report a potential vulnerability
+privately.
 
 ## License
 
-Symfony LSP is available under the [MIT License](LICENSE). Distributions also
-include the applicable [third-party notices](THIRD_PARTY_NOTICES.md) and license
-texts.
+Symfony Language Tools is available under the [MIT License](LICENSE).
+Distributions also include the applicable
+[third-party notices](THIRD_PARTY_NOTICES.md) and license texts.

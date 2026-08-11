@@ -1,10 +1,10 @@
 Security
 ========
 
-The Security integration combines effective SecurityBundle configuration with
-application-owned PHP, Twig, and YAML source indexes. It understands firewalls,
-user providers, role hierarchy, configured authenticators, registered voters,
-and recognized authorization checks in the selected Symfony environment.
+The Security integration understands effective SecurityBundle configuration
+and recognized authorization checks in application-owned PHP, Twig and YAML
+files. It supports firewalls, user providers, role hierarchy, configured
+authenticators and registered voters in the selected Symfony environment.
 
 Completion
 ----------
@@ -39,26 +39,14 @@ SecurityBundle YAML configuration.
 Diagnostics
 -----------
 
-After a complete runtime snapshot is available, definitely unknown user
-providers and firewall names are reported. Unknown authorization attributes and
+After complete runtime metadata is available, definitely unknown user providers
+and firewall names are reported. Unknown authorization attributes and
 roles aren't diagnosed because custom voters define an open set of valid
 attributes.
 
-Security and Privacy
---------------------
+Privacy
+-------
 
-The bridge reads structured effective security configuration and immediately
-reduces it to names, relationships, types, and boolean metadata. In-memory user
-names, password hashes, LDAP settings, and other provider values never enter the
-snapshot or Language Server Protocol responses.
-
-Static and Runtime Indexing
----------------------------
-
-The runtime bridge uses ``debug:config security --format=json`` for effective
-firewall, provider, authenticator, and role-hierarchy metadata. Registered voter
-classes come from structured container tag metadata. It doesn't parse the
-text-only ``debug:firewall`` command.
-
-The source index scans application-owned PHP, Twig, and YAML files. Unsaved
-documents overlay the disk-backed index immediately.
+Symfony LSP uses names, relationships, types and boolean metadata for Security
+features. User names, password hashes, LDAP settings and other provider values
+never enter indexes or Language Server Protocol responses.

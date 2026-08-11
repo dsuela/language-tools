@@ -34,15 +34,3 @@ has loaded. Dynamic entrypoint expressions are ignored.
 
 Unknown ``asset()`` paths aren't diagnosed. Symfony's asset package can
 legitimately fall back to a public path that isn't part of AssetMapper.
-
-Runtime and Source Indexes
---------------------------
-
-The trusted project bridge reads effective AssetMapper repository paths from the
-structured container metadata, applies configured exclusions and enumerates
-application and bundle assets. It reads normalized importmap names, paths,
-versions and entrypoint flags without exposing package contents.
-
-The source index records static Twig references and application entrypoint
-declarations. Open ``importmap.php`` and Twig documents overlay saved facts, so
-completion and navigation reflect unsaved entrypoint and reference changes.

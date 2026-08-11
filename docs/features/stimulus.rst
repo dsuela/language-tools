@@ -40,10 +40,11 @@ dynamically.
 Live Components
 ---------------
 
-Symfony LSP indexes ``#[AsLiveComponent]``, ``#[LiveProp]``, ``#[LiveAction]``
-and ``#[LiveListener]`` attributes. Live properties are included in component
-property completion. Actions are completed in ``data-live-action-param``
-attributes and ``live_action()`` calls when the containing component is known.
+Symfony LSP recognizes ``#[AsLiveComponent]``, ``#[LiveProp]``,
+``#[LiveAction]`` and ``#[LiveListener]`` attributes. Live properties are
+included in component property completion. Actions are completed in
+``data-live-action-param`` attributes and ``live_action()`` calls when the
+containing component is known.
 
 Hover identifies Live Components and their properties and actions. Go to
 Definition and Find All References connect action attributes to their PHP
@@ -53,26 +54,11 @@ Events declared by ``#[LiveListener]`` are completed in static ``emit()`` calls
 inside Live Components. Hover shows listeners, Go to Definition opens listener
 declarations and Find All References lists static emitters and listeners.
 
-Runtime and Source Indexes
---------------------------
-
-The trusted project bridge reads effective ``stimulus`` configuration through
-``debug:config --format=json``. It scans configured controller paths and
-``controllers.json``, including enabled controllers from installed Symfony UX
-packages. Package metadata is read from Composer installation paths and package
-manifests.
-
-The source index reads application JavaScript and TypeScript controllers under
-``assets/controllers/``. It extracts conventional controller names, class
-methods and static targets, values, outlets and CSS classes. Open JavaScript,
-TypeScript, PHP and Twig documents overlay the persistent source index, so
-unsaved declarations and references are immediately available.
-
 Current Limitations
 -------------------
 
 Only conventional ``*_controller.js`` and ``*_controller.ts`` application
-controllers are source-indexed. Runtime indexing still discovers custom
-controller paths and installed Symfony UX package controllers. Dynamic
-controller registration, computed action names, inherited actions and dynamic
+controllers are recognized directly from project files. Runtime indexing also
+discovers custom controller paths and installed Symfony UX package controllers.
+Dynamic controller registration, computed action names, inherited actions and
 Live Component event names are ignored.
