@@ -1,5 +1,5 @@
 {
-  "name": "lsp",
+  "name": "language-tools",
   "displayName": "Symfony LSP",
   "publisher": "symfony",
   "description": "Symfony-aware completion, navigation and diagnostics through Symfony LSP",

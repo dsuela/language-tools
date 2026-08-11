@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Publish the VS Code extension as symfony.language-tools
+
 ## 0.7.0 (2026-08-11)
 
 - Publish VS Code extensions under the symfony Marketplace publisher

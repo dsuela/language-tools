@@ -17,14 +17,14 @@ Install a stable Symfony LSP release from the Visual Studio Marketplace:
 
 .. code-block:: terminal
 
-    $ code --install-extension symfony.lsp
+    $ code --install-extension symfony.language-tools
 
 Versions with a prerelease suffix are published separately on the prerelease
 channel:
 
 .. code-block:: terminal
 
-    $ code --install-extension symfony.lsp --pre-release
+    $ code --install-extension symfony.language-tools --pre-release
 
 The Marketplace selects the package matching the extension host. Packages are
 available for Linux x64 and ARM64, macOS x64 and ARM64 and Windows x64. Each

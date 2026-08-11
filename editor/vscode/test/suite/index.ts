@@ -20,7 +20,7 @@ export async function run(): Promise<void> {
     assert.ok(workspace, 'The RuntimeApplication workspace was not opened.');
     setWorkspace(workspace);
 
-    const extension = vscode.extensions.getExtension('symfony.lsp');
+    const extension = vscode.extensions.getExtension('symfony.language-tools');
     assert.ok(extension, 'The Symfony LSP development extension was not found.');
     await extension.activate();
 

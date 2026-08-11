@@ -12,10 +12,10 @@ Doctrine metadata.
 ## Installation
 
 Install the self-contained VS Code extension from the
-[Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=symfony.lsp):
+[Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=symfony.language-tools):
 
 ```console
-code --install-extension symfony.lsp
+code --install-extension symfony.language-tools
 ```
 
 Add `--pre-release` to install a version with a prerelease suffix.
