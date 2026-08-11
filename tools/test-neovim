@@ -20,7 +20,20 @@ run_test() {
 cd "$ROOT"
 run_test editor/neovim/tests/unit.lua
 run_test editor/neovim/tests/integration.lua
-SYMFONY_LSP_PLUGIN_SOURCE="file://$ROOT"
-SYMFONY_LSP_PLUGIN_REVISION=$(git rev-parse HEAD)
+
+PACKAGE_REPOSITORY="$STATE/package-repository"
+PACKAGE_ARCHIVE="$STATE/package.tar"
+mkdir -p "$PACKAGE_REPOSITORY"
+git archive --format=tar --output="$PACKAGE_ARCHIVE" HEAD
+tar -xf "$PACKAGE_ARCHIVE" -C "$PACKAGE_REPOSITORY"
+rm "$PACKAGE_ARCHIVE"
+git -C "$PACKAGE_REPOSITORY" init --quiet --initial-branch=package-test
+git -C "$PACKAGE_REPOSITORY" add .
+git -C "$PACKAGE_REPOSITORY" \
+    -c user.name='Symfony LSP Tests' \
+    -c user.email='symfony-lsp-tests@localhost' \
+    commit --quiet -m 'Create package test repository'
+SYMFONY_LSP_PLUGIN_REVISION=$(git -C "$PACKAGE_REPOSITORY" rev-parse HEAD)
+SYMFONY_LSP_PLUGIN_SOURCE="file://$PACKAGE_REPOSITORY"
 export SYMFONY_LSP_PLUGIN_SOURCE SYMFONY_LSP_PLUGIN_REVISION
 run_test editor/neovim/tests/package.lua

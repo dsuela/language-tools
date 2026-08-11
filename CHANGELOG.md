@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Validate Neovim package installation from tagged checkouts
 - Name the VS Code extension Symfony Language Tools
 
 ## 0.8.0 (2026-08-11)
