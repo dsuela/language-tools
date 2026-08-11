@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6636468d113242a5cabf46c5dfa665c1",
+    "content-hash": "ceadb46612f116fe8a86e1b1ca6f4ec2",
     "packages": [
         {
             "name": "amphp/amp",
@@ -503,16 +503,16 @@
         },
         {
             "name": "fabpot/json-rpc-peer",
-            "version": "dev-main",
+            "version": "v0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/fabpot/json-rpc-peer.git",
-                "reference": "ab6975b9eb95aa041887289023dd58e04be52ff8"
+                "reference": "4006d14f8d2705a7874c7ee13dc6849e65b19d32"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fabpot/json-rpc-peer/zipball/ab6975b9eb95aa041887289023dd58e04be52ff8",
-                "reference": "ab6975b9eb95aa041887289023dd58e04be52ff8",
+                "url": "https://api.github.com/repos/fabpot/json-rpc-peer/zipball/4006d14f8d2705a7874c7ee13dc6849e65b19d32",
+                "reference": "4006d14f8d2705a7874c7ee13dc6849e65b19d32",
                 "shasum": ""
             },
             "require": {
@@ -535,7 +535,6 @@
                 "amphp/websocket": "To exchange JSON-RPC messages over WebSocket connections (requires ^2).",
                 "psr/log": "To forward JSON-RPC traffic to a PSR-3 logger (requires ^1|^2|^3)."
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -564,7 +563,7 @@
             ],
             "support": {
                 "issues": "https://github.com/fabpot/json-rpc-peer/issues",
-                "source": "https://github.com/fabpot/json-rpc-peer/tree/main"
+                "source": "https://github.com/fabpot/json-rpc-peer/tree/v0.6"
             },
             "funding": [
                 {
@@ -572,7 +571,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-08-07T08:25:54+00:00"
+            "time": "2026-08-07T08:35:42+00:00"
         },
         {
             "name": "fabpot/tolerant-php-parser",
@@ -3525,9 +3524,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "fabpot/json-rpc-peer": 20
-    },
+    "stability-flags": {},
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
