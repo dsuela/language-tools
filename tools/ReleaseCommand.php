@@ -15,7 +15,6 @@ final class ReleaseCommand
     private const EXPECTED_RELEASE_FILES = [
         'CHANGELOG.md',
         'docs/editors/neovim.rst',
-        'docs/editors/vscode.rst',
         'docs/index.rst',
         'editor/vscode/package-lock.json',
         'editor/vscode/package.json',
@@ -167,7 +166,7 @@ final class ReleaseCommand
         if ("return '{$version}'\n" !== $this->read($this->root.'/lua/symfony_lsp/version.lua')) {
             throw new \RuntimeException('The Neovim plugin version does not match the release.');
         }
-        foreach (['docs/index.rst', 'docs/editors/vscode.rst', 'docs/editors/neovim.rst'] as $path) {
+        foreach (['docs/index.rst', 'docs/editors/neovim.rst'] as $path) {
             if (!str_contains($this->read($this->root.'/'.$path), $version)) {
                 throw new \RuntimeException(\sprintf('%s does not reference version %s.', $path, $version));
             }

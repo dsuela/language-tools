@@ -32,7 +32,7 @@ final class ReleaseMetadataUpdater
         }
         $updates[$neovimVersionPath] = "return '{$version}'\n";
 
-        foreach (['docs/index.rst', 'docs/editors/vscode.rst', 'docs/editors/neovim.rst'] as $relativePath) {
+        foreach (['docs/index.rst', 'docs/editors/neovim.rst'] as $relativePath) {
             $path = $root.'/'.$relativePath;
             $contents = $this->read($path);
             if (!str_contains($contents, $currentVersion)) {

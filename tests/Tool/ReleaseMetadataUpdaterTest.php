@@ -34,7 +34,7 @@ final class ReleaseMetadataUpdaterTest extends TestCase
             file_get_contents($this->directory.'/CHANGELOG.md'),
         );
         self::assertSame("Install 0.3.1\n", file_get_contents($this->directory.'/docs/index.rst'));
-        self::assertSame("Build 0.3.1\n", file_get_contents($this->directory.'/docs/editors/vscode.rst'));
+        self::assertSame("VS Code user guide\n", file_get_contents($this->directory.'/docs/editors/vscode.rst'));
         self::assertSame("Configure 0.3.1\n", file_get_contents($this->directory.'/docs/editors/neovim.rst'));
         self::assertSame("return '0.3.1'\n", file_get_contents($this->directory.'/lua/symfony_lsp/version.lua'));
     }
@@ -42,7 +42,7 @@ final class ReleaseMetadataUpdaterTest extends TestCase
     public function testDoesNotPartiallyUpdateInvalidMetadata(): void
     {
         $this->writeFixture("- Add release automation\n");
-        file_put_contents($this->directory.'/docs/editors/vscode.rst', "Build dev\n");
+        file_put_contents($this->directory.'/docs/editors/neovim.rst', "Configure dev\n");
         $changelog = file_get_contents($this->directory.'/CHANGELOG.md');
 
         $this->expectException(\RuntimeException::class);
@@ -53,6 +53,7 @@ final class ReleaseMetadataUpdaterTest extends TestCase
         } finally {
             self::assertSame($changelog, file_get_contents($this->directory.'/CHANGELOG.md'));
             self::assertSame("Install 0.3.0\n", file_get_contents($this->directory.'/docs/index.rst'));
+            self::assertSame("Configure dev\n", file_get_contents($this->directory.'/docs/editors/neovim.rst'));
             self::assertSame("return '0.3.0'\n", file_get_contents($this->directory.'/lua/symfony_lsp/version.lua'));
         }
     }
@@ -79,7 +80,7 @@ final class ReleaseMetadataUpdaterTest extends TestCase
             "# Changelog\n\n## Unreleased\n\n{$entries}\n## 0.3.0 (2026-08-04)\n",
         );
         file_put_contents($this->directory.'/docs/index.rst', "Install 0.3.0\n");
-        file_put_contents($this->directory.'/docs/editors/vscode.rst', "Build 0.3.0\n");
+        file_put_contents($this->directory.'/docs/editors/vscode.rst', "VS Code user guide\n");
         file_put_contents($this->directory.'/docs/editors/neovim.rst', "Configure 0.3.0\n");
         file_put_contents($this->directory.'/lua/symfony_lsp/version.lua', "return '0.3.0'\n");
     }
