@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+# Generates docs/vscode-guide/images/tour.gif and tour.mp4, an animated tour of
+# the capabilities, from the guide screenshots. Requires ImageMagick and ffmpeg.
+set -euo pipefail
+
+cd "$(dirname "$0")/../docs/vscode-guide"
+
+FONT_BOLD="${FONT_BOLD:-/System/Library/Fonts/Supplemental/Arial Bold.ttf}"
+FONT_REGULAR="${FONT_REGULAR:-/System/Library/Fonts/Supplemental/Arial.ttf}"
+
+WIDTH=960
+HEIGHT=600
+BAND=72
+BG="#1a1e26"
+ACCENT="#8ab4f8"
+DELAY=275 # per slide, in 1/100s
+
+WORK="$(mktemp -d)"
+trap 'rm -rf "$WORK"' EXIT
+
+SLIDES=(
+    "route-completion|Completion|Suggestions from effective runtime metadata and application source"
+    "route-hover|Hover|Inspect framework metadata without leaving the call site"
+    "definition|Definition and Document Links|Open declarations directly or peek at a target inline"
+    "references|Find All References|Declarations and static usages across PHP, Twig and configuration"
+    "rename|Rename|Update declarations and every statically recognized reference"
+    "diagnostics|Diagnostics|High-confidence errors inline and in the Problems panel"
+    "quick-fix|Quick Fixes|Safe edits for missing route parameters, templates and translations"
+    "code-lenses|Code Lenses|Messenger, events, Twig components, Stimulus and Doctrine relationships"
+    "dependency-injection|Dependency Injection|Effective services, aliases, autowiring types and parameters"
+    "twig-templates|Twig Templates|Template names, render variables and component metadata"
+    "translations|Translations|Keys, domains, locales and placeholders across PHP and Twig"
+    "doctrine|Doctrine|Entities, repositories and their relationships"
+    "command-palette|Index Commands|Manage source and runtime indexes from the Command Palette"
+)
+
+card() {
+    local out="$1" line1="$2" line2="$3" line3="$4"
+    magick -size "${WIDTH}x$((HEIGHT + BAND))" "xc:$BG" \
+        -gravity center \
+        -font "$FONT_BOLD" -pointsize 44 -fill white -annotate +0-40 "$line1" \
+        -font "$FONT_REGULAR" -pointsize 24 -fill "$ACCENT" -annotate +0+20 "$line2" \
+        -font "$FONT_REGULAR" -pointsize 18 -fill "#9aa3b2" -annotate +0+70 "$line3" \
+        "$out"
+}
+
+card "$WORK/frame-00.png" "Symfony LSP for VS Code" \
+    "A quick tour of the capabilities" \
+    "Screenshots taken in the Symfony Demo application"
+
+i=1
+for slide in "${SLIDES[@]}"; do
+    IFS='|' read -r image title text <<<"$slide"
+    magick "images/$image.webp" -resize "${WIDTH}x${HEIGHT}" \
+        -background "$BG" -gravity center -extent "${WIDTH}x${HEIGHT}" \
+        \( -size "${WIDTH}x${BAND}" "xc:$BG" -gravity northwest \
+            -font "$FONT_BOLD" -pointsize 21 -fill white -annotate +24+10 "$title" \
+            -font "$FONT_REGULAR" -pointsize 16 -fill "#9aa3b2" -annotate +24+42 "$text" \) \
+        -append "$(printf '%s/frame-%02d.png' "$WORK" "$i")"
+    i=$((i + 1))
+done
+
+card "$(printf '%s/frame-%02d.png' "$WORK" "$i")" "Try it on your project" \
+    "code --install-extension symfony.language-tools" \
+    "github.com/symfony/language-tools"
+
+magick -delay "$DELAY" "$WORK"/frame-*.png -loop 0 -layers optimize images/tour.gif
+
+ffmpeg -y -loglevel error -framerate "100/$DELAY" -i "$WORK/frame-%02d.png" \
+    -c:v libx264 -pix_fmt yuv420p -movflags +faststart images/tour.mp4
+
+echo "Generated images/tour.gif and images/tour.mp4"
