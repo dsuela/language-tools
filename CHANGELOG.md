@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Publish a guided Marketplace overview with a capability tour for the VS Code extension
+
 ## 0.8.3 (2026-08-13)
 
 - Replace the first-party Neovim plugin with an nvim-lspconfig integration

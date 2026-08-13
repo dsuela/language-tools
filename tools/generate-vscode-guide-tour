@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Generates docs/vscode-guide/images/tour.mp4, the video tour embedded in
-# features.html, from the guide screenshots. Requires ImageMagick and ffmpeg.
+# Generates editor/vscode/images/guide/tour.gif, the capability tour embedded
+# in the Marketplace overview, from the guide screenshots. Requires ImageMagick.
 set -euo pipefail
 
-cd "$(dirname "$0")/../docs/vscode-guide"
+cd "$(dirname "$0")/../editor/vscode/images/guide"
 
 FONT_BOLD="${FONT_BOLD:-/System/Library/Fonts/Supplemental/Arial Bold.ttf}"
 FONT_REGULAR="${FONT_REGULAR:-/System/Library/Fonts/Supplemental/Arial.ttf}"
@@ -69,7 +69,7 @@ card "$WORK/frame-00.png" "Symfony LSP for VS Code" \
 i=1
 for slide in "${SLIDES[@]}"; do
     IFS='|' read -r image title text <<<"$slide"
-    magick "images/$image.webp" -resize "${WIDTH}x${HEIGHT}" \
+    magick "$image.webp" -resize "${WIDTH}x${HEIGHT}" \
         -background "$BG" -gravity center -extent "${WIDTH}x${HEIGHT}" \
         \( -size "${WIDTH}x${BAND}" "xc:$BG" -gravity northwest \
             -font "$FONT_BOLD" -pointsize 21 -fill white -annotate +24+10 "$title" \
@@ -82,7 +82,6 @@ card "$(printf '%s/frame-%02d.png' "$WORK" "$i")" "Try it on your project" \
     "code --install-extension symfony.language-tools" \
     "github.com/symfony/language-tools"
 
-ffmpeg -y -loglevel error -framerate "100/$DELAY" -i "$WORK/frame-%02d.png" \
-    -c:v libx264 -pix_fmt yuv420p -movflags +faststart images/tour.mp4
+magick -delay "$DELAY" "$WORK"/frame-*.png -loop 0 -layers optimize tour.gif
 
-echo "Generated images/tour.mp4"
+echo "Generated editor/vscode/images/guide/tour.gif"

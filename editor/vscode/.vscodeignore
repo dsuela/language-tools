@@ -7,3 +7,4 @@ out/**
 !out/extension.js
 tsconfig.json
 tsconfig.test.json
+images/guide/

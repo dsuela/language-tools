@@ -40,7 +40,7 @@
     "compile": "npm run check && esbuild src/extension.ts --bundle --platform=node --format=cjs --outfile=out/extension.js --external:vscode",
     "compile:production": "npm run check && esbuild src/extension.ts --bundle --platform=node --format=cjs --minify --outfile=out/extension.js --external:vscode",
     "compile-tests": "tsc -p ./tsconfig.test.json",
-    "package": "npm run compile:production && vsce package",
+    "package": "npm run compile:production && vsce package --readme-path MARKETPLACE.md --baseImagesUrl https://github.com/symfony/language-tools/raw/HEAD/editor/vscode",
     "prepackage": "node tools/prepareLicenses.mjs",
     "test:e2e": "npm run compile && npm run compile-tests && node out/test/runTest.js"
   },
