@@ -127,9 +127,9 @@ function projectUri(string $path): string
     return 'file://'.str_replace('%2F', '/', rawurlencode($path));
 }
 
-function bridgeGeneration(string $bridge, string $project, string $section): ?string
+function bridgeGeneration(string $bridge, string $project, string $environment, string $section): ?string
 {
-    $command = [\PHP_BINARY, $bridge, '--project='.$project, '--environment=dev', '--debug=1', '--sections='.$section];
+    $command = [\PHP_BINARY, $bridge, '--project='.$project, '--environment='.$environment, '--debug=1', '--sections='.$section];
     $process = proc_open($command, [['pipe', 'r'], ['pipe', 'w'], ['pipe', 'w']], $pipes, options: ['bypass_shell' => true]);
     if (!is_resource($process)) {
         throw new RuntimeException('Unable to start the project bridge.');
@@ -275,6 +275,7 @@ $cases = [
     ],
 ];
 
+$environmentName = 'symfony_lsp_benchmark';
 $probeDirectory = $project.'/var/symfony-lsp/runtime-refresh-benchmark';
 if (file_exists($probeDirectory)) {
     throw new RuntimeException('The runtime refresh benchmark is already running.');
@@ -307,7 +308,12 @@ try {
         'rootUri' => $rootUri,
         'workspaceFolders' => [['uri' => $rootUri, 'name' => basename($project)]],
         'capabilities' => new stdClass(),
-        'initializationOptions' => ['workspaceTrust' => true, 'runtimeIndexing' => true, 'phpCommand' => [$phpWrapper]],
+        'initializationOptions' => [
+            'workspaceTrust' => true,
+            'runtimeIndexing' => true,
+            'phpCommand' => [$phpWrapper],
+            'environment' => $environmentName,
+        ],
     ]]);
     response($pipes[0], $pipes[1], $id, 30.0);
     writeMessage($pipes[0], ['jsonrpc' => '2.0', 'method' => 'initialized', 'params' => []]);
@@ -321,7 +327,7 @@ try {
             throw new RuntimeException('Unable to read '.$case['file'].'.');
         }
         $activeCase['original'] = $original;
-        $beforeGeneration = bridgeGeneration($bridge, $project, $case['section']);
+        $beforeGeneration = bridgeGeneration($bridge, $project, $environmentName, $case['section']);
         file_put_contents($commandLog, '');
 
         if (isset($case['create'])) {
@@ -361,7 +367,7 @@ try {
             }
         }
         $requestedSections = array_values(array_unique($requestedSections));
-        $afterGeneration = bridgeGeneration($bridge, $project, $case['section']);
+        $afterGeneration = bridgeGeneration($bridge, $project, $environmentName, $case['section']);
         $generationChanged = $beforeGeneration !== $afterGeneration;
         $timePassed = $seconds < $case['budgetSeconds'];
         $containerPassed = $containerPreserved === $case['preserveContainer'];

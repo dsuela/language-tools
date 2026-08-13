@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Replace the first-party Neovim plugin with an nvim-lspconfig integration
+- Isolate runtime refresh benchmarks from active editor processes
 
 ## 0.8.2 (2026-08-11)
 
