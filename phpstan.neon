@@ -11,3 +11,4 @@ parameters:
     excludePaths:
         analyseAndScan:
             - tests/Fixtures/RuntimeApplication/*
+            - tools/vscode-guide-scenarios/*
