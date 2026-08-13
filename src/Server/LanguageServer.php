@@ -144,7 +144,7 @@ final class LanguageServer
                 ],
             ],
             'serverInfo' => [
-                'name' => 'Symfony LSP',
+                'name' => 'Symfony Language Tools',
                 'version' => $this->version,
             ],
         ];

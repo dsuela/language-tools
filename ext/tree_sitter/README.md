@@ -1,6 +1,6 @@
-# Symfony LSP Tree-sitter extension
+# Symfony Language Tools Tree-sitter extension
 
-This PHP extension bundles only the Tree-sitter runtime and the grammars needed by Symfony LSP. It performs no network access at runtime.
+This PHP extension bundles only the Tree-sitter runtime and the grammars needed by Symfony Language Tools. It performs no network access at runtime.
 
 The vendored sources are pinned to:
 

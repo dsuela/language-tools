@@ -21,13 +21,13 @@ final class SidecarTreeSitterParser implements TreeSitterParserInterface
     public function parse(string $language, string $source): TreeSitterTree
     {
         if (!is_file($this->executable) || !is_executable($this->executable)) {
-            throw new \RuntimeException('The Symfony LSP Tree-sitter sidecar is not executable.');
+            throw new \RuntimeException('The Symfony Language Tools Tree-sitter sidecar is not executable.');
         }
 
         try {
             $process = Process::start([$this->executable, $language], options: ['bypass_shell' => true]);
         } catch (ProcessException $error) {
-            throw new \RuntimeException('Unable to start the Symfony LSP Tree-sitter sidecar.', previous: $error);
+            throw new \RuntimeException('Unable to start the Symfony Language Tools Tree-sitter sidecar.', previous: $error);
         }
 
         $futures = [
@@ -43,7 +43,7 @@ final class SidecarTreeSitterParser implements TreeSitterParserInterface
             $process->kill();
             awaitAll($futures);
 
-            throw new \RuntimeException('Unable to send source to the Symfony LSP Tree-sitter sidecar.', previous: $error);
+            throw new \RuntimeException('Unable to send source to the Symfony Language Tools Tree-sitter sidecar.', previous: $error);
         }
 
         try {
@@ -53,17 +53,17 @@ final class SidecarTreeSitterParser implements TreeSitterParserInterface
             $process->kill();
             awaitAll($futures);
 
-            throw new \RuntimeException('The Symfony LSP Tree-sitter sidecar failed.', previous: $error);
+            throw new \RuntimeException('The Symfony Language Tools Tree-sitter sidecar failed.', previous: $error);
         }
 
         if (0 !== $result['exitCode']) {
-            throw new \RuntimeException('The Symfony LSP Tree-sitter sidecar failed: '.trim($result['stderr']));
+            throw new \RuntimeException('The Symfony Language Tools Tree-sitter sidecar failed: '.trim($result['stderr']));
         }
 
         try {
             $result = json_decode($result['stdout'], true, flags: \JSON_THROW_ON_ERROR);
         } catch (\JsonException $exception) {
-            throw new \RuntimeException('The Symfony LSP Tree-sitter sidecar returned invalid JSON.', previous: $exception);
+            throw new \RuntimeException('The Symfony Language Tools Tree-sitter sidecar returned invalid JSON.', previous: $exception);
         }
 
         return $this->decoder->decode($result, \strlen($source));

@@ -1,7 +1,7 @@
 # Third-Party Notices
 
-Symfony LSP distributions include third-party software under the licenses
-identified below. The corresponding license texts are available under
+Symfony Language Tools distributions include third-party software under the
+licenses identified below. The corresponding license texts are available under
 `THIRD_PARTY_LICENSES/`.
 
 ## PHP Language Server

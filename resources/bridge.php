@@ -1,7 +1,7 @@
 <?php
 
 if (PHP_VERSION_ID < 80100) {
-    fwrite(STDERR, "Symfony LSP's project bridge requires PHP 8.1 or newer.\n");
+    fwrite(STDERR, "The Symfony Language Tools project bridge requires PHP 8.1 or newer.\n");
     exit(1);
 }
 

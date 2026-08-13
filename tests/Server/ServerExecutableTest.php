@@ -36,7 +36,7 @@ final class ServerExecutableTest extends TestCase
         self::assertSame(1, $result['exitCode']);
         self::assertSame('', $result['stdout']);
         self::assertMatchesRegularExpression(
-            '{^Symfony LSP failed: .+ at (?:src|vendor)/.+:\d+: .+\n$}',
+            '{^Symfony Language Tools failed: .+ at (?:src|vendor)/.+:\d+: .+\n$}',
             $result['stderr'],
         );
         self::assertStringContainsString('A JSON-RPC message header is malformed.', $result['stderr']);

@@ -386,7 +386,7 @@ focus_completion() {
 
 refresh_index() {
     open_command_palette "$1"
-    node "$cdp" "$1" text 'Symfony LSP: Refresh Index'
+    node "$cdp" "$1" text 'Symfony Language Tools: Refresh Index'
     sleep 1
     node "$cdp" "$1" key 0 Enter Enter 13
     sleep 2
@@ -448,7 +448,7 @@ show_environment_picker() {
     local port="$1" expression="$2" attempt
     for attempt in 1 2 3; do
         open_command_palette "$port"
-        node "$cdp" "$port" text 'Symfony LSP: Switch Environment'
+        node "$cdp" "$port" text 'Symfony Language Tools: Switch Environment'
         sleep 1
         node "$cdp" "$port" key 0 Enter Enter 13
         if node "$cdp" "$port" wait "$expression" 10; then
@@ -624,8 +624,8 @@ fi
 if is_selected command-palette; then
     move_pointer "$demo_port"
     open_command_palette "$demo_port"
-    node "$cdp" "$demo_port" text 'Symfony LSP:'
-    node "$cdp" "$demo_port" wait 'document.body.innerText.includes("Symfony LSP: Refresh Index") && document.body.innerText.includes("Symfony LSP: Switch Environment")' 15
+    node "$cdp" "$demo_port" text 'Symfony Language Tools:'
+    node "$cdp" "$demo_port" wait 'document.body.innerText.includes("Symfony Language Tools: Refresh Index") && document.body.innerText.includes("Symfony Language Tools: Switch Environment")' 15
     dismiss_notifications "$demo_port"
     node "$cdp" "$demo_port" screenshot "$raw/command-palette.png"
     node "$cdp" "$demo_port" key 0 Escape Escape 27
@@ -738,8 +738,8 @@ if is_selected security; then
 fi
 
 if is_selected translations; then
-    home_method=$'    public function __invoke(): Response\n    {\n        return new Response(\'Symfony LSP compatibility fixture\');\n    }'
-    home_translation=$'    public function __invoke(\\Symfony\\Contracts\\Translation\\TranslatorInterface $translator): Response\n    {\n        $translator->trans(\'fixture.message\');\n\n        return new Response(\'Symfony LSP compatibility fixture\');\n    }'
+    home_method=$'    public function __invoke(): Response\n    {\n        return new Response(\'Symfony Language Tools compatibility fixture\');\n    }'
+    home_translation=$'    public function __invoke(\\Symfony\\Contracts\\Translation\\TranslatorInterface $translator): Response\n    {\n        $translator->trans(\'fixture.message\');\n\n        return new Response(\'Symfony Language Tools compatibility fixture\');\n    }'
     replace_once "$lab_home_controller" "$home_method" "$home_translation"
     capture_hover "$lab_port" "$lab_profile" "$demo_extensions" translations "$lab_home_controller" "trans('fixture.message')" fixture.message 'Fixture translation'
     replace_once "$lab_home_controller" "$home_translation" "$home_method"

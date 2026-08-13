@@ -46,7 +46,7 @@ final class WorkspaceTrustManagerTest extends TestCase
         self::assertSame(TrustStatus::Trusted, $trust->status($project));
         self::assertSame('window/showMessageRequest', $client->requests[0]['method']);
         self::assertSame(
-            'Symfony LSP must execute application code to index runtime metadata for "/workspace".',
+            'Symfony Language Tools must execute application code to index runtime metadata for "/workspace".',
             $client->requests[0]['params']['message'],
         );
         self::assertSame(['/workspace'], $runtimeInitializer->projects);

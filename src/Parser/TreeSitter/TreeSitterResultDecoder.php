@@ -7,11 +7,11 @@ final class TreeSitterResultDecoder
     public function decode(mixed $result, int $sourceLength): TreeSitterTree
     {
         if (!\is_array($result)) {
-            throw new \RuntimeException('The Symfony LSP Tree-sitter parser returned an invalid tree.');
+            throw new \RuntimeException('The Symfony Language Tools Tree-sitter parser returned an invalid tree.');
         }
         $rawNodes = $result['nodes'] ?? null;
         if (!\is_bool($result['hasError'] ?? null) || !\is_array($rawNodes) || [] === $rawNodes || !array_is_list($rawNodes)) {
-            throw new \RuntimeException('The Symfony LSP Tree-sitter parser returned an invalid tree.');
+            throw new \RuntimeException('The Symfony Language Tools Tree-sitter parser returned an invalid tree.');
         }
 
         $children = array_fill(0, \count($rawNodes), []);
@@ -24,13 +24,13 @@ final class TreeSitterResultDecoder
             $parent = $node['parent'];
             if (-1 === $parent) {
                 if (0 !== $index) {
-                    throw new \RuntimeException('The Symfony LSP Tree-sitter parser returned more than one root node.');
+                    throw new \RuntimeException('The Symfony Language Tools Tree-sitter parser returned more than one root node.');
                 }
 
                 continue;
             }
             if ($parent < 0 || $parent >= $index) {
-                throw new \RuntimeException('The Symfony LSP Tree-sitter parser returned an invalid parent node.');
+                throw new \RuntimeException('The Symfony Language Tools Tree-sitter parser returned an invalid parent node.');
             }
             $children[$parent][] = $index;
         }
@@ -69,7 +69,7 @@ final class TreeSitterResultDecoder
             || !\is_bool($node['missing'] ?? null)
             || !\is_bool($node['hasError'] ?? null)
         ) {
-            throw new \RuntimeException('The Symfony LSP Tree-sitter parser returned an invalid node.');
+            throw new \RuntimeException('The Symfony Language Tools Tree-sitter parser returned an invalid node.');
         }
     }
 }

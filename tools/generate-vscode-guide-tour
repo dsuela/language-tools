@@ -62,7 +62,7 @@ card() {
         "$out"
 }
 
-card "$WORK/frame-00.png" "Symfony LSP for VS Code" \
+card "$WORK/frame-00.png" "Symfony Language Tools for VS Code" \
     "A tour of every capability" \
     "Captured in the Symfony Demo application"
 

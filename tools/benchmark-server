@@ -106,7 +106,7 @@ if (false === $server || false === $project || $iterations < 1) {
 $environment = false === $sidecar ? null : [...getenv(), 'SYMFONY_LSP_TREE_SITTER' => $sidecar];
 $process = proc_open([$server], [['pipe', 'r'], ['pipe', 'w'], ['pipe', 'w']], $pipes, env_vars: $environment, options: ['bypass_shell' => true]);
 if (!is_resource($process)) {
-    throw new RuntimeException('Unable to start Symfony LSP.');
+    throw new RuntimeException('Unable to start Symfony Language Tools.');
 }
 $status = proc_get_status($process);
 $pid = $status['pid'];

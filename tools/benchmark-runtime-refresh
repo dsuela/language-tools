@@ -294,7 +294,7 @@ if (!is_resource($process)) {
     unlink($phpWrapper);
     rmdir($probeDirectory);
 
-    throw new RuntimeException('Unable to start Symfony LSP.');
+    throw new RuntimeException('Unable to start Symfony Language Tools.');
 }
 
 $id = 1;

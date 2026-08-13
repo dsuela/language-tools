@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Rename every user-facing product string from Symfony LSP to Symfony Language Tools
+
 ## 0.8.5 (2026-08-13)
 
 - Publish a guided Marketplace overview with a capability tour for the VS Code extension

@@ -21,7 +21,7 @@ export async function run(): Promise<void> {
     setWorkspace(workspace);
 
     const extension = vscode.extensions.getExtension('symfony.language-tools');
-    assert.ok(extension, 'The Symfony LSP development extension was not found.');
+    assert.ok(extension, 'The Symfony Language Tools development extension was not found.');
     await extension.activate();
 
     const tests: TestCase[] = [

@@ -44,7 +44,7 @@ async function testBundledSidecarEnvironment(): Promise<void> {
         assert.equal(serverEnvironment(serverPath)?.SYMFONY_LSP_TREE_SITTER, sidecarPath);
         assert.equal(
             serverStartupMessage('1.2.3', serverPath, sidecarPath, 'bundled'),
-            `Symfony LSP extension 1.2.3 starting on ${process.platform}-${process.arch}; server (bundled): ${serverPath}; Tree-sitter sidecar: ${sidecarPath}.`,
+            `Symfony Language Tools extension 1.2.3 starting on ${process.platform}-${process.arch}; server (bundled): ${serverPath}; Tree-sitter sidecar: ${sidecarPath}.`,
         );
     } finally {
         await fs.promises.rm(directory, { force: true, recursive: true });

@@ -16,7 +16,7 @@ final class ServerLoggerTest extends TestCase
         $logger->fatal(new \RuntimeException('secret=exposed'));
 
         self::assertMatchesRegularExpression(
-            '{^Symfony LSP failed: RuntimeException at tests/Server/ServerLoggerTest\.php:\d+: secret=\[redacted\]\n$}',
+            '{^Symfony Language Tools failed: RuntimeException at tests/Server/ServerLoggerTest\.php:\d+: secret=\[redacted\]\n$}',
             $output->contents(),
         );
     }

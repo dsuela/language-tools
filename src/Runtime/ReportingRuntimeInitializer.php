@@ -29,8 +29,8 @@ final class ReportingRuntimeInitializer implements RuntimeInitializerInterface
                 'type' => 1,
                 'message' => \sprintf(
                     $stale
-                        ? 'Symfony LSP could not refresh runtime metadata for "%s". The last valid metadata remains active.'
-                        : 'Symfony LSP could not initialize runtime metadata for "%s". Static-only features remain active.',
+                        ? 'Symfony Language Tools could not refresh runtime metadata for "%s". The last valid metadata remains active.'
+                        : 'Symfony Language Tools could not initialize runtime metadata for "%s". Static-only features remain active.',
                     $project->rootPath(),
                 ),
             ]);

@@ -35,10 +35,10 @@ export class IndexStatusController implements vscode.Disposable {
         private readonly statusBar: vscode.StatusBarItem,
         private readonly output: vscode.LogOutputChannel,
     ) {
-        this.statusBar.name = 'Symfony LSP';
+        this.statusBar.name = 'Symfony Language Tools';
         this.statusBar.command = 'symfonyLsp.indexStatus';
         this.statusBar.text = '$(sync~spin) Symfony';
-        this.statusBar.tooltip = 'Symfony LSP is starting.';
+        this.statusBar.tooltip = 'Symfony Language Tools is starting.';
         this.statusBar.show();
     }
 
@@ -62,7 +62,7 @@ export class IndexStatusController implements vscode.Disposable {
 
     private async execute(command: string, arguments_: unknown[] = []): Promise<IndexStatus[]> {
         if (!indexStatusPollingEnabled(this.client.state)) {
-            void vscode.window.showErrorMessage('Symfony LSP server is not running.');
+            void vscode.window.showErrorMessage('Symfony Language Tools server is not running.');
 
             return this.statuses;
         }
@@ -88,7 +88,7 @@ export class IndexStatusController implements vscode.Disposable {
                     if (indexStatusPollingEnabled(this.client.state)) {
                         this.output.error(`Could not read index status: ${String(error)}`);
                         this.statusBar.text = '$(error) Symfony';
-                        this.statusBar.tooltip = 'Symfony LSP index status is unavailable.';
+                        this.statusBar.tooltip = 'Symfony Language Tools index status is unavailable.';
                     }
 
                     return this.statuses;
@@ -103,14 +103,14 @@ export class IndexStatusController implements vscode.Disposable {
 
     private async showStatus(): Promise<IndexStatus[]> {
         if (!indexStatusPollingEnabled(this.client.state)) {
-            void vscode.window.showErrorMessage('Symfony LSP server is not running.');
+            void vscode.window.showErrorMessage('Symfony Language Tools server is not running.');
 
             return this.statuses;
         }
 
         const statuses = await this.refresh();
         const message = 0 === statuses.length
-            ? 'Symfony LSP did not discover a Symfony application.'
+            ? 'Symfony Language Tools did not discover a Symfony application.'
             : statuses.map((status) => this.statusDescription(status)).join('\n');
         void vscode.window.showInformationMessage(message);
 
@@ -156,8 +156,8 @@ export class IndexStatusController implements vscode.Disposable {
         this.stopPolling();
         this.cancelScheduledRefresh();
         const description = State.Starting === state
-            ? 'Symfony LSP is starting.'
-            : 'Symfony LSP server is not running.';
+            ? 'Symfony Language Tools is starting.'
+            : 'Symfony Language Tools server is not running.';
         this.statusBar.text = State.Starting === state ? '$(sync~spin) Symfony' : '$(error) Symfony';
         this.statusBar.tooltip = description;
         this.statusBar.accessibilityInformation = { label: description };
@@ -181,7 +181,7 @@ export class IndexStatusController implements vscode.Disposable {
         const status = this.currentStatus();
         if (!status) {
             this.statusBar.text = '$(circle-outline) Symfony';
-            this.statusBar.tooltip = 'Symfony LSP did not discover a Symfony application.';
+            this.statusBar.tooltip = 'Symfony Language Tools did not discover a Symfony application.';
 
             return;
         }

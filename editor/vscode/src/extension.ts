@@ -17,7 +17,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
     if (!serverPath || !fs.existsSync(serverPath)) {
         void vscode.window.showErrorMessage(
-            'Symfony LSP executable not found. Install the extension package for this platform or configure symfonyLsp.serverPath.',
+            'Symfony Language Tools executable not found. Install the extension package for this platform or configure symfonyLsp.serverPath.',
         );
 
         return;
@@ -31,7 +31,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
             env: serverEnvironment(serverPath),
         },
     };
-    const outputChannel = vscode.window.createOutputChannel('Symfony LSP', { log: true });
+    const outputChannel = vscode.window.createOutputChannel('Symfony Language Tools', { log: true });
     context.subscriptions.push(outputChannel);
     const extensionVersion = 'string' === typeof context.extension.packageJSON.version
         ? context.extension.packageJSON.version
@@ -72,14 +72,14 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
     client = new LanguageClient(
         'symfonyLsp',
-        'Symfony LSP',
+        'Symfony Language Tools',
         serverOptions,
         clientOptions,
     );
     context.subscriptions.push(client);
     await client.start();
     const serverVersion = client.initializeResult?.serverInfo?.version;
-    outputChannel.info(`Symfony LSP server ${'string' === typeof serverVersion ? serverVersion : 'unknown'} initialized.`);
+    outputChannel.info(`Symfony Language Tools server ${'string' === typeof serverVersion ? serverVersion : 'unknown'} initialized.`);
 
     const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
     const statusController = new IndexStatusController(client, statusBar, outputChannel);
@@ -124,7 +124,7 @@ export function serverStartupMessage(
     serverKind: 'bundled' | 'configured' | 'development',
 ): string {
     return [
-        `Symfony LSP extension ${extensionVersion} starting on ${process.platform}-${process.arch};`,
+        `Symfony Language Tools extension ${extensionVersion} starting on ${process.platform}-${process.arch};`,
         `server (${serverKind}): ${serverPath};`,
         `Tree-sitter sidecar: ${sidecarPath ?? 'not resolved'}.`,
     ].join(' ');

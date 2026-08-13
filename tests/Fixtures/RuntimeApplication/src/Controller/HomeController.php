@@ -10,6 +10,6 @@ final class HomeController
 {
     public function __invoke(): Response
     {
-        return new Response('Symfony LSP compatibility fixture');
+        return new Response('Symfony Language Tools compatibility fixture');
     }
 }

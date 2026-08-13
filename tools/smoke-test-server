@@ -20,14 +20,14 @@ function readMessage($stream): array
         }
     }
     if (null === $length) {
-        throw new RuntimeException('Symfony LSP returned an invalid response header.');
+        throw new RuntimeException('Symfony Language Tools returned an invalid response header.');
     }
 
     $json = '';
     while (strlen($json) < $length && !feof($stream)) {
         $chunk = fread($stream, $length - strlen($json));
         if (false === $chunk) {
-            throw new RuntimeException('Unable to read the Symfony LSP response.');
+            throw new RuntimeException('Unable to read the Symfony Language Tools response.');
         }
         $json .= $chunk;
     }
@@ -56,7 +56,7 @@ $process = proc_open(
     options: ['bypass_shell' => true],
 );
 if (!is_resource($process)) {
-    throw new RuntimeException('Unable to start Symfony LSP.');
+    throw new RuntimeException('Unable to start Symfony Language Tools.');
 }
 
 writeMessage($pipes[0], ['jsonrpc' => '2.0', 'id' => 1, 'method' => 'initialize', 'params' => [
@@ -76,16 +76,16 @@ $error = stream_get_contents($pipes[2]);
 fclose($pipes[2]);
 $status = proc_close($process);
 if (0 !== $status) {
-    throw new RuntimeException('Symfony LSP exited with status '.$status.":\n".$error);
+    throw new RuntimeException('Symfony Language Tools exited with status '.$status.":\n".$error);
 }
 if (1 !== ($initialize['id'] ?? null) || !isset($initialize['result']['capabilities'])) {
-    throw new RuntimeException('Symfony LSP did not initialize successfully.');
+    throw new RuntimeException('Symfony Language Tools did not initialize successfully.');
 }
 if (isset($argv[3]) && $argv[3] !== ($initialize['result']['serverInfo']['version'] ?? null)) {
-    throw new RuntimeException('Symfony LSP reported an unexpected protocol version.');
+    throw new RuntimeException('Symfony Language Tools reported an unexpected protocol version.');
 }
 if (2 !== ($shutdown['id'] ?? null) || !array_key_exists('result', $shutdown)) {
-    throw new RuntimeException('Symfony LSP did not shut down successfully.');
+    throw new RuntimeException('Symfony Language Tools did not shut down successfully.');
 }
 
-fwrite(\STDOUT, "Symfony LSP smoke test passed.\n");
+fwrite(\STDOUT, "Symfony Language Tools smoke test passed.\n");

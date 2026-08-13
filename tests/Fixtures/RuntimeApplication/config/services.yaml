@@ -1,5 +1,5 @@
 parameters:
-    app.fixture_name: Symfony LSP
+    app.fixture_name: Symfony Language Tools
 
 services:
     _defaults:

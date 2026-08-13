@@ -2,7 +2,7 @@
   "name": "language-tools",
   "displayName": "Symfony Language Tools",
   "publisher": "symfony",
-  "description": "Symfony-aware completion, navigation and diagnostics through Symfony LSP",
+  "description": "Symfony-aware completion, navigation and diagnostics for Symfony applications",
   "version": "0.8.5",
   "license": "MIT",
   "icon": "images/icon.png",
@@ -72,30 +72,30 @@
       {
         "command": "symfonyLsp.refreshIndex",
         "title": "Refresh Index",
-        "category": "Symfony LSP",
+        "category": "Symfony Language Tools",
         "icon": "$(refresh)"
       },
       {
         "command": "symfonyLsp.indexStatus",
         "title": "Show Index Status",
-        "category": "Symfony LSP",
+        "category": "Symfony Language Tools",
         "icon": "$(info)"
       },
       {
         "command": "symfonyLsp.switchEnvironment",
         "title": "Switch Environment",
-        "category": "Symfony LSP",
+        "category": "Symfony Language Tools",
         "icon": "$(server-environment)"
       }
     ],
     "configuration": {
-      "title": "Symfony LSP",
+      "title": "Symfony Language Tools",
       "properties": {
         "symfonyLsp.serverPath": {
           "type": "string",
           "default": "",
           "scope": "machine",
-          "description": "Absolute path overriding the Symfony LSP executable bundled with the extension."
+          "description": "Absolute path overriding the Symfony Language Tools executable bundled with the extension."
         },
         "symfonyLsp.phpCommand": {
           "type": "array",
@@ -150,7 +150,7 @@
           ],
           "default": "off",
           "scope": "window",
-          "description": "Write redacted Language Server Protocol traffic to the Symfony LSP output channel."
+          "description": "Write redacted Language Server Protocol traffic to the Symfony Language Tools output channel."
         },
         "symfonyLsp.translationDiagnostics": {
           "type": "boolean",

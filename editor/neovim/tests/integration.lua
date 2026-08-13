@@ -105,7 +105,7 @@ local function test()
   vim.lsp.config('symfony_lsp', setup)
   vim.lsp.enable('symfony_lsp')
 
-  local client = wait_for('the Symfony LSP client', function()
+  local client = wait_for('the Symfony Language Tools client', function()
     for _, candidate in ipairs(vim.lsp.get_clients({ bufnr = message_bufnr })) do
       if candidate.name == 'symfony_lsp' and candidate.initialized then
         return candidate
@@ -113,7 +113,7 @@ local function test()
     end
   end, 10000)
   assert(client.offset_encoding == 'utf-8', client.offset_encoding)
-  assert(client.server_info.name == 'Symfony LSP')
+  assert(client.server_info.name == 'Symfony Language Tools')
   assert(client.settings.symfonyLsp.phpCommand[1] == 'php')
   assert(client.settings.symfonyLsp.translationDiagnostics)
   wait_for('watched-file registration', function()

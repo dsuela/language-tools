@@ -11,7 +11,7 @@ final class NativeTreeSitterParser implements TreeSitterParserInterface
     public function parse(string $language, string $source): TreeSitterTree
     {
         if (!\function_exists('symfony_lsp_tree_sitter_parse')) {
-            throw new \RuntimeException('The Symfony LSP Tree-sitter extension is not loaded.');
+            throw new \RuntimeException('The Symfony Language Tools Tree-sitter extension is not loaded.');
         }
 
         return $this->decoder->decode(symfony_lsp_tree_sitter_parse($language, $source), \strlen($source));

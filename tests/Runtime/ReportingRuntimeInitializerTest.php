@@ -28,7 +28,7 @@ final class ReportingRuntimeInitializerTest extends TestCase
             'method' => 'window/showMessage',
             'params' => [
                 'type' => 1,
-                'message' => 'Symfony LSP could not refresh runtime metadata for "/workspace". The last valid metadata remains active.',
+                'message' => 'Symfony Language Tools could not refresh runtime metadata for "/workspace". The last valid metadata remains active.',
             ],
         ]], $client->notifications);
     }
@@ -44,7 +44,7 @@ final class ReportingRuntimeInitializerTest extends TestCase
         $initializer->initialize($project);
 
         self::assertSame(
-            'Symfony LSP could not initialize runtime metadata for "/workspace". Static-only features remain active.',
+            'Symfony Language Tools could not initialize runtime metadata for "/workspace". Static-only features remain active.',
             $client->notifications[0]['params']['message'],
         );
     }

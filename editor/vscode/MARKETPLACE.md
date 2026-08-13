@@ -1,8 +1,9 @@
-# Symfony LSP
+# Symfony Language Tools
 
-Symfony LSP adds framework-aware completion, hover, navigation, references,
-rename, diagnostics and quick fixes to VS Code: routes, services, templates,
-translations, Doctrine, Messenger, security and more, in PHP, Twig and YAML.
+Symfony Language Tools adds framework-aware completion, hover, navigation,
+references, rename, diagnostics and quick fixes to VS Code: routes, services,
+templates, translations, Doctrine, Messenger, security and more, in PHP, Twig
+and YAML.
 It complements your PHP language server; keep it enabled.
 
 ```
@@ -33,9 +34,9 @@ code --install-extension symfony.language-tools
    code .
    ```
 
-   Trust the workspace when VS Code asks. Symfony LSP boots the kernel of
-   trusted projects to read effective routes, services and other metadata;
-   untrusted workspaces get source-only features.
+   Trust the workspace when VS Code asks. Symfony Language Tools boots the
+   kernel of trusted projects to read effective routes, services and other
+   metadata; untrusted workspaces get source-only features.
 
 3. **Check the status bar.** Open a PHP file and wait for the lower-left
    status item. **Symfony: dev** with a check mark means source and runtime
@@ -47,8 +48,8 @@ code --install-extension symfony.language-tools
    and quick fixes work on route names, service ids, template paths,
    translation keys and every other recognized Symfony value.
 
-   In the Command Palette, type **Symfony LSP:** to refresh the index, show
-   its status or switch the environment.
+   In the Command Palette, type **Symfony Language Tools:** to refresh the
+   index, show its status or switch the environment.
 
 ## Supported integrations
 
@@ -95,11 +96,11 @@ The defaults work for standard projects. Add settings to
 - **Runtime features return no results.** Run `composer install` and make
   sure the configured PHP command can boot `App\Kernel`.
 - **The status shows a warning or error.** Select the status item for
-  details, then check the **Symfony LSP** output channel.
+  details, then check the **Symfony Language Tools** output channel.
 - **Twig has Symfony data but no colors or formatting.** Install a dedicated
-  Twig syntax extension; Symfony LSP focuses on framework-aware features.
+  Twig syntax extension; Symfony Language Tools focuses on framework-aware features.
 - **Changes are not reflected.** Save the file, then run
-  **Symfony LSP: Refresh Index**.
+  **Symfony Language Tools: Refresh Index**.
 
 ## License
 

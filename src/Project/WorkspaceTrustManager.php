@@ -53,7 +53,7 @@ final class WorkspaceTrustManager
             $response = $this->client->request('window/showMessageRequest', [
                 'type' => 2,
                 'message' => \sprintf(
-                    'Symfony LSP must execute application code to index runtime metadata for "%s".',
+                    'Symfony Language Tools must execute application code to index runtime metadata for "%s".',
                     $project->rootPath(),
                 ),
                 'actions' => [

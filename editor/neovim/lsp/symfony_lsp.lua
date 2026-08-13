@@ -52,7 +52,10 @@ return {
       local position = arguments[2]
       local references = arguments[3]
       if type(uri) ~= 'string' or type(position) ~= 'table' or type(references) ~= 'table' then
-        vim.notify('Symfony LSP returned an invalid reference command.', vim.log.levels.ERROR)
+        vim.notify(
+          'Symfony Language Tools returned an invalid reference command.',
+          vim.log.levels.ERROR
+        )
         return
       end
 

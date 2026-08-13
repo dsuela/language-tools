@@ -67,7 +67,7 @@ final class LanguageServerTest extends TestCase
                         ],
                     ],
                     'serverInfo' => [
-                        'name' => 'Symfony LSP',
+                        'name' => 'Symfony Language Tools',
                         'version' => 'dev',
                     ],
                 ],

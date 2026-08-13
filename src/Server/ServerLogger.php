@@ -43,7 +43,7 @@ final class ServerLogger implements TrafficLoggerInterface
     public function fatal(\Throwable $error): void
     {
         $this->write(\sprintf(
-            "Symfony LSP failed: %s at %s:%d: %s\n",
+            "Symfony Language Tools failed: %s at %s:%d: %s\n",
             $error::class,
             $this->relativeFile($error->getFile()),
             $error->getLine(),

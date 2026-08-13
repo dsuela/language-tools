@@ -135,7 +135,7 @@ static const zend_function_entry symfony_lsp_tree_sitter_functions[] = {
 PHP_MINFO_FUNCTION(symfony_lsp_tree_sitter)
 {
     php_info_print_table_start();
-    php_info_print_table_row(2, "Symfony LSP Tree-sitter support", "enabled");
+    php_info_print_table_row(2, "Symfony Language Tools Tree-sitter support", "enabled");
     php_info_print_table_row(2, "Version", PHP_SYMFONY_LSP_TREE_SITTER_VERSION);
     php_info_print_table_end();
 }
