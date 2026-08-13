@@ -48,7 +48,7 @@ server before configuring your Language Server Protocol client:
 ./symfony-lsp --version
 ```
 
-See the [standalone installation guide](docs/index.rst#installing-a-release)
+See the [standalone installation guide](docs/index.rst#installing-a-standalone-release)
 for supported platforms, checksum verification and source installation.
 
 ## Requirements
