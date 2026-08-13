@@ -3,7 +3,7 @@
   "displayName": "Symfony Language Tools",
   "publisher": "symfony",
   "description": "Symfony-aware completion, navigation and diagnostics through Symfony LSP",
-  "version": "0.8.2",
+  "version": "0.8.3",
   "license": "MIT",
   "icon": "images/icon.png",
   "repository": {
