@@ -11,6 +11,7 @@ const catalog = await fs.readFile(path.join(guide, 'features.html'), 'utf8');
 const gettingStarted = await fs.readFile(path.join(guide, 'index.html'), 'utf8');
 const stylesheet = await fs.readFile(path.join(guide, 'guide.css'), 'utf8');
 const captureScript = await fs.readFile(path.join(root, 'tools/capture-vscode-guide'), 'utf8');
+const tourScript = await fs.readFile(path.join(root, 'tools/generate-vscode-guide-tour'), 'utf8');
 
 const referenceSection = reference.split('Supported Integrations\n----------------------')[1]?.split('Runtime Indexing and Trust')[0];
 if (!referenceSection) {
@@ -26,33 +27,20 @@ if (!catalogTable) {
     throw new Error('Unable to find the visual coverage matrix');
 }
 
-const catalogRows = [...catalogTable.matchAll(/<tr><td>(.+?)<\/td>([\s\S]+?)<\/tr>/g)].map((match) => {
-    const targets = [...match[2].matchAll(/class="coverage-yes" href="#(.+?)"/g)].map((link) => link[1]);
-
-    return {
-        name: match[1],
-        target: targets[0],
-        targets,
-        support: [...match[2].matchAll(/class="(coverage-yes|coverage-no)"/g)].map((cell) => 'coverage-yes' === cell[1]),
-    };
-});
+const catalogRows = [...catalogTable.matchAll(/<tr><td>(.+?)<\/td>([\s\S]+?)<\/tr>/g)].map((match) => ({
+    name: match[1],
+    support: [...match[2].matchAll(/class="(coverage-yes|coverage-no)"/g)].map((cell) => 'coverage-yes' === cell[1]),
+}));
 if (13 !== referenceRows.length || referenceRows.length !== catalogRows.length) {
     throw new Error(`Expected 13 matching integration rows, found ${referenceRows.length} reference and ${catalogRows.length} visual rows`);
 }
 
-const capabilityNames = ['Completion', 'Hover', 'Definition', 'References', 'Rename', 'Diagnostics'];
 for (const [index, row] of referenceRows.entries()) {
     const visual = catalogRows[index];
-    const card = catalog.match(new RegExp(`<article id="${visual.target}" class="integration-card">([\\s\\S]+?)<\\/article>`))?.[1];
-    const cardCapabilities = card ? [...card.matchAll(/<li class="capability">(.+?)<\/li>/g)].map((match) => match[1]) : [];
-    const expectedCapabilities = capabilityNames.filter((_, capability) => row.support[capability]);
     if (
         row.name !== visual.name
         || 6 !== visual.support.length
         || row.support.join(',') !== visual.support.join(',')
-        || visual.targets.length !== visual.support.filter(Boolean).length
-        || visual.targets.some((target) => target !== visual.target)
-        || cardCapabilities.join(',') !== expectedCapabilities.join(',')
     ) {
         throw new Error(`Visual coverage differs from the reference matrix at ${visual.name}`);
     }
@@ -63,9 +51,19 @@ if (65 !== supported) {
     throw new Error(`Expected 65 supported visual combinations, found ${supported}`);
 }
 
-const referencedImages = new Set(
-    [...`${gettingStarted}\n${catalog}`.matchAll(/(?:src|href)="images\/(.+?\.webp)"/g)].map((match) => match[1]),
-);
+const tourSlides = [...tourScript.matchAll(/^    "([a-z-]+)\|/gm)].map((match) => `${match[1]}.webp`);
+const duplicateSlides = tourSlides.filter((slide, index) => tourSlides.indexOf(slide) !== index);
+if (0 < duplicateSlides.length) {
+    throw new Error(`Duplicate tour slides: ${duplicateSlides.join(', ')}`);
+}
+if (!catalog.includes('<source src="images/tour.mp4" type="video/mp4">')) {
+    throw new Error('The visual catalog must embed the video tour');
+}
+
+const referencedImages = new Set([
+    ...[...`${gettingStarted}\n${catalog}`.matchAll(/(?:src|href)="images\/(.+?\.webp)"/g)].map((match) => match[1]),
+    ...tourSlides,
+]);
 const imageDirectory = path.join(guide, 'images');
 const imageFiles = (await fs.readdir(imageDirectory)).filter((file) => file.endsWith('.webp')).sort();
 const missing = [...referencedImages].filter((file) => !imageFiles.includes(file));
@@ -75,6 +73,10 @@ if (0 < missing.length || 0 < unused.length) {
 }
 if (30 !== imageFiles.length) {
     throw new Error(`Expected 30 visual captures, found ${imageFiles.length}`);
+}
+const missingSlides = imageFiles.filter((file) => 'install-extension.webp' !== file && !tourSlides.includes(file));
+if (0 < missingSlides.length) {
+    throw new Error(`Captures missing from the video tour: ${missingSlides.join(', ')}`);
 }
 
 const captureTargets = ['install', 'demo', 'runtime'].flatMap((group) => {
@@ -94,12 +96,8 @@ if (!gettingStarted.includes('<img src="images/install-extension.webp" width="14
     throw new Error('The installation screenshot must use its compact dimensions');
 }
 
-for (const selector of ['.workflow-grid', '.integration-card', '.gallery-pair']) {
-    const escapedSelector = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const rules = [...stylesheet.matchAll(new RegExp(`${escapedSelector}\\s*\\{([^}]*)}`, 'g'))];
-    if (!rules.some((rule) => rule[1].includes('grid-template-columns: minmax(0, 1fr)'))) {
-        throw new Error(`${selector} must keep screenshots in a readable single-column layout`);
-    }
+if (!stylesheet.match(/\.tour-video\s*\{[^}]*width: min\(100%, 960px\)/)) {
+    throw new Error('.tour-video must keep the tour readable within the page width');
 }
 
-console.log(`Visual guide covers ${referenceRows.length} integrations, ${supported} supported combinations and ${imageFiles.length} captures.`);
+console.log(`Visual guide covers ${referenceRows.length} integrations, ${supported} supported combinations, ${imageFiles.length} captures and ${tourSlides.length} tour slides.`);

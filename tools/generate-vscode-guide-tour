@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Generates docs/vscode-guide/images/tour.gif and tour.mp4, an animated tour of
-# the capabilities, from the guide screenshots. Requires ImageMagick and ffmpeg.
+# Generates docs/vscode-guide/images/tour.mp4, the video tour embedded in
+# features.html, from the guide screenshots. Requires ImageMagick and ffmpeg.
 set -euo pipefail
 
 cd "$(dirname "$0")/../docs/vscode-guide"
@@ -13,11 +13,13 @@ HEIGHT=600
 BAND=72
 BG="#1a1e26"
 ACCENT="#8ab4f8"
-DELAY=275 # per slide, in 1/100s
+DELAY=250 # per slide, in 1/100s
 
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 
+# Every capture used by the visual catalog, in page order: editor workflows,
+# then integrations, then the indexing lifecycle.
 SLIDES=(
     "route-completion|Completion|Suggestions from effective runtime metadata and application source"
     "route-hover|Hover|Inspect framework metadata without leaving the call site"
@@ -29,9 +31,25 @@ SLIDES=(
     "code-lenses|Code Lenses|Messenger, events, Twig components, Stimulus and Doctrine relationships"
     "dependency-injection|Dependency Injection|Effective services, aliases, autowiring types and parameters"
     "twig-templates|Twig Templates|Template names, render variables and component metadata"
+    "twig-components|Twig Components|Component classes, public properties and Live Component metadata"
     "translations|Translations|Keys, domains, locales and placeholders across PHP and Twig"
-    "doctrine|Doctrine|Entities, repositories and their relationships"
-    "command-palette|Index Commands|Manage source and runtime indexes from the Command Palette"
+    "environment|Environment Variables|Names and type-safe processor chains without revealing values"
+    "configuration|Bundle Configuration|Keys, types, enum values, defaults and deprecations per environment"
+    "messenger|Messenger|Buses, transports, routed messages, dispatch sites and effective handlers"
+    "events|Events and Listeners|Dispatch sites, event classes, subscribers and listener priorities"
+    "security|Security|Firewalls, providers, roles, hierarchy, authenticators and voters"
+    "form-options|Forms|Form options from runtime and source metadata"
+    "validation|Validation|Constraint options and mapped properties"
+    "serializer|Serializer|Serializer groups from application metadata"
+    "assets|AssetMapper and Importmaps|Logical asset paths resolved to application or vendor files"
+    "stimulus|Stimulus|Controllers, actions, targets, values and outlets"
+    "live-components|Live Components|Component properties, actions and events"
+    "doctrine|Doctrine Entities and Repositories|Mapped fields, associations and form metadata relationships"
+    "doctrine-code-lens|Doctrine Code Lenses|Navigate between entities and their repositories"
+    "project-ready|Runtime Ready|The status item identifies the environment when both indexes are ready"
+    "static-mode|Static-only Mode|Source-backed features without executing the application"
+    "command-palette|Index Commands|Refresh, inspect status or switch environments from the Command Palette"
+    "switch-environment|Environment Switching|Select another environment and rebuild its runtime metadata"
 )
 
 card() {
@@ -45,8 +63,8 @@ card() {
 }
 
 card "$WORK/frame-00.png" "Symfony LSP for VS Code" \
-    "A quick tour of the capabilities" \
-    "Screenshots taken in the Symfony Demo application"
+    "A tour of every capability" \
+    "Captured in the Symfony Demo application"
 
 i=1
 for slide in "${SLIDES[@]}"; do
@@ -64,9 +82,7 @@ card "$(printf '%s/frame-%02d.png' "$WORK" "$i")" "Try it on your project" \
     "code --install-extension symfony.language-tools" \
     "github.com/symfony/language-tools"
 
-magick -delay "$DELAY" "$WORK"/frame-*.png -loop 0 -layers optimize images/tour.gif
-
 ffmpeg -y -loglevel error -framerate "100/$DELAY" -i "$WORK/frame-%02d.png" \
     -c:v libx264 -pix_fmt yuv420p -movflags +faststart images/tour.mp4
 
-echo "Generated images/tour.gif and images/tour.mp4"
+echo "Generated images/tour.mp4"
