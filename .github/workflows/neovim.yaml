@@ -15,7 +15,7 @@ jobs:
               with:
                   token: ${{ secrets.GITHUB_TOKEN }}
                   version: 2.5.2
-                  args: --check lsp lua editor/neovim/tests
+                  args: --config-path editor/neovim/.stylua.toml --check editor/neovim
 
     headless:
         name: Neovim ${{ matrix.neovim }}
@@ -43,4 +43,4 @@ jobs:
                   neovim: true
                   version: v${{ matrix.neovim }}
             - name: Run Neovim tests
-              run: ./tools/test-neovim
+              run: ./editor/neovim/test

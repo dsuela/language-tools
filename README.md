@@ -26,27 +26,15 @@ troubleshooting.
 
 ### Neovim
 
-Neovim 0.12 or later can install the first-party plugin and matching server
-with `vim.pack`:
+Install `symfony-lsp` from a standalone release or with Mason when available,
+then enable the `nvim-lspconfig` configuration:
 
 ```lua
-vim.pack.add({ 'https://github.com/symfony/language-tools' })
-require('symfony_lsp').setup()
+vim.lsp.enable('symfony_lsp')
 ```
 
-Neovim 0.11.3 or later can install the plugin with lazy.nvim:
-
-```lua
-{
-    'symfony/language-tools',
-    config = function()
-        require('symfony_lsp').setup()
-    end,
-}
-```
-
-See the [Neovim guide](docs/editors/neovim.rst) for workspace trust, index
-commands, statuslines, custom settings and troubleshooting.
+See the [Neovim guide](docs/editors/neovim.rst) for installation, workspace
+trust, configuration and troubleshooting.
 
 ### Standalone Server
 

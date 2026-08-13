@@ -3,20 +3,10 @@ local fixture = repo .. '/tests/Fixtures/RuntimeApplication'
 local route_file = fixture .. '/config/routes.yaml'
 local test_directory = fixture .. '/var/neovim-e2e'
 local consumer_file = test_directory .. '/RouteConsumer.php'
-local notifications = {}
 local route_file_contents
 
-vim.opt.runtimepath:prepend(repo)
--- Exercise Neovim's recursive directory watcher on every platform
+vim.opt.runtimepath:prepend(repo .. '/editor/neovim')
 require('vim.lsp._watchfiles')._watchfunc = require('vim._watch').watchdirs
-vim.notify = function(message, level, options)
-  table.insert(notifications, {
-    message = tostring(message),
-    level = level,
-    title = options and options.title,
-  })
-end
-
 local function write(path, contents)
   vim.fn.mkdir(vim.fs.dirname(path), 'p')
   local file = assert(io.open(path, 'wb'))
@@ -94,15 +84,26 @@ local function test()
   local message_bufnr = vim.api.nvim_get_current_buf()
   local setup = {
     cmd = { repo .. '/bin/symfony-lsp' },
-    workspace_trust = true,
-    settings = { translationDiagnostics = true },
-    statusline = true,
-    status = { poll_interval = 250 },
+    cmd_env = vim.env.SYMFONY_LSP_TREE_SITTER and {
+      SYMFONY_LSP_TREE_SITTER = vim.env.SYMFONY_LSP_TREE_SITTER,
+    } or nil,
+    init_options = vim.tbl_deep_extend(
+      'force',
+      vim.deepcopy(vim.lsp.config.symfony_lsp.init_options),
+      {
+        workspaceTrust = true,
+      }
+    ),
+    settings = {
+      symfonyLsp = vim.tbl_deep_extend(
+        'force',
+        vim.deepcopy(vim.lsp.config.symfony_lsp.settings.symfonyLsp),
+        { translationDiagnostics = true }
+      ),
+    },
   }
-  if vim.env.SYMFONY_LSP_TREE_SITTER then
-    setup.cmd_env = { SYMFONY_LSP_TREE_SITTER = vim.env.SYMFONY_LSP_TREE_SITTER }
-  end
-  require('symfony_lsp').setup(setup)
+  vim.lsp.config('symfony_lsp', setup)
+  vim.lsp.enable('symfony_lsp')
 
   local client = wait_for('the Symfony LSP client', function()
     for _, candidate in ipairs(vim.lsp.get_clients({ bufnr = message_bufnr })) do
@@ -121,16 +122,18 @@ local function test()
   end, 10000)
 
   phase('waiting for indexes')
-  local current_status = wait_for('ready Symfony indexes', function()
-    local current = require('symfony_lsp').status()
-    return current
-      and current.source.state == 'ready'
-      and current.runtime.state == 'ready'
+  local statuses = wait_for('ready Symfony indexes', function()
+    local current = request(client, message_bufnr, 'workspace/executeCommand', {
+      command = 'symfony.indexStatus',
+      arguments = {},
+    })
+    local project = current and current[1]
+    return project
+      and project.source.state == 'ready'
+      and project.runtime.state == 'ready'
       and current
   end, 60000)
-  assert(current_status.trusted)
-  assert(require('symfony_lsp').statusline() == 'Symfony dev ✓')
-  assert(vim.o.statusline:find('symfony_lsp_statusline', 1, true))
+  assert(statuses[1].trusted)
 
   phase('running code lens')
   local lenses = request(client, message_bufnr, 'textDocument/codeLens', {
@@ -225,41 +228,6 @@ neovim_external:
   wait_for('the externally created route', function()
     return external_route_ready
   end, 30000)
-
-  phase('switching environment')
-  vim.cmd('SymfonyLspSwitchEnvironment test')
-  wait_for('the test environment', function()
-    local selected = require('symfony_lsp').status()
-    return selected
-      and selected.environment == 'test'
-      and selected.runtime.state == 'ready'
-      and selected
-  end, 60000)
-  assert(require('symfony_lsp').statusline() == 'Symfony test ✓')
-
-  phase('refreshing indexes')
-  vim.cmd('SymfonyLspRefreshIndex')
-  wait_for('the refreshed index report', function()
-    for _, notification in ipairs(notifications) do
-      if notification.message:find('source ready, runtime ready, environment test', 1, true) then
-        return true
-      end
-    end
-  end, 60000)
-
-  phase('showing index status')
-  vim.cmd('SymfonyLspIndexStatus')
-  wait_for('the index status report', function()
-    for _, notification in ipairs(notifications) do
-      if
-        notification.title == 'Symfony LSP'
-        and notification.message:find(fixture, 1, true)
-        and notification.message:find('environment test', 1, true)
-      then
-        return true
-      end
-    end
-  end, 10000)
 end
 
 local succeeded, failure = xpcall(test, debug.traceback)

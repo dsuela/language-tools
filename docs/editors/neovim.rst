@@ -1,106 +1,41 @@
 Using Symfony LSP with Neovim
 =============================
 
-The first-party Neovim plugin configures the language client, installs the
-matching standalone server, registers index commands and provides an optional
-statusline component. It supports Neovim 0.11.3 or later.
+Symfony LSP uses Neovim's built-in LSP client through the conventional
+``nvim-lspconfig`` configuration. Install the language server separately, then
+enable its configuration in Neovim.
 
-Installing with vim.pack
-------------------------
+Installing the Server
+---------------------
 
-Neovim 0.12 includes ``vim.pack``. Add Symfony LSP to ``init.lua`` and call its
-setup function:
-
-.. code-block:: lua
-
-    vim.pack.add({ 'https://github.com/symfony/language-tools' })
-
-    require('symfony_lsp').setup()
-
-The first setup downloads the server and Tree-sitter sidecar for the current
-platform from the matching GitHub release. The plugin currently installs Symfony
-LSP 0.8.2. It verifies the archive against the release's ``SHA256SUMS`` before
-installing it under Neovim's data directory. Updating the plugin after a new
-server release installs that server without replacing older installations.
-
-Automatic installation requires ``curl`` and ``tar``. Linux also requires
-``sha256sum``, macOS requires ``shasum`` and Windows requires ``certutil``.
-Run ``:checkhealth symfony_lsp`` to verify these commands and the installed
-server.
-
-Installing with lazy.nvim
--------------------------
-
-Add this plugin specification when using `lazy.nvim`_:
-
-.. code-block:: lua
-
-    {
-        'symfony/language-tools',
-        config = function()
-            require('symfony_lsp').setup()
-        end,
-    }
-
-Symfony LSP uses Neovim's built-in LSP client directly. The plugin doesn't
-require ``nvim-lspconfig``, Mason or another language client plugin.
-
-Installing the Server with Mason
---------------------------------
-
-The Mason registry provides a ``symfony-lsp`` package when you prefer one
-shared executable installation. Install it before setting up the first-party
-plugin:
+Install the ``symfony-lsp`` package with Mason when your registry includes it:
 
 .. code-block:: vim
 
     :MasonInstall symfony-lsp
 
-Disable the managed downloader so the plugin uses Mason's executable from
-``PATH``:
+Alternatively, download a standalone release as described in the
+:ref:`standalone installation guide <installing-a-release>`. Keep
+``symfony-lsp-tree-sitter`` next to ``symfony-lsp`` and make
+``symfony-lsp`` available on ``PATH``.
+
+Enabling the Language Server
+----------------------------
+
+Install `nvim-lspconfig`_, then enable Symfony LSP from ``init.lua``:
 
 .. code-block:: lua
 
-    require('symfony_lsp').setup({
-        auto_install = false,
-    })
+    vim.lsp.enable('symfony_lsp')
 
-The package also maps to the ``symfony_lsp`` configuration supplied by
-``nvim-lspconfig``. You can use that configuration without the first-party
-plugin, but the index commands, managed installer and statusline component are
-only available from this repository.
+If your installed ``nvim-lspconfig`` version doesn't include ``symfony_lsp``,
+copy ``editor/neovim/lsp/symfony_lsp.lua`` from this repository to
+``lsp/symfony_lsp.lua`` in your Neovim configuration directory.
 
-Using a Manually Installed Server
----------------------------------
-
-Set ``cmd`` to use a standalone release, a source checkout or a server managed
-by another package manager:
-
-.. code-block:: lua
-
-    require('symfony_lsp').setup({
-        cmd = { '/path/to/symfony-lsp' },
-        auto_install = false,
-    })
-
-Keep ``symfony-lsp-tree-sitter`` next to a standalone server. When using the
-source executable with a separately built sidecar, pass its path in the server
-environment:
-
-.. code-block:: lua
-
-    require('symfony_lsp').setup({
-        cmd = { '/path/to/lsp/bin/symfony-lsp' },
-        cmd_env = {
-            SYMFONY_LSP_TREE_SITTER =
-                '/path/to/lsp/var/build/tree_sitter_cli/'
-                .. 'symfony-lsp-tree-sitter',
-        },
-        auto_install = false,
-    })
-
-Run ``:SymfonyLspInstall`` to install a missing server or
-``:SymfonyLspInstall!`` to verify and replace the current installation.
+Symfony LSP starts for PHP, Twig, YAML, JSON, XML, JavaScript, TypeScript and
+dotenv buffers under a ``composer.json`` or Git workspace. Neovim recognizes
+``.twig`` files without another plugin. Keep a general PHP language server
+active for PHP types, diagnostics and non-Symfony completion.
 
 Workspace Trust
 ---------------
@@ -114,117 +49,73 @@ trusted project:
 
 .. code-block:: lua
 
-    require('symfony_lsp').setup({
-        workspace_trust = true,
+    vim.lsp.config('symfony_lsp', {
+        init_options = {
+            workspaceTrust = true,
+        },
     })
 
-Set ``workspace_trust = false`` to keep every project in static-only mode. You
+    vim.lsp.enable('symfony_lsp')
+
+Set ``workspaceTrust = false`` to keep every project in static-only mode. You
 can use Neovim's trusted local configuration support to keep this decision in a
 project ``.nvim.lua`` file rather than enabling runtime indexing globally.
 
 Configuration
 -------------
 
-Pass Symfony project settings through ``settings``:
+Override the built-in configuration before enabling the language server:
 
 .. code-block:: lua
 
-    require('symfony_lsp').setup({
-        workspace_trust = true,
-        settings = {
+    vim.lsp.config('symfony_lsp', {
+        init_options = {
             phpCommand = { 'php' },
             consolePath = 'bin/console',
             environment = 'dev',
             debug = true,
             runtimeIndexing = true,
-            translationDiagnostics = false,
+            projectRoots = {},
+            trace = 'off',
         },
-        project_roots = {},
-        trace = 'off',
+        settings = {
+            symfonyLsp = {
+                phpCommand = { 'php' },
+                consolePath = 'bin/console',
+                environment = 'dev',
+                debug = true,
+                runtimeIndexing = true,
+                projectRoots = {},
+                translationDiagnostics = false,
+            },
+        },
     })
+
+    vim.lsp.enable('symfony_lsp')
 
 ``phpCommand`` is the argument list used to inspect the Symfony application.
 For example, use ``{ 'symfony', 'php' }`` with Symfony CLI.
 
 ``consolePath``, ``environment``, ``debug``, ``runtimeIndexing``,
-``project_roots``, ``trace`` and ``translationDiagnostics`` have the same
+``projectRoots``, ``trace`` and ``translationDiagnostics`` have the same
 behavior as their VS Code counterparts. Restart the language client after
-changing setup options.
+changing its configuration.
 
-The plugin starts for PHP, Twig, YAML, JSON, XML, JavaScript, TypeScript and
-dotenv buffers under a ``composer.json`` or Git workspace. Neovim recognizes
-``.twig`` files without another plugin. Keep a general PHP language server
-active for PHP types, diagnostics and non-Symfony completion.
-
-Index Commands
---------------
-
-The plugin defines these commands:
-
-* ``:SymfonyLspRefreshIndex`` rebuilds the current project's indexes;
-* ``:SymfonyLspIndexStatus`` reports every discovered project's state;
-* ``:SymfonyLspSwitchEnvironment [environment]`` selects an environment and
-  rebuilds runtime metadata;
-* ``:SymfonyLspInstall[!]`` installs or replaces the matching server.
+Code Lenses
+-----------
 
 Neovim maps ``grx`` to code lens execution by default. Symfony code lenses open
 their related locations in the quickfix list.
 
-Statusline
-----------
-
-Enable the built-in statusline integration to append the Symfony index state:
-
-.. code-block:: lua
-
-    require('symfony_lsp').setup({
-        statusline = true,
-    })
-
-The component reports installation, indexing, static-only, stale, failed and
-ready states. A ready runtime index includes its Symfony environment.
-
-Use the component directly with a statusline plugin. For example, add it to
-`lualine.nvim`_:
-
-.. code-block:: lua
-
-    require('lualine').setup({
-        sections = {
-            lualine_x = {
-                require('symfony_lsp').statusline,
-            },
-        },
-    })
-
-Customize status icons without changing the status formatter:
-
-.. code-block:: lua
-
-    require('symfony_lsp').setup({
-        status = {
-            icons = {
-                ready = 'ok',
-                indexing = '...',
-                stale = 'stale',
-                failed = 'failed',
-                installing = 'installing',
-            },
-        },
-    })
-
 Troubleshooting
 ---------------
 
-Run ``:checkhealth symfony_lsp`` and ``:checkhealth vim.lsp`` first. Confirm
-that the buffer has one ``symfony_lsp`` client, the project contains a
-FrameworkBundle requirement and the installed server version matches the
-plugin version.
+Run ``:checkhealth vim.lsp`` first. Confirm that ``symfony-lsp`` is available
+on ``PATH``, the buffer has one ``symfony_lsp`` client and the project contains
+a FrameworkBundle requirement.
 
-Use ``:SymfonyLspIndexStatus`` to distinguish project discovery, source index
-and runtime index failures. Set ``trace = 'messages'`` or ``trace = 'verbose'``
-temporarily to add redacted protocol traffic to Neovim's LSP log. Restore
-``trace = 'off'`` after troubleshooting.
+Set ``trace`` to ``messages`` or ``verbose`` temporarily to add redacted
+protocol traffic to Neovim's LSP log. Restore it to ``off`` after
+troubleshooting.
 
-.. _`lazy.nvim`: https://github.com/folke/lazy.nvim
-.. _`lualine.nvim`: https://github.com/nvim-lualine/lualine.nvim
+.. _`nvim-lspconfig`: https://github.com/neovim/nvim-lspconfig

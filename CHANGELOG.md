@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Replace the first-party Neovim plugin with an nvim-lspconfig integration
+
 ## 0.8.2 (2026-08-11)
 
 - Focus public documentation on installation, supported behavior and troubleshooting

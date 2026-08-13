@@ -13,6 +13,8 @@ Symfony's `release metadata`_. The application must have its Composer
 dependencies installed and provide a PHP command compatible with its Symfony
 version.
 
+.. _installing-a-release:
+
 Installing a Release
 --------------------
 
