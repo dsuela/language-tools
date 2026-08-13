@@ -1,9 +1,9 @@
-Using Symfony LSP with VS Code
-==============================
+Using Symfony Language Tools with VS Code
+=========================================
 
-The bundled VS Code extension configures the Symfony LSP client, workspace
-trust, file associations and project settings. It requires VS Code 1.91 or
-later.
+The bundled VS Code extension configures the Symfony Language Tools client,
+workspace trust, file associations and project settings. It requires VS Code
+1.91 or later.
 
 The `Marketplace overview`_ walks through installation, indexing and core
 features with the public Symfony Demo application, and includes an animated
@@ -45,7 +45,8 @@ language so Symfony features work without another extension. It deliberately
 doesn't provide generic Twig syntax highlighting, formatting or built-in symbol
 completion.
 
-Optional extensions can provide those editor features alongside Symfony LSP:
+Optional extensions can provide those editor features alongside Symfony Language
+Tools:
 
 * Modern Twig (``Stanislav.vscode-twig``) provides generic Twig diagnostics,
   completion, hover and signature help;
@@ -53,8 +54,8 @@ Optional extensions can provide those editor features alongside Symfony LSP:
   snippets, Emmet support and formatting;
 * djLint (``monosans.djlint``) provides template formatting and linting.
 
-Some extensions associate Twig files with the ``html`` language. Symfony LSP
-also recognizes ``.twig`` files in that configuration.
+Some extensions associate Twig files with the ``html`` language. Symfony
+Language Tools also recognizes ``.twig`` files in that configuration.
 
 Index Status and Commands
 -------------------------
@@ -66,10 +67,11 @@ ready. Select the status bar item to show details.
 
 The command palette provides these commands:
 
-* ``Symfony LSP: Refresh Index`` rebuilds source and runtime indexes;
-* ``Symfony LSP: Show Index Status`` reports each discovered application;
-* ``Symfony LSP: Switch Environment`` selects an environment and rebuilds its
-  runtime index.
+* ``Symfony Language Tools: Refresh Index`` rebuilds source and runtime indexes;
+* ``Symfony Language Tools: Show Index Status`` reports each discovered
+  application;
+* ``Symfony Language Tools: Switch Environment`` selects an environment and
+  rebuilds its runtime index.
 
 Configuration
 -------------
@@ -121,26 +123,26 @@ channel. It is disabled by default.
 ``symfonyLsp.translationDiagnostics`` enables missing-key diagnostics. It is a
 resource-scoped setting and defaults to ``false``.
 
-The PHP suggestion setting is optional. Symfony LSP is designed to coexist with
-a general PHP language server such as Intelephense or PHP Tools. Keep that
-server enabled for PHP diagnostics, types and general completion.
+The PHP suggestion setting is optional. Symfony Language Tools is designed to
+coexist with a general PHP language server such as Intelephense or PHP Tools.
+Keep that server enabled for PHP diagnostics, types and general completion.
 
 Run ``Developer: Reload Window`` after changing ``symfonyLsp.serverPath``. Use
-``Symfony LSP: Switch Environment`` to change the active environment without
-restarting the extension.
+``Symfony Language Tools: Switch Environment`` to change the active environment
+without restarting the extension.
 
 Troubleshooting
 ---------------
 
-Open ``View > Output`` and select ``Symfony LSP`` to inspect extension and
-protocol messages. Startup records identify the extension and server versions,
-platform, resolved executable and Tree-sitter sidecar. An uncaught PHP failure
-is reported on a ``Symfony LSP failed:`` line with its class, source location
-and redacted message; index status polling stops when the language client is no
-longer running.
+Open ``View > Output`` and select ``Symfony Language Tools`` to inspect
+extension and protocol messages. Startup records identify the extension and
+server versions, platform, resolved executable and Tree-sitter sidecar. An
+uncaught PHP failure is reported on a ``Symfony Language Tools failed:`` line
+with its class, source location and redacted message; index status polling stops
+when the language client is no longer running.
 
-If the process exits without a ``Symfony LSP failed:`` line, inspect the
-platform's native crash reports. On macOS, they are stored under
+If the process exits without a ``Symfony Language Tools failed:`` line, inspect
+the platform's native crash reports. On macOS, they are stored under
 ``~/Library/Logs/DiagnosticReports``. If the server doesn't start, verify that:
 
 * the installed extension package matches the extension host's platform;

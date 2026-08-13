@@ -1,10 +1,10 @@
 Symfony Integrations
 ====================
 
-Symfony LSP combines information from project files with metadata from the
-selected Symfony environment. Features based on project files remain available
-without running the application. Features that depend on the compiled container
-or another runtime service require runtime indexing.
+Symfony Language Tools combines information from project files with metadata
+from the selected Symfony environment. Features based on project files remain
+available without running the application. Features that depend on the compiled
+container or another runtime service require runtime indexing.
 
 Supported Integrations
 ----------------------
@@ -122,11 +122,10 @@ Runtime indexing boots ``App\\Kernel`` and executes application code. It is
 available only in debug mode and for workspaces that you trust. Do not enable it
 for a project whose code you would not run from the command line.
 
-Without runtime indexing, Symfony LSP continues to provide features derived from
-project files. Suggestions that depend on the effective router, compiled
-container or another runtime service may be incomplete. Diagnostics are
-suppressed when the server cannot prove that the available metadata is
-complete.
+Without runtime indexing, Symfony Language Tools continues to provide features
+derived from project files. Suggestions that depend on the effective router,
+compiled container or another runtime service may be incomplete. Diagnostics are
+suppressed when the server cannot prove that the available metadata is complete.
 
 Unsaved Files and Refreshes
 ---------------------------
@@ -147,11 +146,11 @@ clients can invoke the corresponding commands directly:
 Privacy
 -------
 
-Symfony LSP uses names, types, relationships and other structural metadata to
-provide editor features. Parameter values, environment values, credentials and
-application objects are never included in indexes, logs, hover output,
-diagnostics or protocol traces. Protocol tracing is disabled by default and
-redacts values when enabled.
+Symfony Language Tools uses names, types, relationships and other structural
+metadata to provide editor features. Parameter values, environment values,
+credentials and application objects are never included in indexes, logs, hover
+output, diagnostics or protocol traces. Protocol tracing is disabled by default
+and redacts values when enabled.
 
 Current Limitations
 -------------------

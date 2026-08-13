@@ -1,8 +1,8 @@
 Translations
 ============
 
-Symfony LSP combines effective runtime catalogues with application-owned
-translation resources.
+Symfony Language Tools combines effective runtime catalogues with
+application-owned translation resources.
 
 Completion
 ----------

@@ -1,9 +1,9 @@
 Bundle Configuration
 ====================
 
-Symfony LSP understands configuration trees for installed bundles in the
-selected environment, including node types, required and default markers, enum
-values, examples, deprecations, children and prototype nodes.
+Symfony Language Tools understands configuration trees for installed bundles in
+the selected environment, including node types, required and default markers,
+enum values, examples, deprecations, children and prototype nodes.
 
 Completion
 ----------
@@ -28,8 +28,8 @@ Diagnostics
 
 Diagnostics report statically provable configuration errors, including unknown
 or duplicate keys, invalid scalar types, invalid enum values, deprecated nodes,
-missing required children and malformed structures. Symfony LSP suppresses
-diagnostics when a root key doesn't belong to an installed bundle, so
+missing required children and malformed structures. Symfony Language Tools
+suppresses diagnostics when a root key doesn't belong to an installed bundle, so
 application service and import sections aren't mistaken for bundle
 configuration.
 

@@ -1,9 +1,9 @@
-Using Symfony LSP with Neovim
-=============================
+Using Symfony Language Tools with Neovim
+========================================
 
-Symfony LSP uses Neovim's built-in LSP client through the conventional
-``nvim-lspconfig`` configuration. Install the language server separately, then
-enable its configuration in Neovim.
+Symfony Language Tools uses Neovim's built-in LSP client through the
+conventional ``nvim-lspconfig`` configuration. Install the language server
+separately, then enable its configuration in Neovim.
 
 Installing the Server
 ---------------------
@@ -22,7 +22,7 @@ Alternatively, download a standalone release as described in the
 Enabling the Language Server
 ----------------------------
 
-Install `nvim-lspconfig`_, then enable Symfony LSP from ``init.lua``:
+Install `nvim-lspconfig`_, then enable Symfony Language Tools from ``init.lua``:
 
 .. code-block:: lua
 
@@ -32,17 +32,17 @@ If your installed ``nvim-lspconfig`` version doesn't include ``symfony_lsp``,
 copy ``editor/neovim/lsp/symfony_lsp.lua`` from this repository to
 ``lsp/symfony_lsp.lua`` in your Neovim configuration directory.
 
-Symfony LSP starts for PHP, Twig, YAML, JSON, XML, JavaScript, TypeScript and
-dotenv buffers under a ``composer.json`` or Git workspace. Neovim recognizes
-``.twig`` files without another plugin. Keep a general PHP language server
-active for PHP types, diagnostics and non-Symfony completion.
+Symfony Language Tools starts for PHP, Twig, YAML, JSON, XML, JavaScript,
+TypeScript and dotenv buffers under a ``composer.json`` or Git workspace. Neovim
+recognizes ``.twig`` files without another plugin. Keep a general PHP language
+server active for PHP types, diagnostics and non-Symfony completion.
 
 Workspace Trust
 ---------------
 
-Symfony LSP asks before executing application code when no trust decision was
-configured. Accept the prompt only for a workspace whose code you trust. The
-decision lasts for the current language server process.
+Symfony Language Tools asks before executing application code when no trust
+decision was configured. Accept the prompt only for a workspace whose code you
+trust. The decision lasts for the current language server process.
 
 Set an explicit decision when the Neovim configuration is already scoped to a
 trusted project:

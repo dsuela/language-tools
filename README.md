@@ -1,8 +1,8 @@
 # Symfony Language Tools
 
 Symfony Language Tools adds Symfony-aware completion, hover, navigation,
-references, diagnostics, code actions, rename support and code lenses through
-Symfony LSP. It works alongside a general PHP language server.
+references, diagnostics, code actions, rename support and code lenses to your
+editor. It works alongside a general PHP language server.
 
 Features cover routing, dependency injection, Twig, translations, environment
 variables, bundle configuration, Messenger, events, Security, forms,

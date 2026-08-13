@@ -1,11 +1,11 @@
-Symfony LSP Documentation
-=========================
+Symfony Language Tools Documentation
+====================================
 
-Symfony LSP brings Symfony-specific features to your editor: completion,
-hover, navigation, references, rename and diagnostics for routes, services,
-templates, translations and more. It implements the Language Server Protocol,
-so its Symfony features are independent of any particular editor, and it runs
-alongside a general PHP language server instead of replacing it.
+Symfony Language Tools brings Symfony-specific features to your editor:
+completion, hover, navigation, references, rename and diagnostics for routes,
+services, templates, translations and more. It implements the Language Server
+Protocol, so its Symfony features are independent of any particular editor, and
+it runs alongside a general PHP language server instead of replacing it.
 
 Setting Up Your Editor
 ----------------------
@@ -33,11 +33,11 @@ client to start ``symfony-lsp``.
 Features
 --------
 
-Symfony LSP understands routing, dependency injection, Twig templates,
-translations, environment variables, bundle configuration, Messenger, events,
-security, form and validation metadata, AssetMapper, Stimulus and Doctrine.
-Each integration page documents its supported declarations, references and
-Language Server Protocol capabilities:
+Symfony Language Tools understands routing, dependency injection, Twig
+templates, translations, environment variables, bundle configuration, Messenger,
+events, security, form and validation metadata, AssetMapper, Stimulus and
+Doctrine. Each integration page documents its supported declarations, references
+and Language Server Protocol capabilities:
 
 .. toctree::
     :maxdepth: 2

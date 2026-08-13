@@ -47,6 +47,6 @@ attributes.
 Privacy
 -------
 
-Symfony LSP uses names, relationships, types and boolean metadata for Security
-features. User names, password hashes, LDAP settings and other provider values
-never enter indexes or Language Server Protocol responses.
+Symfony Language Tools uses names, relationships, types and boolean metadata for
+Security features. User names, password hashes, LDAP settings and other provider
+values never enter indexes or Language Server Protocol responses.

@@ -1,8 +1,9 @@
 Twig Templates and Components
 =============================
 
-Symfony LSP understands template names resolved through Twig filesystem loader
-paths. It complements generic Twig syntax support from the editor.
+Symfony Language Tools understands template names resolved through Twig
+filesystem loader paths. It complements generic Twig syntax support from the
+editor.
 
 Completion
 ----------
@@ -34,8 +35,8 @@ Variable completion and hover are available in Twig templates for Twig globals
 and literal keys passed by PHP ``render()`` and ``renderView()`` calls. Twig
 component templates also expose public component properties.
 
-Symfony LSP doesn't infer values propagated through dynamic arrays, includes,
-inheritance or arbitrary PHP expressions.
+Symfony Language Tools doesn't infer values propagated through dynamic arrays,
+includes, inheritance or arbitrary PHP expressions.
 
 Twig Components
 ---------------
@@ -45,11 +46,11 @@ Hover shows the component class, template, and public properties. Go to
 Definition opens the component class and anonymous component template. Find All
 References and code lenses expose statically recognized component usages.
 
-Symfony LSP recognizes ``#[AsTwigComponent]`` and ``#[AsLiveComponent]``
-classes, templates under ``templates/components/``, ``<twig:...>`` tags and
-static ``component()`` function calls. Live Component properties and actions are
-included in component metadata. Unknown static component names are reported
-after project files have been analyzed.
+Symfony Language Tools recognizes ``#[AsTwigComponent]`` and
+``#[AsLiveComponent]`` classes, templates under ``templates/components/``,
+``<twig:...>`` tags and static ``component()`` function calls. Live Component
+properties and actions are included in component metadata. Unknown static
+component names are reported after project files have been analyzed.
 
 Stimulus controllers and Live Component actions and events are documented in
 :doc:`/features/stimulus`.

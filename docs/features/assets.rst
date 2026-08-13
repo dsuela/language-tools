@@ -1,9 +1,9 @@
 AssetMapper and Importmaps
 ==========================
 
-Symfony LSP understands effective AssetMapper logical paths and importmap
-entrypoints. The integration is enabled only when ``symfony/asset-mapper`` is
-installed in the selected application.
+Symfony Language Tools understands effective AssetMapper logical paths and
+importmap entrypoints. The integration is enabled only when
+``symfony/asset-mapper`` is installed in the selected application.
 
 Completion
 ----------

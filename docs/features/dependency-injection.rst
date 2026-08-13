@@ -9,14 +9,14 @@ also finds application-owned YAML declarations and recognized PHP
 Supported Declarations and References
 -------------------------------------
 
-Symfony LSP recognizes these YAML declarations and references:
+Symfony Language Tools recognizes these YAML declarations and references:
 
 * service and parameter declarations;
 * ``@service`` and ``%parameter%`` references;
 * aliases and decorators;
 * tags and bindings.
 
-Symfony LSP also recognizes service and parameter references in PHP
+Symfony Language Tools also recognizes service and parameter references in PHP
 ``#[Autowire]`` attributes. Dynamic references aren't recognized.
 
 Completion
@@ -102,6 +102,6 @@ because applications and compiler passes can define their own tags.
 Privacy
 -------
 
-Parameter values aren't required for these features. Symfony LSP uses parameter
-names and deprecation metadata without including values in indexes, logs, hover
-output or other Language Server Protocol responses.
+Parameter values aren't required for these features. Symfony Language Tools uses
+parameter names and deprecation metadata without including values in indexes,
+logs, hover output or other Language Server Protocol responses.

@@ -1,8 +1,8 @@
 Stimulus and Live Components
 ============================
 
-Symfony LSP connects Stimulus controllers and Symfony UX Live Components to
-references in Twig and JavaScript files.
+Symfony Language Tools connects Stimulus controllers and Symfony UX Live
+Components to references in Twig and JavaScript files.
 
 Stimulus Controllers
 --------------------
@@ -14,7 +14,8 @@ helpers. Action completion is available in ``data-action`` descriptors and the
 ``data-*-target`` attributes and the ``stimulus_target()`` helper.
 
 For example, when ``assets/controllers/search_controller.js`` declares an
-``open()`` method and a ``results`` target, Symfony LSP completes these values:
+``open()`` method and a ``results`` target, Symfony Language Tools completes
+these values:
 
 .. code-block:: twig
 
@@ -40,7 +41,7 @@ dynamically.
 Live Components
 ---------------
 
-Symfony LSP recognizes ``#[AsLiveComponent]``, ``#[LiveProp]``,
+Symfony Language Tools recognizes ``#[AsLiveComponent]``, ``#[LiveProp]``,
 ``#[LiveAction]`` and ``#[LiveListener]`` attributes. Live properties are
 included in component property completion. Actions are completed in
 ``data-live-action-param`` attributes and ``live_action()`` calls when the

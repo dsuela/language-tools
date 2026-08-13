@@ -1,9 +1,10 @@
 Environment Variables
 =====================
 
-Symfony LSP recognizes environment variable declarations from ``.env`` files
-and references from ``%env(...)%`` expressions. It uses names, locations,
-processor chains and default availability without storing or returning values.
+Symfony Language Tools recognizes environment variable declarations from
+``.env`` files and references from ``%env(...)%`` expressions. It uses names,
+locations, processor chains and default availability without storing or
+returning values.
 
 Completion
 ----------

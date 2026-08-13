@@ -1,8 +1,8 @@
 Forms, Validation, and Serializer Metadata
 ==========================================
 
-Symfony LSP combines effective Form and Validator metadata with application
-source mappings.
+Symfony Language Tools combines effective Form and Validator metadata with
+application source mappings.
 
 Forms
 -----
@@ -39,6 +39,6 @@ Go to Definition connects YAML validation and serializer class and property
 mappings to application PHP declarations. Property completion is available
 under YAML ``properties`` and ``attributes`` mappings.
 
-Serializer groups and form options remain extensible at runtime. Symfony LSP
-does not diagnose unknown groups, dynamic arrays, or metadata it cannot resolve
-exactly.
+Serializer groups and form options remain extensible at runtime. Symfony
+Language Tools does not diagnose unknown groups, dynamic arrays, or metadata it
+cannot resolve exactly.
