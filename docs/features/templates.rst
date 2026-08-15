@@ -53,7 +53,7 @@ properties and actions are included in component metadata. Unknown static
 component names are reported after project files have been analyzed.
 
 Stimulus controllers and Live Component actions and events are documented in
-:doc:`/features/stimulus`.
+`Stimulus and Live Components`_.
 
 Diagnostics
 -----------
@@ -67,3 +67,5 @@ Limitations
 Custom non-filesystem loaders cannot provide exhaustive completion. Their
 literal names are available only when another recognized project file exposes
 them.
+
+.. _`Stimulus and Live Components`: stimulus.rst

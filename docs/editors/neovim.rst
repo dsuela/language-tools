@@ -14,10 +14,9 @@ Install the ``symfony-lsp`` package with Mason when your registry includes it:
 
     :MasonInstall symfony-lsp
 
-Alternatively, download a standalone release as described in the
-:ref:`standalone installation guide <installing-a-release>`. Keep
-``symfony-lsp-tree-sitter`` next to ``symfony-lsp`` and make
-``symfony-lsp`` available on ``PATH``.
+Alternatively, use the `standalone guide`_ to download a release. Keep
+``symfony-lsp-tree-sitter`` next to ``symfony-lsp`` and make the latter
+available on ``PATH``.
 
 Enabling the Language Server
 ----------------------------
@@ -118,4 +117,5 @@ Set ``trace`` to ``messages`` or ``verbose`` temporarily to add redacted
 protocol traffic to Neovim's LSP log. Restore it to ``off`` after
 troubleshooting.
 
+.. _`standalone guide`: ../index.rst#installing-a-standalone-release
 .. _`nvim-lspconfig`: https://github.com/neovim/nvim-lspconfig

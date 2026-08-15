@@ -98,9 +98,8 @@ absolute path. Use it for a server built from source or a separately downloaded
 standalone release.
 
 The extension forwards VS Code's workspace trust decision to the server.
-Untrusted workspaces remain in static-only mode. See
-:doc:`Symfony integrations </features/index>` for runtime indexing and
-static-only behavior.
+Untrusted workspaces remain in static-only mode. See `Symfony integrations`_
+for runtime indexing and static-only behavior.
 
 ``symfonyLsp.phpCommand`` is the argument array used to inspect the Symfony
 application. For example, use ``["symfony", "php"]`` for Symfony CLI. The
@@ -149,4 +148,5 @@ the platform's native crash reports. On macOS, they are stored under
 * a configured ``symfonyLsp.serverPath`` points to an executable file;
 * the workspace settings contain a valid project PHP command.
 
+.. _`Symfony integrations`: ../features/index.rst
 .. _`Marketplace overview`: https://marketplace.visualstudio.com/items?itemName=symfony.language-tools

@@ -14,21 +14,15 @@ Start with the page for your editor. Each page covers installation,
 configuration and troubleshooting, and all editors expose the same Symfony
 language features:
 
-* :doc:`VS Code </editors/vscode>`: install the Symfony Language Tools
-  extension from the Marketplace. It bundles the language server, so no
-  separate download is needed;
-* :doc:`Neovim </editors/neovim>`: install the server with Mason or from a
-  standalone release, then enable it through ``nvim-lspconfig``.
-
-.. toctree::
-    :hidden:
-
-    editors/vscode
-    editors/neovim
+* `VS Code`_: install the Symfony Language Tools extension from the
+  Marketplace. It bundles the language server, so no separate download is
+  needed;
+* `Neovim`_: install the server with Mason or from a standalone release, then
+  enable it through ``nvim-lspconfig``.
 
 Any other editor with a Language Server Protocol client can run the
-standalone server: see :ref:`installing-a-release` below and configure your
-client to start ``symfony-lsp``.
+standalone server: see `installing a release`_ below and configure your client
+to start ``symfony-lsp``.
 
 Features
 --------
@@ -37,12 +31,8 @@ Symfony Language Tools understands routing, dependency injection, Twig
 templates, translations, environment variables, bundle configuration, Messenger,
 events, security, form and validation metadata, AssetMapper, Stimulus and
 Doctrine. Each integration page documents its supported declarations, references
-and Language Server Protocol capabilities:
-
-.. toctree::
-    :maxdepth: 2
-
-    features/index
+and Language Server Protocol capabilities. See the `supported integrations`_
+for the complete feature matrix.
 
 Requirements
 ------------
@@ -52,7 +42,7 @@ Symfony's `release metadata`_. Your application must have its Composer
 dependencies installed and provide a PHP command compatible with its Symfony
 version.
 
-.. _installing-a-release:
+.. _`installing a release`:
 
 Installing a Standalone Release
 -------------------------------
@@ -122,4 +112,7 @@ locally built parser extension on Unix systems. Verify that it starts:
 
     $ ./bin/symfony-lsp --version
 
+.. _`VS Code`: editors/vscode.rst
+.. _`Neovim`: editors/neovim.rst
+.. _`supported integrations`: features/index.rst
 .. _`release metadata`: https://symfony.com/releases.json
