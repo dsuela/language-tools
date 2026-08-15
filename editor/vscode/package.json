@@ -35,7 +35,8 @@
   ],
   "main": "./out/extension.js",
   "scripts": {
-    "check": "tsc -p ./ --noEmit && tsc -p ./tsconfig.test.json --noEmit && npm run check:licenses",
+    "check": "tsc -p ./ --noEmit && tsc -p ./tsconfig.test.json --noEmit && npm run check:guide && npm run check:licenses",
+    "check:guide": "node ../../tools/check-vscode-guide.mjs",
     "check:licenses": "node test/checkLicenses.mjs",
     "compile": "npm run check && esbuild src/extension.ts --bundle --platform=node --format=cjs --outfile=out/extension.js --external:vscode",
     "compile:production": "npm run check && esbuild src/extension.ts --bundle --platform=node --format=cjs --minify --outfile=out/extension.js --external:vscode",

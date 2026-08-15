@@ -18,7 +18,7 @@ if (!referenceSection) {
 }
 
 const referenceRows = [...referenceSection.matchAll(/^    \* - (.+)\n((?:      - (?:Yes|No)\n){6})/gm)].map((match) => ({
-    name: match[1].replace(/:doc:`(.+?)(?: <.+?>)?`/g, '$1'),
+    name: match[1].replace(/^`(.+)`_$/, '$1'),
     support: [...match[2].matchAll(/^      - (Yes|No)$/gm)].map((cell) => 'Yes' === cell[1]),
 }));
 const pageTable = page.split('| Integration | Completion | Hover | Definition | References | Rename | Diagnostics |')[1]?.split('\n\n')[0];
