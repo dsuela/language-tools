@@ -64,6 +64,9 @@ if (!page.includes('](https://github.com/symfony/language-tools/blob/main/docs/f
 if (page.includes('code --install-extension symfony.language-tools') || tourScript.includes('code --install-extension symfony.language-tools')) {
     throw new Error('The Marketplace overview must use its Install button');
 }
+if (page.includes('publisher is **Symfony**') || tourScript.includes('Publisher: Symfony')) {
+    throw new Error('The Marketplace overview must not ask users to verify its publisher');
+}
 
 const referencedImages = new Set([
     ...[...page.matchAll(/\]\(images\/guide\/(.+?\.webp)\)/g)].map((match) => match[1]),

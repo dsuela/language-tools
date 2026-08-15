@@ -12,9 +12,8 @@ It complements your PHP language server; keep it enabled.
 
 ## Get started
 
-1. **Install the extension.** Select **Install** on this page and check that the
-   publisher is **Symfony**. The package includes the language server; nothing
-   else to install or configure.
+1. **Install the extension.** Select **Install** on this page. The package
+   includes the language server; nothing else to install or configure.
 
    ![Symfony Language Tools in the VS Code Marketplace with its Install button visible](images/guide/install-extension.webp)
 

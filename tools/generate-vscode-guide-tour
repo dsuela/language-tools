@@ -80,7 +80,7 @@ done
 
 card "$(printf '%s/frame-%02d.png' "$WORK" "$i")" "Try it on your project" \
     "Select Install to get started" \
-    "Publisher: Symfony"
+    "The language server is included"
 
 magick -delay "$DELAY" "$WORK"/frame-*.png -loop 0 -layers optimize tour.gif
 
