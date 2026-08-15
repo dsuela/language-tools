@@ -19,91 +19,91 @@ Supported Integrations
       - References
       - Rename
       - Diagnostics
-    * - :doc:`Routing </features/routing>`
+    * - `Routing`_
       - Yes
       - Yes
       - Yes
       - Yes
       - Yes
       - Yes
-    * - :doc:`Dependency injection </features/dependency-injection>`
+    * - `Dependency injection`_
       - Yes
       - Yes
       - Yes
       - Yes
       - Yes
       - Yes
-    * - :doc:`Twig template names </features/templates>`
-      - Yes
-      - Yes
-      - Yes
-      - Yes
-      - No
-      - Yes
-    * - :doc:`Translations </features/translations>`
-      - Yes
-      - Yes
-      - Yes
-      - Yes
-      - Yes
-      - Yes
-    * - :doc:`Environment variables </features/environment>`
+    * - `Twig template names`_
       - Yes
       - Yes
       - Yes
       - Yes
       - No
       - Yes
-    * - :doc:`Bundle configuration </features/configuration>`
-      - Yes
-      - Yes
-      - No
-      - No
-      - No
-      - Yes
-    * - :doc:`Messenger </features/messenger>`
+    * - `Translations`_
       - Yes
       - Yes
       - Yes
       - Yes
-      - No
       - Yes
-    * - :doc:`Events </features/events>`
+      - Yes
+    * - `Environment variables`_
       - Yes
       - Yes
       - Yes
       - Yes
       - No
       - Yes
-    * - :doc:`Security </features/security>`
+    * - `Bundle configuration`_
+      - Yes
+      - Yes
+      - No
+      - No
+      - No
+      - Yes
+    * - `Messenger`_
       - Yes
       - Yes
       - Yes
       - Yes
       - No
       - Yes
-    * - :doc:`Forms, validation and serializer metadata </features/metadata>`
+    * - `Events`_
       - Yes
       - Yes
       - Yes
       - Yes
       - No
       - Yes
-    * - :doc:`AssetMapper and importmaps </features/assets>`
+    * - `Security`_
       - Yes
       - Yes
       - Yes
       - Yes
       - No
       - Yes
-    * - :doc:`Stimulus and Live Components </features/stimulus>`
+    * - `Forms, validation and serializer metadata`_
       - Yes
       - Yes
       - Yes
       - Yes
       - No
       - Yes
-    * - :doc:`Doctrine entities and repositories </features/doctrine>`
+    * - `AssetMapper and importmaps`_
+      - Yes
+      - Yes
+      - Yes
+      - Yes
+      - No
+      - Yes
+    * - `Stimulus and Live Components`_
+      - Yes
+      - Yes
+      - Yes
+      - Yes
+      - No
+      - Yes
+    * - `Doctrine entities and repositories`_
       - Yes
       - Yes
       - Yes
@@ -191,3 +191,17 @@ If a runtime-backed feature returns no results, verify that:
     assets
     stimulus
     doctrine
+
+.. _`Routing`: routing.rst
+.. _`Dependency injection`: dependency-injection.rst
+.. _`Twig template names`: templates.rst
+.. _`Translations`: translations.rst
+.. _`Environment variables`: environment.rst
+.. _`Bundle configuration`: configuration.rst
+.. _`Messenger`: messenger.rst
+.. _`Events`: events.rst
+.. _`Security`: security.rst
+.. _`Forms, validation and serializer metadata`: metadata.rst
+.. _`AssetMapper and importmaps`: assets.rst
+.. _`Stimulus and Live Components`: stimulus.rst
+.. _`Doctrine entities and repositories`: doctrine.rst

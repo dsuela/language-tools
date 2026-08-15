@@ -1,0 +1,28 @@
+<?php
+
+namespace Symfony\Lsp\Tests\Documentation;
+
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\Finder\Finder;
+
+final class DocumentationTest extends TestCase
+{
+    private const ROOT = __DIR__.'/../..';
+
+    public function testFeatureTableLinksToEveryIntegrationPage(): void
+    {
+        $index = (string) file_get_contents(self::ROOT.'/docs/features/index.rst');
+        preg_match_all('/^\.\. _`[^`]+`: ([^\s]+\.rst)$/m', $index, $matches);
+
+        $pages = [];
+        foreach ((new Finder())->files()->in(self::ROOT.'/docs/features')->name('*.rst')->notName('index.rst') as $file) {
+            $pages[] = $file->getFilename();
+        }
+
+        sort($pages);
+        sort($matches[1]);
+
+        self::assertSame($pages, $matches[1]);
+        self::assertSame(\count($pages), preg_match_all('/^    \* - `[^`]+`_$/m', $index));
+    }
+}
