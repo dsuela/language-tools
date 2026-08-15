@@ -25,4 +25,16 @@ final class DocumentationTest extends TestCase
         self::assertSame($pages, $matches[1]);
         self::assertSame(\count($pages), preg_match_all('/^    \* - `[^`]+`_$/m', $index));
     }
+
+    public function testInlineCodeUsesLiteralBackslashes(): void
+    {
+        foreach ((new Finder())->files()->in(self::ROOT.'/docs')->name('*.rst') as $file) {
+            $contents = $file->getContents();
+            preg_match_all('/``([^`\n]+)``/', $contents, $matches);
+
+            foreach ($matches[1] as $inlineCode) {
+                self::assertStringNotContainsString('\\\\', $inlineCode, $file->getRelativePathname());
+            }
+        }
+    }
 }

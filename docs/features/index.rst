@@ -118,7 +118,7 @@ for navigating between related declarations.
 Workspace Trust
 ---------------
 
-Runtime indexing boots ``App\\Kernel`` and executes application code. It is
+Runtime indexing boots ``App\Kernel`` and executes application code. It is
 available only in debug mode and for workspaces that you trust. Do not enable it
 for a project whose code you would not run from the command line.
 
@@ -157,7 +157,7 @@ Current Limitations
 
 The current version has these general limitations:
 
-* only ``App\\Kernel`` is discovered;
+* only ``App\Kernel`` is discovered;
 * one Symfony environment is active at a time for each application root;
 * references and rename cover only statically recognized values.
 
@@ -171,7 +171,7 @@ If a runtime-backed feature returns no results, verify that:
 * the workspace root contains ``composer.json``;
 * ``composer.json`` requires ``symfony/framework-bundle``;
 * ``vendor/autoload.php`` exists;
-* ``App\\Kernel`` boots in the configured environment;
+* ``App\Kernel`` boots in the configured environment;
 * the configured PHP command is compatible with the application;
 * runtime indexing is enabled and the workspace is trusted.
 
