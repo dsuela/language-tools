@@ -58,6 +58,12 @@ if (0 < duplicateSlides.length) {
 if (!page.includes('](images/guide/tour.gif)')) {
     throw new Error('The Marketplace overview must embed the tour GIF');
 }
+if (!page.includes('](https://github.com/symfony/language-tools/blob/main/docs/features/index.rst)')) {
+    throw new Error('The Marketplace feature reference must link to the documentation index');
+}
+if (page.includes('code --install-extension symfony.language-tools') || tourScript.includes('code --install-extension symfony.language-tools')) {
+    throw new Error('The Marketplace overview must use its Install button');
+}
 
 const referencedImages = new Set([
     ...[...page.matchAll(/\]\(images\/guide\/(.+?\.webp)\)/g)].map((match) => match[1]),

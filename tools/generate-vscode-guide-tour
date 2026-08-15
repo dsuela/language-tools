@@ -79,8 +79,8 @@ for slide in "${SLIDES[@]}"; do
 done
 
 card "$(printf '%s/frame-%02d.png' "$WORK" "$i")" "Try it on your project" \
-    "code --install-extension symfony.language-tools" \
-    "github.com/symfony/language-tools"
+    "Select Install to get started" \
+    "Publisher: Symfony"
 
 magick -delay "$DELAY" "$WORK"/frame-*.png -loop 0 -layers optimize tour.gif
 

@@ -6,20 +6,15 @@ templates, translations, Doctrine, Messenger, security and more, in PHP, Twig
 and YAML.
 It complements your PHP language server; keep it enabled.
 
-```
-code --install-extension symfony.language-tools
-```
-
 ## See it in action
 
 ![A tour of every capability, captured in the Symfony Demo application](images/guide/tour.gif)
 
 ## Get started
 
-1. **Install the extension.** Search for **Symfony Language Tools** in the
-   Extensions view and check that the publisher is **Symfony**, or run the
-   command above. The package includes the language server; nothing else to
-   install or configure.
+1. **Install the extension.** Select **Install** on this page and check that the
+   publisher is **Symfony**. The package includes the language server; nothing
+   else to install or configure.
 
    ![Symfony Language Tools in the VS Code Marketplace with its Install button visible](images/guide/install-extension.webp)
 
@@ -71,7 +66,7 @@ code --install-extension symfony.language-tools
 
 A dot marks an intentionally unsupported combination. Document links, quick
 fixes and code lenses are covered in the
-[feature reference](https://github.com/symfony/language-tools/tree/main/docs/features).
+[feature reference](https://github.com/symfony/language-tools/blob/main/docs/features/index.rst).
 
 ## Configuration
 
