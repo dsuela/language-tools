@@ -26,6 +26,14 @@ final class DocumentationTest extends TestCase
         self::assertSame(\count($pages), preg_match_all('/^    \* - `[^`]+`_$/m', $index));
     }
 
+    public function testFeatureIndexUsesGitHubCompatibleRst(): void
+    {
+        $index = (string) file_get_contents(self::ROOT.'/docs/features/index.rst');
+
+        self::assertStringNotContainsString('.. toctree::', $index);
+        self::assertStringNotContainsString(':doc:', $index);
+    }
+
     public function testInlineCodeUsesLiteralBackslashes(): void
     {
         foreach ((new Finder())->files()->in(self::ROOT.'/docs')->name('*.rst') as $file) {

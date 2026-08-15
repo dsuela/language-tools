@@ -175,23 +175,6 @@ If a runtime-backed feature returns no results, verify that:
 * the configured PHP command is compatible with the application;
 * runtime indexing is enabled and the workspace is trusted.
 
-.. toctree::
-    :hidden:
-
-    routing
-    dependency-injection
-    templates
-    translations
-    environment
-    configuration
-    messenger
-    events
-    security
-    metadata
-    assets
-    stimulus
-    doctrine
-
 .. _`Routing`: routing.rst
 .. _`Dependency injection`: dependency-injection.rst
 .. _`Twig template names`: templates.rst
