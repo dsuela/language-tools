@@ -27,6 +27,7 @@ final class ProjectDiscoveryTest extends TestCase
     public function testDiscoversFrameworkBundleProjects(): void
     {
         file_put_contents($this->temporaryDirectory.'/composer.json', json_encode([
+            'type' => 'project',
             'require' => ['symfony/framework-bundle' => '^7.4'],
         ], \JSON_THROW_ON_ERROR));
         $uri = 'file://'.$this->temporaryDirectory;
@@ -49,6 +50,7 @@ final class ProjectDiscoveryTest extends TestCase
         mkdir($this->temporaryDirectory.'/vendor/package', 0777, true);
         foreach (['.hidden', 'apps/admin', 'apps/ignored', 'vendor/package'] as $path) {
             file_put_contents($this->temporaryDirectory.'/'.$path.'/composer.json', json_encode([
+                'type' => 'project',
                 'require' => ['symfony/framework-bundle' => '^8.0'],
             ], \JSON_THROW_ON_ERROR));
         }
@@ -62,9 +64,28 @@ final class ProjectDiscoveryTest extends TestCase
             $this->temporaryDirectory.'/apps/ignored',
         ], array_map(static fn (Project $project): string => $project->rootPath(), $projects));
 
+        file_put_contents($this->temporaryDirectory.'/apps/admin/composer.json', json_encode([
+            'require' => ['symfony/framework-bundle' => '^8.0'],
+        ], \JSON_THROW_ON_ERROR));
         $projects = $discovery->discover($workspace, ['apps/admin']);
         self::assertCount(1, $projects);
         self::assertSame($this->temporaryDirectory.'/apps/admin', $projects[0]->rootPath());
+    }
+
+    public function testDiscoversLegacyApplicationsWithAConsoleMarker(): void
+    {
+        mkdir($this->temporaryDirectory.'/bin');
+        file_put_contents($this->temporaryDirectory.'/bin/console', '');
+        file_put_contents($this->temporaryDirectory.'/composer.json', json_encode([
+            'require' => ['symfony/framework-bundle' => '^7.4'],
+        ], \JSON_THROW_ON_ERROR));
+
+        $projects = (new ProjectDiscovery(new UriToPathConverter()))->discover([
+            ['uri' => 'file://'.$this->temporaryDirectory],
+        ]);
+
+        self::assertCount(1, $projects);
+        self::assertSame($this->temporaryDirectory, $projects[0]->rootPath());
     }
 
     public function testSelectsMostSpecificProjectForDocument(): void
@@ -89,7 +110,31 @@ final class ProjectDiscoveryTest extends TestCase
         ]));
 
         file_put_contents($this->temporaryDirectory.'/composer.json', json_encode([
+            'type' => 'project',
             'require' => ['symfony/console' => '^7.4'],
+        ], \JSON_THROW_ON_ERROR));
+
+        self::assertSame([], $discovery->discover([
+            ['uri' => 'file://'.$this->temporaryDirectory],
+        ]));
+    }
+
+    public function testIgnoresComposerPackages(): void
+    {
+        $discovery = new ProjectDiscovery(new UriToPathConverter());
+        file_put_contents($this->temporaryDirectory.'/composer.json', json_encode([
+            'name' => 'symfony/example-bundle',
+            'type' => 'symfony-bundle',
+            'require' => ['symfony/framework-bundle' => '^8.0'],
+        ], \JSON_THROW_ON_ERROR));
+
+        self::assertSame([], $discovery->discover([
+            ['uri' => 'file://'.$this->temporaryDirectory],
+        ]));
+
+        file_put_contents($this->temporaryDirectory.'/composer.json', json_encode([
+            'type' => 'project',
+            'require-dev' => ['symfony/framework-bundle' => '^8.0'],
         ], \JSON_THROW_ON_ERROR));
 
         self::assertSame([], $discovery->discover([

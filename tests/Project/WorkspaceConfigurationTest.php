@@ -28,6 +28,7 @@ final class WorkspaceConfigurationTest extends TestCase
         $this->temporaryDirectory = sys_get_temp_dir().'/symfony-lsp-'.bin2hex(random_bytes(8));
         mkdir($this->temporaryDirectory);
         file_put_contents($this->temporaryDirectory.'/composer.json', json_encode([
+            'type' => 'project',
             'require' => ['symfony/framework-bundle' => '^8.0'],
         ], \JSON_THROW_ON_ERROR));
     }
@@ -88,6 +89,7 @@ final class WorkspaceConfigurationTest extends TestCase
         $configuration->initialize(['workspaceFolders' => [['uri' => $rootUri]]]);
         mkdir($this->temporaryDirectory.'/nested');
         file_put_contents($this->temporaryDirectory.'/nested/composer.json', json_encode([
+            'type' => 'project',
             'require' => ['symfony/framework-bundle' => '^8.1'],
         ], \JSON_THROW_ON_ERROR));
 

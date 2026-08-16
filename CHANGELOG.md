@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Ignore Composer packages when discovering full-stack applications
+
 ## 0.8.6 (2026-08-15)
 
 - Rename every user-facing product string from Symfony LSP to Symfony Language Tools

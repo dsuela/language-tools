@@ -166,10 +166,15 @@ See each integration page for its supported contexts and specific limitations.
 Troubleshooting
 ---------------
 
+Automatic discovery recognizes Composer projects that require
+``symfony/framework-bundle`` in ``require``. Legacy applications without
+``"type": "project"`` are also recognized when ``bin/console`` exists. Set
+``projectRoots`` explicitly for applications with a custom layout.
+
 If a runtime-backed feature returns no results, verify that:
 
 * the workspace root contains ``composer.json``;
-* ``composer.json`` requires ``symfony/framework-bundle``;
+* ``composer.json`` requires ``symfony/framework-bundle`` in ``require``;
 * ``vendor/autoload.php`` exists;
 * ``App\Kernel`` boots in the configured environment;
 * the configured PHP command is compatible with the application;

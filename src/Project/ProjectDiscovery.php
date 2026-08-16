@@ -28,10 +28,12 @@ final class ProjectDiscovery
     public function discover(array $workspaceFolders, array $projectRoots = []): array
     {
         $roots = [];
+        $explicitRoots = [];
         if ([] !== $projectRoots) {
             foreach ($projectRoots as $configuredRoot) {
                 foreach ($this->configuredPaths($configuredRoot, $workspaceFolders) as $path) {
                     $roots[$path] = $this->uriToPathConverter->toUri($path);
+                    $explicitRoots[$path] = true;
                 }
             }
         } else {
@@ -48,7 +50,7 @@ final class ProjectDiscovery
 
         $projects = [];
         foreach ($roots as $rootPath => $rootUri) {
-            $project = $this->discoverRoot($rootPath, $rootUri);
+            $project = $this->discoverRoot($rootPath, $rootUri, isset($explicitRoots[$rootPath]));
             if (null !== $project) {
                 $projects[] = $project;
             }
@@ -105,7 +107,7 @@ final class ProjectDiscovery
         }
     }
 
-    private function discoverRoot(string $rootPath, string $rootUri): ?Project
+    private function discoverRoot(string $rootPath, string $rootUri, bool $explicit): ?Project
     {
         $composerPath = Path::join($rootPath, 'composer.json');
         if (!is_file($composerPath)) {
@@ -123,12 +125,13 @@ final class ProjectDiscovery
         }
 
         $require = \is_array($composer['require'] ?? null) ? $composer['require'] : [];
-        $requireDev = \is_array($composer['require-dev'] ?? null) ? $composer['require-dev'] : [];
-        $constraint = $require['symfony/framework-bundle']
-            ?? $requireDev['symfony/framework-bundle']
-            ?? null;
+        $constraint = $require['symfony/framework-bundle'] ?? null;
 
         if (!\is_string($constraint)) {
+            return null;
+        }
+
+        if (!$explicit && 'project' !== ($composer['type'] ?? null) && !is_file(Path::join($rootPath, 'bin/console'))) {
             return null;
         }
 
