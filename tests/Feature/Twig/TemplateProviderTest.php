@@ -197,6 +197,35 @@ final class TemplateProviderTest extends TestCase
         }
     }
 
+    public function testIndexesTemplatesAroundUnreadableDirectories(): void
+    {
+        if ('Windows' === \PHP_OS_FAMILY || (\function_exists('posix_geteuid') && 0 === posix_geteuid())) {
+            self::markTestSkipped('Directory permissions are not enforced in this environment.');
+        }
+
+        $root = sys_get_temp_dir().'/symfony-lsp-'.bin2hex(random_bytes(8));
+        mkdir($root.'/templates/admin', 0777, true);
+        file_put_contents($root.'/templates/index.html.twig', 'Hello');
+        chmod($root.'/templates/admin', 0000);
+        $project = new Project($root, 'file://'.$root, '^8.0');
+        $indexes = new TemplateIndexRegistry();
+
+        try {
+            (new ProjectTemplateSnapshotLoader($indexes, new UriToPathConverter()))->load($project, ['sections' => ['twig' => [
+                'complete' => true,
+                'paths' => [['namespace' => '(None)', 'path' => $root.'/templates']],
+            ]]]);
+
+            self::assertSame('file://'.$root.'/templates/index.html.twig', $indexes->forProject($project)->get('index.html.twig')?->uri());
+        } finally {
+            chmod($root.'/templates/admin', 0755);
+            @unlink($root.'/templates/index.html.twig');
+            @rmdir($root.'/templates/admin');
+            @rmdir($root.'/templates');
+            @rmdir($root);
+        }
+    }
+
     public function testCreatesMissingApplicationTemplate(): void
     {
         $uri = 'file:///workspace/src/Controller.php';

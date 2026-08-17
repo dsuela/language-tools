@@ -72,6 +72,31 @@ final class ProjectDiscoveryTest extends TestCase
         self::assertSame($this->temporaryDirectory.'/apps/admin', $projects[0]->rootPath());
     }
 
+    public function testDiscoversProjectsAroundUnreadableDirectories(): void
+    {
+        if ('Windows' === \PHP_OS_FAMILY || (\function_exists('posix_geteuid') && 0 === posix_geteuid())) {
+            self::markTestSkipped('Directory permissions are not enforced in this environment.');
+        }
+
+        file_put_contents($this->temporaryDirectory.'/composer.json', json_encode([
+            'type' => 'project',
+            'require' => ['symfony/framework-bundle' => '^8.0'],
+        ], \JSON_THROW_ON_ERROR));
+        mkdir($this->temporaryDirectory.'/volumes/mysql', 0777, true);
+        chmod($this->temporaryDirectory.'/volumes/mysql', 0000);
+
+        try {
+            $projects = (new ProjectDiscovery(new UriToPathConverter()))->discover([
+                ['uri' => 'file://'.$this->temporaryDirectory],
+            ]);
+        } finally {
+            chmod($this->temporaryDirectory.'/volumes/mysql', 0755);
+        }
+
+        self::assertCount(1, $projects);
+        self::assertSame($this->temporaryDirectory, $projects[0]->rootPath());
+    }
+
     public function testDiscoversLegacyApplicationsWithAConsoleMarker(): void
     {
         mkdir($this->temporaryDirectory.'/bin');

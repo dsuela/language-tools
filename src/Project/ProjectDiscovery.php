@@ -101,7 +101,8 @@ final class ProjectDiscovery
             ->in($directory)
             ->exclude(self::EXCLUDED_DIRECTORIES)
             ->ignoreDotFiles(false)
-            ->ignoreVCS(false);
+            ->ignoreVCS(false)
+            ->ignoreUnreadableDirs();
         foreach ($files as $file) {
             yield Path::canonicalize($file->getPath());
         }

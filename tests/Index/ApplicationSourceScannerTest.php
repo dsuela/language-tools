@@ -181,6 +181,27 @@ PHP;
         self::assertStringNotContainsString('canary-value', $cache);
     }
 
+    public function testIndexesReadableSourcesAroundUnreadableDirectories(): void
+    {
+        if ('Windows' === \PHP_OS_FAMILY || (\function_exists('posix_geteuid') && 0 === posix_geteuid())) {
+            self::markTestSkipped('Directory permissions are not enforced in this environment.');
+        }
+
+        file_put_contents($this->temporaryDirectory.'/src/Controller.php', '<?php final class Controller {}');
+        mkdir($this->temporaryDirectory.'/volumes/mysql', 0777, true);
+        chmod($this->temporaryDirectory.'/volumes/mysql', 0000);
+        $provider = new RecordingSourceIndexProvider();
+
+        try {
+            $this->scanner($provider)->indexAll();
+        } finally {
+            chmod($this->temporaryDirectory.'/volumes/mysql', 0755);
+        }
+
+        self::assertSame(1, $provider->extractions);
+        self::assertFileExists($this->temporaryDirectory.'/var/symfony-lsp/test/index/source.json');
+    }
+
     public function testUpdatesAndDeletesIndividualFiles(): void
     {
         $firstPath = $this->temporaryDirectory.'/src/First.php';

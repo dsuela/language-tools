@@ -309,6 +309,7 @@ final class ApplicationSourceScanner
             ->exclude(self::EXCLUDED_DIRECTORIES)
             ->ignoreDotFiles(false)
             ->ignoreVCS(false)
+            ->ignoreUnreadableDirs()
             ->filter(fn (\SplFileInfo $file): bool => null !== $this->languageId($file->getPathname()));
         foreach ($files as $file) {
             yield $file->getPathname();
