@@ -32,7 +32,8 @@ file_put_contents($target.'/config.m4', <<<'M4'
 
     M4);
 file_put_contents($target.'/config.w32', <<<'W32'
-    EXTENSION("symfony_lsp_tree_sitter", "symfony_lsp_tree_sitter.c", false, "/std:c11");
+    // Static extension cflags leak into the global CFLAGS on Windows, so no /std flag.
+    EXTENSION("symfony_lsp_tree_sitter", "symfony_lsp_tree_sitter.c", false);
     ADD_SOURCES(configure_module_dirname + "/vendor/tree-sitter/lib", "lib.c", "symfony_lsp_tree_sitter");
     ADD_SOURCES(configure_module_dirname + "/vendor/twig/src", "parser.c", "symfony_lsp_tree_sitter");
     ADD_SOURCES(configure_module_dirname + "/vendor/yaml/src", "parser.c scanner.c", "symfony_lsp_tree_sitter");
