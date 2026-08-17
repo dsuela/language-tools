@@ -9,6 +9,11 @@ use function Amp\ByteStream\getStderr;
 use function Amp\ByteStream\getStdin;
 use function Amp\ByteStream\getStdout;
 
+// Keep PHP errors off stdout (the JSON-RPC channel); the micro SAPI ignores display_errors=stderr
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
+ini_set('error_log', '');
+
 require dirname(__DIR__).'/vendor/autoload.php';
 
 if (in_array($argv[1] ?? null, ['--version', '-V'], true)) {

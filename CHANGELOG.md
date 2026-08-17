@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Ignore Composer packages when discovering full-stack applications
+- Report PHP fatal errors on stderr instead of corrupting the JSON-RPC stdout channel
 
 ## 0.8.6 (2026-08-15)
 
