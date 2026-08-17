@@ -104,6 +104,8 @@ jobs:
                   coverage: none
             - name: Install production dependencies
               run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+            - name: Probe the amp stdio transport
+              run: php tools/amp-stdio-probe
             - name: Build the server PHAR
               shell: pwsh
               run: |
