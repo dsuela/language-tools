@@ -28,7 +28,7 @@ file_put_contents($target.'/config.m4', <<<'M4'
         vendor/twig/src/parser.c
         vendor/yaml/src/parser.c
         vendor/yaml/src/scanner.c
-      ], [no],, [-std=c11])
+      ], [no],, [-std=c11 -I@ext_srcdir@/vendor/tree-sitter/lib])
 
     M4);
 file_put_contents($target.'/config.w32', <<<'W32'

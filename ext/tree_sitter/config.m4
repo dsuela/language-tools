@@ -11,5 +11,5 @@ if test "$PHP_SYMFONY_LSP_TREE_SITTER" != "no"; then
     vendor/twig/src/parser.c
     vendor/yaml/src/parser.c
     vendor/yaml/src/scanner.c
-  ], [$ext_shared],, [-std=c11])
+  ], [$ext_shared],, [-std=c11 -I@ext_srcdir@/vendor/tree-sitter/lib])
 fi

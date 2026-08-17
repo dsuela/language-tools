@@ -84,6 +84,12 @@ jobs:
                   ./tools/smoke-test-server "dist/symfony-lsp-$VERSION-$PLATFORM/symfony-lsp" /nonexistent-tree-sitter "$EXPECTED_VERSION"
                   tar -czf "dist/symfony-lsp-$VERSION-$PLATFORM.tar.gz" -C dist "symfony-lsp-$VERSION-$PLATFORM"
             - uses: actions/upload-artifact@v7
+              if: failure()
+              with:
+                  name: spc-logs-${{ matrix.platform }}
+                  path: var/build/release/log/
+                  if-no-files-found: ignore
+            - uses: actions/upload-artifact@v7
               with:
                   name: symfony-lsp-${{ github.ref_name }}-${{ matrix.platform }}
                   path: dist/*.tar.gz
@@ -91,7 +97,8 @@ jobs:
 
     windows-binary:
         name: windows-x64
-        runs-on: windows-latest
+        # spc 2.8.5 only detects Visual Studio 2022/2019; windows-latest ships VS 2026.
+        runs-on: windows-2022
         steps:
             - uses: actions/checkout@v7
             - uses: shivammathur/setup-php@v2
@@ -150,6 +157,12 @@ jobs:
                   php tools/smoke-test-server "dist/$package/symfony-lsp.exe" nonexistent-tree-sitter $expected
                   if ($LASTEXITCODE -ne 0) { throw 'The server smoke test failed.' }
                   Compress-Archive "dist/$package" "dist/$package.zip"
+            - uses: actions/upload-artifact@v7
+              if: failure()
+              with:
+                  name: spc-logs-windows-x64
+                  path: var/build/release/log/
+                  if-no-files-found: ignore
             - uses: actions/upload-artifact@v7
               with:
                   name: symfony-lsp-${{ github.ref_name }}-windows-x64
