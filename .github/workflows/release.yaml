@@ -154,6 +154,12 @@ jobs:
                   path: var/build/release/log/
                   if-no-files-found: ignore
             - uses: actions/upload-artifact@v7
+              if: failure()
+              with:
+                  name: debug-windows-server
+                  path: build/symfony-lsp.exe
+                  if-no-files-found: ignore
+            - uses: actions/upload-artifact@v7
               with:
                   name: symfony-lsp-${{ github.ref_name }}-windows-x64
                   path: dist/*.zip

@@ -3,6 +3,13 @@
 
 $deadlineSeconds = (float) (getenv('SYMFONY_LSP_SMOKE_DEADLINE') ?: 60);
 define('READ_DEADLINE_SECONDS', $deadlineSeconds);
+define('SMOKE_TEST_START', microtime(true));
+
+function progress(string $message): void
+{
+    fwrite(\STDOUT, sprintf('[%6.2fs] %s', microtime(true) - SMOKE_TEST_START, $message)."\n");
+    fflush(\STDOUT);
+}
 
 final class ServerConnection
 {
@@ -15,6 +22,7 @@ final class ServerConnection
 
     public function __construct(string $server)
     {
+        progress('Starting '.$server);
         $process = proc_open(
             [$server],
             [
@@ -28,33 +36,44 @@ final class ServerConnection
         if (!is_resource($process)) {
             throw new RuntimeException('Unable to start Symfony Language Tools.');
         }
-        stream_set_blocking($pipes[1], false);
-        stream_set_blocking($pipes[2], false);
+        $stdout = stream_set_blocking($pipes[1], false);
+        $stderr = stream_set_blocking($pipes[2], false);
+        progress(sprintf('Server started (non-blocking stdout: %s, stderr: %s)', var_export($stdout, true), var_export($stderr, true)));
         $this->process = $process;
         $this->pipes = $pipes;
     }
 
     public function write(array $message): void
     {
+        progress('Writing '.($message['method'] ?? 'response'));
         $json = json_encode($message, \JSON_THROW_ON_ERROR);
         fwrite($this->pipes[0], 'Content-Length: '.strlen($json)."\r\n\r\n".$json);
         fflush($this->pipes[0]);
+        progress('Wrote '.($message['method'] ?? 'response'));
     }
 
     public function read(): array
     {
+        progress('Reading a response');
         $deadline = microtime(true) + READ_DEADLINE_SECONDS;
+        $nextReport = microtime(true) + 5;
         while (null === ($message = $this->extractMessage())) {
             if (!$this->fill() && microtime(true) > $deadline) {
                 $this->fail('Symfony Language Tools sent no response within '.READ_DEADLINE_SECONDS.' seconds.');
             }
+            if (microtime(true) > $nextReport) {
+                progress(sprintf('Still waiting (%d raw bytes so far)', strlen($this->buffer)));
+                $nextReport = microtime(true) + 5;
+            }
         }
+        progress('Read a response');
 
         return $message;
     }
 
     public function close(): void
     {
+        progress('Closing');
         fclose($this->pipes[0]);
         $deadline = microtime(true) + READ_DEADLINE_SECONDS;
         while (proc_get_status($this->process)['running']) {
@@ -70,6 +89,7 @@ final class ServerConnection
         if (0 !== $status) {
             throw new RuntimeException('Symfony Language Tools exited with status '.$status.":\n".$this->errorOutput);
         }
+        progress('Closed');
     }
 
     private function extractMessage(): ?array
