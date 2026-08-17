@@ -40,9 +40,8 @@ trust, configuration and troubleshooting.
 
 Download the archive for your platform from
 [GitHub Releases](https://github.com/symfony/language-tools/releases). Extract
-it and keep the `symfony-lsp` language server and
-`symfony-lsp-tree-sitter` sidecar in the same directory. On Unix, verify the
-server before configuring your Language Server Protocol client:
+the self-contained `symfony-lsp` language server. On Unix, verify the server
+before configuring your Language Server Protocol client:
 
 ```console
 ./symfony-lsp --version

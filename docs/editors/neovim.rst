@@ -14,9 +14,8 @@ Install the ``symfony-lsp`` package with Mason when your registry includes it:
 
     :MasonInstall symfony-lsp
 
-Alternatively, use the `standalone guide`_ to download a release. Keep
-``symfony-lsp-tree-sitter`` next to ``symfony-lsp`` and make the latter
-available on ``PATH``.
+Alternatively, use the `standalone guide`_ to download a release and make
+``symfony-lsp`` available on ``PATH``.
 
 Enabling the Language Server
 ----------------------------

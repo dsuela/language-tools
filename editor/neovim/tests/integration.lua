@@ -84,9 +84,6 @@ local function test()
   local message_bufnr = vim.api.nvim_get_current_buf()
   local setup = {
     cmd = { repo .. '/bin/symfony-lsp' },
-    cmd_env = vim.env.SYMFONY_LSP_TREE_SITTER and {
-      SYMFONY_LSP_TREE_SITTER = vim.env.SYMFONY_LSP_TREE_SITTER,
-    } or nil,
     init_options = vim.tbl_deep_extend(
       'force',
       vim.deepcopy(vim.lsp.config.symfony_lsp.init_options),

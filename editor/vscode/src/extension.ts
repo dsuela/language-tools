@@ -23,12 +23,11 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         return;
     }
 
-    const sidecarPath = serverSidecarPath(serverPath);
     const serverOptions: ServerOptions = {
         command: serverPath,
         options: {
             cwd: workspaceDirectory(),
-            env: serverEnvironment(serverPath, configuration.get<string>('memoryLimit', '').trim()),
+            env: serverEnvironment(configuration.get<string>('memoryLimit', '').trim()),
         },
     };
     const outputChannel = vscode.window.createOutputChannel('Symfony Language Tools', { log: true });
@@ -40,7 +39,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     const serverKind = configuredServerPath
         ? 'configured'
         : serverPath.startsWith(bundledServerDirectory) ? 'bundled' : 'development';
-    outputChannel.info(serverStartupMessage(extensionVersion, serverPath, sidecarPath, serverKind));
+    outputChannel.info(serverStartupMessage(extensionVersion, serverPath, serverKind));
     const clientOptions: LanguageClientOptions = {
         documentSelector: [
             { scheme: 'file', language: 'php' },
@@ -104,40 +103,22 @@ function findServerPath(extensionPath: string): string | undefined {
     return candidates.find(fs.existsSync);
 }
 
-export function serverSidecarPath(serverPath: string): string | undefined {
-    const executable = 'win32' === process.platform ? 'symfony-lsp-tree-sitter.exe' : 'symfony-lsp-tree-sitter';
-    const sidecarPath = path.resolve(path.dirname(serverPath), executable);
-
-    return fs.existsSync(sidecarPath) ? sidecarPath : undefined;
-}
-
-export function serverEnvironment(serverPath: string, memoryLimit = ''): NodeJS.ProcessEnv | undefined {
-    const sidecarPath = serverSidecarPath(serverPath);
-    if (!sidecarPath && !memoryLimit) {
+export function serverEnvironment(memoryLimit = ''): NodeJS.ProcessEnv | undefined {
+    if (!memoryLimit) {
         return undefined;
     }
 
-    const environment: NodeJS.ProcessEnv = { ...process.env };
-    if (sidecarPath) {
-        environment.SYMFONY_LSP_TREE_SITTER = sidecarPath;
-    }
-    if (memoryLimit) {
-        environment.SYMFONY_LSP_MEMORY_LIMIT = memoryLimit;
-    }
-
-    return environment;
+    return { ...process.env, SYMFONY_LSP_MEMORY_LIMIT: memoryLimit };
 }
 
 export function serverStartupMessage(
     extensionVersion: string,
     serverPath: string,
-    sidecarPath: string | undefined,
     serverKind: 'bundled' | 'configured' | 'development',
 ): string {
     return [
         `Symfony Language Tools extension ${extensionVersion} starting on ${process.platform}-${process.arch};`,
-        `server (${serverKind}): ${serverPath};`,
-        `Tree-sitter sidecar: ${sidecarPath ?? 'not resolved'}.`,
+        `server (${serverKind}): ${serverPath}.`,
     ].join(' ');
 }
 

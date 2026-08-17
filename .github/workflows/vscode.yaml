@@ -34,7 +34,6 @@ jobs:
                   trap 'rm -rf server' EXIT
                   mkdir -p server dist
                   printf '#!/bin/sh\nexit 0\n' > server/symfony-lsp
-                  printf '#!/bin/sh\nexit 0\n' > server/symfony-lsp-tree-sitter
                   chmod +x server/*
                   npm run package -- --target linux-x64 --out dist/symfony-lsp-stable-linux-x64.vsix
                   if unzip -p dist/symfony-lsp-stable-linux-x64.vsix extension.vsixmanifest | grep -Fq 'Microsoft.VisualStudio.Code.PreRelease'; then
@@ -45,7 +44,6 @@ jobs:
                   unzip -p dist/symfony-lsp-prerelease-linux-x64.vsix extension.vsixmanifest | grep -F 'Microsoft.VisualStudio.Code.PreRelease'
                   npx vsce ls | grep -Fx 'images/icon.png'
                   npx vsce ls | grep -Fx 'server/symfony-lsp'
-                  npx vsce ls | grep -Fx 'server/symfony-lsp-tree-sitter'
                   npx vsce ls | grep -Fx 'THIRD_PARTY_NOTICES.md'
                   npx vsce ls | grep -Fx 'THIRD_PARTY_LICENSES/runtime/src_php-src_0.txt'
                   npx vsce ls | grep -Fx 'THIRD_PARTY_LICENSES/tree-sitter/tree-sitter-twig-LICENSE'

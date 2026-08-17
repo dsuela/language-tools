@@ -31,10 +31,8 @@ jobs:
                   php-version: '8.4'
                   coverage: none
             - uses: ramsey/composer-install@v4
-            - name: Build the Tree-sitter sidecar
-              run: |
-                  sidecar="$(./tools/build-tree-sitter-sidecar | tail -n 1)"
-                  echo "SYMFONY_LSP_TREE_SITTER=$sidecar" >> "$GITHUB_ENV"
+            - name: Build the Tree-sitter extension
+              run: composer tree-sitter:build
             - name: Install the compatibility application
               working-directory: tests/Fixtures/RuntimeApplication
               run: composer update --no-interaction --no-progress --with-all-dependencies

@@ -148,17 +148,16 @@ function bridgeGeneration(string $bridge, string $project, string $environment, 
     return is_string($generation) ? $generation : null;
 }
 
-if (4 !== $argc) {
-    fwrite(\STDERR, "Usage: benchmark-runtime-refresh <server> <project> <tree-sitter-sidecar>\n");
+if (3 !== $argc) {
+    fwrite(\STDERR, "Usage: benchmark-runtime-refresh <server> <project>\n");
     exit(2);
 }
 
 $server = realpath($argv[1]);
 $project = realpath($argv[2]);
-$sidecar = realpath($argv[3]);
 $bridge = realpath(__DIR__.'/../resources/bridge.php');
-if (false === $server || false === $project || false === $sidecar || false === $bridge) {
-    throw new InvalidArgumentException('The server, project, sidecar, and bridge must exist.');
+if (false === $server || false === $project || false === $bridge) {
+    throw new InvalidArgumentException('The server, project, and bridge must exist.');
 }
 
 $cases = [
@@ -287,8 +286,7 @@ file_put_contents($phpWrapper, "#!/bin/sh\nfor argument do\ncase \"\$argument\" 
 chmod($phpWrapper, 0755);
 file_put_contents($commandLog, '');
 
-$environment = [...getenv(), 'SYMFONY_LSP_TREE_SITTER' => $sidecar];
-$process = proc_open([$server], [['pipe', 'r'], ['pipe', 'w'], ['pipe', 'w']], $pipes, env_vars: $environment, options: ['bypass_shell' => true]);
+$process = proc_open([$server], [['pipe', 'r'], ['pipe', 'w'], ['pipe', 'w']], $pipes, env_vars: getenv(), options: ['bypass_shell' => true]);
 if (!is_resource($process)) {
     unlink($commandLog);
     unlink($phpWrapper);

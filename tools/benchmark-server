@@ -91,20 +91,18 @@ function rss(int $pid): ?int
     return (int) trim($output[0]) * 1024;
 }
 
-if ($argc < 3 || $argc > 5) {
-    fwrite(\STDERR, "Usage: benchmark-server <server> <project> [tree-sitter-sidecar] [iterations]\n");
+if ($argc < 3 || $argc > 4) {
+    fwrite(\STDERR, "Usage: benchmark-server <server> <project> [iterations]\n");
     exit(2);
 }
 
 $server = realpath($argv[1]);
 $project = realpath($argv[2]);
-$sidecar = isset($argv[3]) ? realpath($argv[3]) : false;
-$iterations = isset($argv[4]) ? (int) $argv[4] : 100;
+$iterations = isset($argv[3]) ? (int) $argv[3] : 100;
 if (false === $server || false === $project || $iterations < 1) {
     throw new InvalidArgumentException('The server, project, and iteration count must be valid.');
 }
-$environment = false === $sidecar ? null : [...getenv(), 'SYMFONY_LSP_TREE_SITTER' => $sidecar];
-$process = proc_open([$server], [['pipe', 'r'], ['pipe', 'w'], ['pipe', 'w']], $pipes, env_vars: $environment, options: ['bypass_shell' => true]);
+$process = proc_open([$server], [['pipe', 'r'], ['pipe', 'w'], ['pipe', 'w']], $pipes, env_vars: null, options: ['bypass_shell' => true]);
 if (!is_resource($process)) {
     throw new RuntimeException('Unable to start Symfony Language Tools.');
 }

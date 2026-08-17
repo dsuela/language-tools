@@ -12,6 +12,7 @@
 - Compile the Tree-sitter parser into the bundled Windows server for in-process parsing
 - Collect PHP garbage on a fixed cadence during source scans to keep indexing time linear
 - Resolve the vendored Tree-sitter Unicode headers instead of system ICU headers
+- Remove the Tree-sitter sidecar executable in favor of the compiled-in parser
 
 ## 0.8.6 (2026-08-15)
 

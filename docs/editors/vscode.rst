@@ -27,7 +27,7 @@ channel:
 
 The Marketplace selects the package matching the extension host. Packages are
 available for Linux x64 and ARM64, macOS x64 and ARM64 and Windows x64. Each
-package contains the matching language server and Tree-sitter sidecar, so
+package contains the matching self-contained language server, so
 ``symfonyLsp.serverPath`` doesn't need to be configured.
 
 You can also download the matching ``.vsix`` file from the GitHub release and
@@ -141,7 +141,7 @@ Troubleshooting
 
 Open ``View > Output`` and select ``Symfony Language Tools`` to inspect
 extension and protocol messages. Startup records identify the extension and
-server versions, platform, resolved executable and Tree-sitter sidecar. An
+server versions, platform and resolved executable. An
 uncaught PHP failure is reported on a ``Symfony Language Tools failed:`` line
 with its class, source location and redacted message; index status polling stops
 when the language client is no longer running.

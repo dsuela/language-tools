@@ -20,7 +20,7 @@ final class ServerExecutableTest extends TestCase
         $process = Process::start(
             [Path::join($root, 'bin/symfony-lsp')],
             workingDirectory: $root,
-            environment: [...$environment, 'SYMFONY_LSP_TREE_SITTER' => \PHP_BINARY],
+            environment: $environment,
             options: ['bypass_shell' => true],
         );
         $futures = [
@@ -50,7 +50,7 @@ final class ServerExecutableTest extends TestCase
         $process = Process::start(
             [Path::join($root, 'bin/symfony-lsp')],
             workingDirectory: $root,
-            environment: [...$environment, 'SYMFONY_LSP_TREE_SITTER' => \PHP_BINARY, 'SYMFONY_LSP_MEMORY_LIMIT' => '24M'],
+            environment: [...$environment, 'SYMFONY_LSP_MEMORY_LIMIT' => '24M'],
             options: ['bypass_shell' => true],
         );
         $futures = [

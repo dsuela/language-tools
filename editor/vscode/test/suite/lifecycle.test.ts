@@ -1,9 +1,8 @@
 import * as assert from 'node:assert/strict';
-import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as vscode from 'vscode';
 import { State } from 'vscode-languageclient/node';
-import { serverEnvironment, serverSidecarPath, serverStartupMessage } from '../../src/extension';
+import { serverEnvironment, serverStartupMessage } from '../../src/extension';
 import { indexStatusPollingEnabled } from '../../src/indexStatus';
 import {
     completions,
@@ -25,32 +24,21 @@ interface IndexStatus {
 }
 
 export const lifecycleTests: TestCase[] = [
-    ['Bundled server receives sibling sidecar path', testBundledSidecarEnvironment],
+    ['Server environment carries the configured memory limit', testServerEnvironment],
     ['Index status polling follows the language client state', testIndexStatusPolling],
     ['Server reports and refreshes indexes', testIndexCommands],
     ['Server remains responsive after workspace configuration changes', testConfigurationChange],
 ];
 
-async function testBundledSidecarEnvironment(): Promise<void> {
-    const directory = path.join(workspace().uri.fsPath, '.lsp-e2e', 'bundled-server');
+async function testServerEnvironment(): Promise<void> {
     const serverName = 'win32' === process.platform ? 'symfony-lsp.exe' : 'symfony-lsp';
-    const sidecarName = 'win32' === process.platform ? 'symfony-lsp-tree-sitter.exe' : 'symfony-lsp-tree-sitter';
-    const serverPath = path.join(directory, serverName);
-    const sidecarPath = path.join(directory, sidecarName);
-    await fs.promises.mkdir(directory, { recursive: true });
-    await fs.promises.writeFile(sidecarPath, '');
-    try {
-        assert.equal(serverSidecarPath(serverPath), sidecarPath);
-        assert.equal(serverEnvironment(serverPath)?.SYMFONY_LSP_TREE_SITTER, sidecarPath);
-        assert.equal(serverEnvironment(serverPath)?.SYMFONY_LSP_MEMORY_LIMIT, undefined);
-        assert.equal(serverEnvironment(serverPath, '512M')?.SYMFONY_LSP_MEMORY_LIMIT, '512M');
-        assert.equal(
-            serverStartupMessage('1.2.3', serverPath, sidecarPath, 'bundled'),
-            `Symfony Language Tools extension 1.2.3 starting on ${process.platform}-${process.arch}; server (bundled): ${serverPath}; Tree-sitter sidecar: ${sidecarPath}.`,
-        );
-    } finally {
-        await fs.promises.rm(directory, { force: true, recursive: true });
-    }
+    const serverPath = path.join(workspace().uri.fsPath, serverName);
+    assert.equal(serverEnvironment(), undefined);
+    assert.equal(serverEnvironment('512M')?.SYMFONY_LSP_MEMORY_LIMIT, '512M');
+    assert.equal(
+        serverStartupMessage('1.2.3', serverPath, 'bundled'),
+        `Symfony Language Tools extension 1.2.3 starting on ${process.platform}-${process.arch}; server (bundled): ${serverPath}.`,
+    );
 }
 
 async function testIndexStatusPolling(): Promise<void> {

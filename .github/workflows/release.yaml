@@ -63,8 +63,6 @@ jobs:
                   ./spc build "$EXTENSIONS" --build-micro -P "$GITHUB_WORKSPACE/tools/spc-inject-tree-sitter.php"
                   ./spc micro:combine ../../../build/symfony-lsp.phar -O ../../../build/symfony-lsp
                   chmod +x ../../../build/symfony-lsp
-            - name: Build the Tree-sitter sidecar
-              run: composer tree-sitter:build-sidecar
             - name: Package and smoke-test
               env:
                   PLATFORM: ${{ matrix.platform }}
@@ -72,7 +70,6 @@ jobs:
               run: |
                   mkdir -p "dist/symfony-lsp-$VERSION-$PLATFORM"
                   cp build/symfony-lsp "dist/symfony-lsp-$VERSION-$PLATFORM/symfony-lsp"
-                  cp var/build/tree_sitter_cli/symfony-lsp-tree-sitter "dist/symfony-lsp-$VERSION-$PLATFORM/symfony-lsp-tree-sitter"
                   cp LICENSE THIRD_PARTY_NOTICES.md "dist/symfony-lsp-$VERSION-$PLATFORM/"
                   cp -R THIRD_PARTY_LICENSES "dist/symfony-lsp-$VERSION-$PLATFORM/"
                   test -f "dist/symfony-lsp-$VERSION-$PLATFORM/THIRD_PARTY_LICENSES/runtime/src_php-src_0.txt"
@@ -80,8 +77,8 @@ jobs:
                   "dist/symfony-lsp-$VERSION-$PLATFORM/symfony-lsp" --version
                   EXPECTED_VERSION=dev
                   if [ "$GITHUB_REF_TYPE" = tag ]; then EXPECTED_VERSION="${VERSION#v}"; fi
-                  # A nonexistent sidecar proves the Tree-sitter parser is compiled into the binary.
-                  ./tools/smoke-test-server "dist/symfony-lsp-$VERSION-$PLATFORM/symfony-lsp" /nonexistent-tree-sitter "$EXPECTED_VERSION"
+                  # The smoke test fails at startup unless the Tree-sitter parser is compiled into the binary.
+                  ./tools/smoke-test-server "dist/symfony-lsp-$VERSION-$PLATFORM/symfony-lsp" "$EXPECTED_VERSION"
                   tar -czf "dist/symfony-lsp-$VERSION-$PLATFORM.tar.gz" -C dist "symfony-lsp-$VERSION-$PLATFORM"
             - uses: actions/upload-artifact@v7
               if: failure()
@@ -133,10 +130,6 @@ jobs:
                   if ($LASTEXITCODE -ne 0) { throw 'spc build failed.' }
                   ./spc.exe micro:combine ../../../build/symfony-lsp.phar -O ../../../build/symfony-lsp
                   if ($LASTEXITCODE -ne 0) { throw 'spc micro:combine failed.' }
-            - name: Build the Tree-sitter sidecar
-              run: |
-                  cmake -S ext/tree_sitter -B var/build/tree_sitter_cli -DCMAKE_BUILD_TYPE=Release
-                  cmake --build var/build/tree_sitter_cli --config Release
             - name: Package and smoke-test
               timeout-minutes: 2
               shell: pwsh
@@ -144,17 +137,14 @@ jobs:
                   $package = "symfony-lsp-${{ github.ref_name }}-windows-x64"
                   New-Item -ItemType Directory -Force "dist/$package" | Out-Null
                   Copy-Item build/symfony-lsp.exe "dist/$package/symfony-lsp.exe"
-                  Copy-Item var/build/tree_sitter_cli/Release/symfony-lsp-tree-sitter.exe "dist/$package/symfony-lsp-tree-sitter.exe"
                   Copy-Item -Path LICENSE, THIRD_PARTY_NOTICES.md -Destination "dist/$package/"
                   Copy-Item -Path THIRD_PARTY_LICENSES -Destination "dist/$package/THIRD_PARTY_LICENSES" -Recurse
                   if (!(Test-Path "dist/$package/THIRD_PARTY_LICENSES/runtime/src_php-src_0.txt")) { throw 'Runtime licenses are missing.' }
                   if (!(Test-Path "dist/$package/THIRD_PARTY_LICENSES/tree-sitter/tree-sitter-twig-LICENSE")) { throw 'Tree-sitter licenses are missing.' }
                   & "dist/$package/symfony-lsp.exe" --version
-                  $tree = "{{ path('homepage') }}" | & "dist/$package/symfony-lsp-tree-sitter.exe" twig | ConvertFrom-Json
-                  if ($tree.nodes.Count -eq 0) { throw 'The Tree-sitter sidecar returned no nodes.' }
                   $expected = if ($env:GITHUB_REF_TYPE -eq 'tag') { $env:GITHUB_REF_NAME.TrimStart('v') } else { 'dev' }
-                  # A nonexistent sidecar proves the Tree-sitter parser is compiled into the binary.
-                  php tools/smoke-test-server "dist/$package/symfony-lsp.exe" nonexistent-tree-sitter $expected
+                  # The smoke test fails at startup unless the Tree-sitter parser is compiled into the binary.
+                  php tools/smoke-test-server "dist/$package/symfony-lsp.exe" $expected
                   if ($LASTEXITCODE -ne 0) { throw 'The server smoke test failed.' }
                   Compress-Archive "dist/$package" "dist/$package.zip"
             - uses: actions/upload-artifact@v7
@@ -180,23 +170,18 @@ jobs:
                     - platform: linux-x64
                       target: linux-x64
                       executable: symfony-lsp
-                      sidecar: symfony-lsp-tree-sitter
                     - platform: linux-arm64
                       target: linux-arm64
                       executable: symfony-lsp
-                      sidecar: symfony-lsp-tree-sitter
                     - platform: macos-x64
                       target: darwin-x64
                       executable: symfony-lsp
-                      sidecar: symfony-lsp-tree-sitter
                     - platform: macos-arm64
                       target: darwin-arm64
                       executable: symfony-lsp
-                      sidecar: symfony-lsp-tree-sitter
                     - platform: windows-x64
                       target: win32-x64
                       executable: symfony-lsp.exe
-                      sidecar: symfony-lsp-tree-sitter.exe
         steps:
             - uses: actions/checkout@v7
             - uses: actions/download-artifact@v8
@@ -206,7 +191,6 @@ jobs:
             - name: Extract the bundled server
               env:
                   EXECUTABLE: ${{ matrix.executable }}
-                  SIDECAR: ${{ matrix.sidecar }}
               run: |
                   mkdir -p editor/vscode/server var/vscode-server/extracted
                   archive="$(find var/vscode-server -maxdepth 1 -type f | head -1)"
@@ -217,7 +201,6 @@ jobs:
                       *.zip)
                           unzip -q "$archive" -d var/vscode-server/extracted
                           find var/vscode-server/extracted -type f -name "$EXECUTABLE" -exec cp {} editor/vscode/server/ \;
-                          find var/vscode-server/extracted -type f -name "$SIDECAR" -exec cp {} editor/vscode/server/ \;
                           ;;
                       *)
                           echo "Unsupported server archive: $archive" >&2
@@ -226,7 +209,6 @@ jobs:
                   esac
                   rm -rf editor/vscode/server/LICENSE editor/vscode/server/THIRD_PARTY_LICENSES editor/vscode/server/THIRD_PARTY_NOTICES.md
                   test -f "editor/vscode/server/$EXECUTABLE"
-                  test -f "editor/vscode/server/$SIDECAR"
                   if [[ "$EXECUTABLE" != *.exe ]]; then chmod +x editor/vscode/server/*; fi
             - uses: actions/setup-node@v7
               with:
@@ -237,7 +219,6 @@ jobs:
               working-directory: editor/vscode
               env:
                   EXECUTABLE: ${{ matrix.executable }}
-                  SIDECAR: ${{ matrix.sidecar }}
                   TARGET: ${{ matrix.target }}
                   VERSION: ${{ github.ref_name }}
               run: |
@@ -255,7 +236,6 @@ jobs:
                   fi
                   npx vsce ls | grep -Fx 'images/icon.png'
                   npx vsce ls | grep -Fx "server/$EXECUTABLE"
-                  npx vsce ls | grep -Fx "server/$SIDECAR"
                   npx vsce ls | grep -Fx 'THIRD_PARTY_NOTICES.md'
                   npx vsce ls | grep -Fx 'THIRD_PARTY_LICENSES/runtime/src_php-src_0.txt'
                   npx vsce ls | grep -Fx 'THIRD_PARTY_LICENSES/tree-sitter/tree-sitter-twig-LICENSE'

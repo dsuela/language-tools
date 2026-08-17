@@ -55,9 +55,8 @@ GitHub release:
 * ``macos-x64`` or ``macos-arm64``;
 * ``windows-x64``.
 
-Extract the archive and keep ``symfony-lsp`` and
-``symfony-lsp-tree-sitter`` in the same directory. On Windows, both files have
-an ``.exe`` suffix.
+Extract the archive to get the self-contained ``symfony-lsp`` executable. On
+Windows, it has an ``.exe`` suffix.
 
 The release also contains ``SHA256SUMS``. Verify the archive checksum before
 running it.

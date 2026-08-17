@@ -13,7 +13,6 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Lsp\Parser\TreeSitter\NativeTreeSitterParser;
-use Symfony\Lsp\Parser\TreeSitter\SidecarTreeSitterParser;
 use Symfony\Lsp\Parser\TreeSitter\TreeSitterParserInterface;
 use Symfony\Lsp\Parser\TreeSitter\TreeSitterResultDecoder;
 
@@ -50,26 +49,11 @@ final class LanguageServerFactory
         $container->set(JsonRpcPeer::class, $peer);
         $container->set(JsonRpcDispatcher::class, $dispatcher);
         $container->set(ServerLogger::class, $logger);
-        $container->set(TreeSitterParserInterface::class, $this->treeSitterParser());
+        $container->set(TreeSitterParserInterface::class, new NativeTreeSitterParser(new TreeSitterResultDecoder()));
 
         /** @var LanguageServer $server */
         $server = $container->get(LanguageServer::class);
 
         return $server;
-    }
-
-    private function treeSitterParser(): TreeSitterParserInterface
-    {
-        $decoder = new TreeSitterResultDecoder();
-        if (\function_exists('symfony_lsp_tree_sitter_parse')) {
-            return new NativeTreeSitterParser($decoder);
-        }
-
-        $configuredSidecar = getenv('SYMFONY_LSP_TREE_SITTER');
-        $sidecar = false !== $configuredSidecar && '' !== $configuredSidecar
-            ? $configuredSidecar
-            : Path::join(\dirname(\PHP_BINARY), 'symfony-lsp-tree-sitter'.('Windows' === \PHP_OS_FAMILY ? '.exe' : ''));
-
-        return new SidecarTreeSitterParser($sidecar, $decoder);
     }
 }

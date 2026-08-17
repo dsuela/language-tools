@@ -32,8 +32,7 @@ Corresponding source code is available from the
 
 ## Tree-sitter Parser
 
-The Tree-sitter parser ships compiled into the server binaries and as a
-standalone sidecar executable on every platform.
+The Tree-sitter parser ships compiled into the server binaries.
 
 | Component | Revision | License |
 | --- | --- | --- |

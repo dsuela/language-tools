@@ -133,17 +133,17 @@ function findProbe(string $root, array $probe): ?array
     return null;
 }
 
-if ($argc < 4 || $argc > 5) {
-    fwrite(\STDERR, "Usage: dogfood-server <server> <sidecar> <project> [environment]\n");
+if ($argc < 3 || $argc > 4) {
+    fwrite(\STDERR, "Usage: dogfood-server <server> <project> [environment]\n");
     exit(2);
 }
 
-[$script, $server, $sidecar, $project] = array_pad($argv, 5, 'dev');
+[$script, $server, $project] = array_pad($argv, 4, 'dev');
 $project = realpath($project);
 if (false === $project) {
     throw new RuntimeException('Project does not exist.');
 }
-$process = proc_open([$server], [['pipe', 'r'], ['pipe', 'w'], ['pipe', 'w']], $pipes, env_vars: [...getenv(), 'SYMFONY_LSP_TREE_SITTER' => $sidecar], options: ['bypass_shell' => true]);
+$process = proc_open([$server], [['pipe', 'r'], ['pipe', 'w'], ['pipe', 'w']], $pipes, env_vars: getenv(), options: ['bypass_shell' => true]);
 if (!is_resource($process)) {
     throw new RuntimeException('Unable to start Symfony Language Tools.');
 }
