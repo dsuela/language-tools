@@ -2,6 +2,8 @@
 
 namespace Symfony\Lsp\Tests\Index;
 
+use Amp\CancelledException;
+use Amp\DeferredCancellation;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
@@ -256,6 +258,45 @@ PHP;
 
         self::assertSame(1, $provider->extractions);
         self::assertFileExists($this->temporaryDirectory.'/var/symfony-lsp/test/index/source.json');
+    }
+
+    public function testRestoresCycleCollectionAfterScanning(): void
+    {
+        file_put_contents($this->temporaryDirectory.'/src/Controller.php', '<?php final class Controller {}');
+
+        gc_enable();
+        $this->scanner(new RecordingSourceIndexProvider())->indexAll();
+
+        self::assertTrue(gc_enabled());
+    }
+
+    public function testRestoresCycleCollectionAfterCancellation(): void
+    {
+        file_put_contents($this->temporaryDirectory.'/src/Controller.php', '<?php final class Controller {}');
+        $cancellation = new DeferredCancellation();
+        $cancellation->cancel();
+
+        gc_enable();
+        try {
+            $this->scanner(new RecordingSourceIndexProvider())->refreshProject($this->project, $cancellation->getCancellation());
+            self::fail('The scan should have been canceled.');
+        } catch (CancelledException) {
+        }
+
+        self::assertTrue(gc_enabled());
+    }
+
+    public function testLeavesDisabledCycleCollectionUntouched(): void
+    {
+        file_put_contents($this->temporaryDirectory.'/src/Controller.php', '<?php final class Controller {}');
+
+        gc_disable();
+        try {
+            $this->scanner(new RecordingSourceIndexProvider())->indexAll();
+            self::assertFalse(gc_enabled());
+        } finally {
+            gc_enable();
+        }
     }
 
     public function testUpdatesAndDeletesIndividualFiles(): void

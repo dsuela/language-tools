@@ -10,6 +10,7 @@
 - Skip package manager lock files during source indexing
 - Compile the Tree-sitter parser into the bundled Linux and macOS servers for in-process parsing
 - Compile the Tree-sitter parser into the bundled Windows server for in-process parsing
+- Collect PHP garbage on a fixed cadence during source scans to keep indexing time linear
 
 ## 0.8.6 (2026-08-15)
 

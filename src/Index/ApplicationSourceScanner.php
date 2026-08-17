@@ -257,8 +257,41 @@ final class ApplicationSourceScanner
             $provider->begin($project);
         }
 
+        // Threshold-triggered cycle collection is quadratic over a scan: parser
+        // ASTs are cyclic, so collections fire every few files and each one
+        // walks the ever-growing live facts graph. Collect on a fixed file
+        // cadence instead.
+        $gcWasEnabled = gc_enabled();
+        if ($gcWasEnabled) {
+            gc_disable();
+        }
+
+        try {
+            $entries = $this->scanSourceFiles($project, $cached, $cancellation, $gcWasEnabled);
+        } finally {
+            if ($gcWasEnabled) {
+                gc_collect_cycles();
+                gc_enable();
+            }
+        }
+
+        foreach ($this->providers as $provider) {
+            $provider->finish($project);
+        }
+
+        return $entries;
+    }
+
+    /**
+     * @param array<string, array{size: int, modifiedAt: int, hash: string, languageId: string, runtimeStructure: ?string, providers: array<string, string>}> $cached
+     *
+     * @return array<string, array{size: int, modifiedAt: int, hash: string, languageId: string, runtimeStructure: ?string, providers: array<string, string>}>
+     */
+    private function scanSourceFiles(Project $project, array $cached, ?Cancellation $cancellation, bool $collectCycles): array
+    {
         $entries = [];
         $fileCount = 0;
+        $parsedCount = 0;
         foreach ($this->sourceFiles($project->rootPath()) as $path) {
             if (0 === ++$fileCount % 64) {
                 delay(0, cancellation: $cancellation);
@@ -298,10 +331,11 @@ final class ApplicationSourceScanner
             }
             $runtimeStructure = $this->runtimeStructureHasher->hash($relativePath, $text);
             $entries[$relativePath] = $this->entry($path, $languageId, hash('sha256', $text), $runtimeStructure, $payloads);
-        }
-
-        foreach ($this->providers as $provider) {
-            $provider->finish($project);
+            // Only parsing produces cyclic garbage; restores must not pay for
+            // full walks of the live facts graph.
+            if ($collectCycles && 0 === ++$parsedCount % 256) {
+                gc_collect_cycles();
+            }
         }
 
         return $entries;
