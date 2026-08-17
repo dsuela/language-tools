@@ -48,9 +48,9 @@ final class ServerExecutableTest extends TestCase
         $environment = getenv();
         $root = \dirname(__DIR__, 2);
         $process = Process::start(
-            [\PHP_BINARY, '-d', 'memory_limit=24M', Path::join($root, 'bin/symfony-lsp')],
+            [Path::join($root, 'bin/symfony-lsp')],
             workingDirectory: $root,
-            environment: [...$environment, 'SYMFONY_LSP_TREE_SITTER' => \PHP_BINARY],
+            environment: [...$environment, 'SYMFONY_LSP_TREE_SITTER' => \PHP_BINARY, 'SYMFONY_LSP_MEMORY_LIMIT' => '24M'],
             options: ['bypass_shell' => true],
         );
         $futures = [

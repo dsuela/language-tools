@@ -4,6 +4,7 @@
 
 - Ignore Composer packages when discovering full-stack applications
 - Report PHP fatal errors on stderr instead of corrupting the JSON-RPC stdout channel
+- Raise the server memory limit to 2G and support SYMFONY_LSP_MEMORY_LIMIT and symfonyLsp.memoryLimit overrides
 
 ## 0.8.6 (2026-08-15)
 

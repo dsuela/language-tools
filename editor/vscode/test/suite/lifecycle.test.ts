@@ -42,6 +42,8 @@ async function testBundledSidecarEnvironment(): Promise<void> {
     try {
         assert.equal(serverSidecarPath(serverPath), sidecarPath);
         assert.equal(serverEnvironment(serverPath)?.SYMFONY_LSP_TREE_SITTER, sidecarPath);
+        assert.equal(serverEnvironment(serverPath)?.SYMFONY_LSP_MEMORY_LIMIT, undefined);
+        assert.equal(serverEnvironment(serverPath, '512M')?.SYMFONY_LSP_MEMORY_LIMIT, '512M');
         assert.equal(
             serverStartupMessage('1.2.3', serverPath, sidecarPath, 'bundled'),
             `Symfony Language Tools extension 1.2.3 starting on ${process.platform}-${process.arch}; server (bundled): ${serverPath}; Tree-sitter sidecar: ${sidecarPath}.`,

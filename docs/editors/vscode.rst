@@ -82,6 +82,7 @@ workspace's ``.vscode/settings.json`` file:
 .. code-block:: json
 
     {
+        "symfonyLsp.memoryLimit": "",
         "symfonyLsp.phpCommand": ["php"],
         "symfonyLsp.consolePath": "bin/console",
         "symfonyLsp.environment": "dev",
@@ -96,6 +97,10 @@ workspace's ``.vscode/settings.json`` file:
 ``symfonyLsp.serverPath`` overrides the bundled executable and must be an
 absolute path. Use it for a server built from source or a separately downloaded
 standalone release.
+
+``symfonyLsp.memoryLimit`` sets the PHP memory limit of the language server
+process for large projects, for example ``4G`` or ``-1`` for no limit. Leave
+it empty to keep the server default of ``2G``.
 
 The extension forwards VS Code's workspace trust decision to the server.
 Untrusted workspaces remain in static-only mode. See `Symfony integrations`_
@@ -126,7 +131,8 @@ The PHP suggestion setting is optional. Symfony Language Tools is designed to
 coexist with a general PHP language server such as Intelephense or PHP Tools.
 Keep that server enabled for PHP diagnostics, types and general completion.
 
-Run ``Developer: Reload Window`` after changing ``symfonyLsp.serverPath``. Use
+Run ``Developer: Reload Window`` after changing ``symfonyLsp.serverPath`` or
+``symfonyLsp.memoryLimit``. Use
 ``Symfony Language Tools: Switch Environment`` to change the active environment
 without restarting the extension.
 

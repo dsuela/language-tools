@@ -2,6 +2,7 @@
 <?php
 
 use Symfony\Lsp\Server\LanguageServerFactory;
+use Symfony\Lsp\Server\MemoryLimit;
 use Symfony\Lsp\Server\ServerLogger;
 use Symfony\Lsp\Server\ServerVersion;
 
@@ -15,6 +16,15 @@ ini_set('log_errors', '1');
 ini_set('error_log', '');
 
 require dirname(__DIR__).'/vendor/autoload.php';
+
+$memoryLimit = new MemoryLimit();
+$memoryLimitOverride = getenv('SYMFONY_LSP_MEMORY_LIMIT');
+if (false !== $memoryLimitOverride && '' !== $memoryLimitOverride && !$memoryLimit->isValid($memoryLimitOverride)) {
+    fwrite(\STDERR, sprintf('Ignoring the invalid SYMFONY_LSP_MEMORY_LIMIT value "%s"; use a PHP memory limit such as "512M", "4G" or "-1".%s', $memoryLimitOverride, \PHP_EOL));
+}
+if (null !== $newMemoryLimit = $memoryLimit->resolve((string) ini_get('memory_limit'), $memoryLimitOverride)) {
+    ini_set('memory_limit', $newMemoryLimit);
+}
 
 if (in_array($argv[1] ?? null, ['--version', '-V'], true)) {
     fwrite(\STDOUT, 'Symfony Language Tools '.(new ServerVersion())->value()."\n");

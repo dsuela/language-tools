@@ -100,6 +100,15 @@ For example, use ``{ 'symfony', 'php' }`` with Symfony CLI.
 behavior as their VS Code counterparts. Restart the language client after
 changing its configuration.
 
+Set the ``SYMFONY_LSP_MEMORY_LIMIT`` environment variable to change the
+server's PHP memory limit for large projects:
+
+.. code-block:: lua
+
+    vim.lsp.config('symfony_lsp', {
+        cmd_env = { SYMFONY_LSP_MEMORY_LIMIT = '4G' },
+    })
+
 Code Lenses
 -----------
 

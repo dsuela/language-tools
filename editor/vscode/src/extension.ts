@@ -28,7 +28,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         command: serverPath,
         options: {
             cwd: workspaceDirectory(),
-            env: serverEnvironment(serverPath),
+            env: serverEnvironment(serverPath, configuration.get<string>('memoryLimit', '').trim()),
         },
     };
     const outputChannel = vscode.window.createOutputChannel('Symfony Language Tools', { log: true });
@@ -111,10 +111,21 @@ export function serverSidecarPath(serverPath: string): string | undefined {
     return fs.existsSync(sidecarPath) ? sidecarPath : undefined;
 }
 
-export function serverEnvironment(serverPath: string): NodeJS.ProcessEnv | undefined {
+export function serverEnvironment(serverPath: string, memoryLimit = ''): NodeJS.ProcessEnv | undefined {
     const sidecarPath = serverSidecarPath(serverPath);
+    if (!sidecarPath && !memoryLimit) {
+        return undefined;
+    }
 
-    return sidecarPath ? { ...process.env, SYMFONY_LSP_TREE_SITTER: sidecarPath } : undefined;
+    const environment: NodeJS.ProcessEnv = { ...process.env };
+    if (sidecarPath) {
+        environment.SYMFONY_LSP_TREE_SITTER = sidecarPath;
+    }
+    if (memoryLimit) {
+        environment.SYMFONY_LSP_MEMORY_LIMIT = memoryLimit;
+    }
+
+    return environment;
 }
 
 export function serverStartupMessage(

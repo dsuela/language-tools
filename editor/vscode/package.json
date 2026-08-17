@@ -98,6 +98,12 @@
           "scope": "machine",
           "description": "Absolute path overriding the Symfony Language Tools executable bundled with the extension."
         },
+        "symfonyLsp.memoryLimit": {
+          "type": "string",
+          "default": "",
+          "scope": "window",
+          "description": "PHP memory limit for the language server process, such as 512M, 4G or -1 for unlimited. Leave empty to use the server default of 2G."
+        },
         "symfonyLsp.phpCommand": {
           "type": "array",
           "items": {

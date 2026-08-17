@@ -79,6 +79,11 @@ from the extracted directory after verifying where the archive came from:
 Run ``./symfony-lsp`` without arguments to start the Language Server Protocol
 connection over standard input and standard output.
 
+The server raises PHP's ``memory_limit`` to ``2G`` when the configured limit
+is lower. Set the ``SYMFONY_LSP_MEMORY_LIMIT`` environment variable to
+override the limit with any PHP memory limit value, such as ``512M``, ``4G``
+or ``-1`` for no limit.
+
 Upgrading
 ~~~~~~~~~
 
