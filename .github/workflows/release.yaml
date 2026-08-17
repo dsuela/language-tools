@@ -113,15 +113,19 @@ jobs:
             - name: Build the standalone server
               shell: pwsh
               working-directory: var/build/release
+              env:
+                  EXTENSIONS: ctype,filter,iconv,mbstring,phar,tokenizer,zlib
               run: |
                   Invoke-WebRequest https://github.com/crazywhalecc/static-php-cli/releases/download/2.8.5/spc-windows-x64.exe -OutFile spc.exe
                   if ((Get-FileHash spc.exe -Algorithm SHA256).Hash.ToLower() -ne '425b54ab857e21409c1fd9b818899ffebabd1e2817ef0a0ed5ae8a3d9f5b463b') { throw 'Invalid static-php-cli checksum.' }
-                  Invoke-WebRequest https://dl.static-php.dev/static-php-cli/windows/spc-min/php-8.4.20-micro-win.zip -OutFile micro.zip
-                  if ((Get-FileHash micro.zip -Algorithm SHA256).Hash.ToLower() -ne '7f20e7e5097ee457a4b9373cf411725e129a925f1b0809136c9509b6df64958e') { throw 'Invalid PHP micro-runtime checksum.' }
-                  Expand-Archive micro.zip -DestinationPath micro
-                  New-Item -ItemType Directory -Force buildroot/bin | Out-Null
-                  Move-Item micro/micro.sfx buildroot/bin/micro.sfx
+                  ./spc.exe doctor --auto-fix
+                  if ($LASTEXITCODE -ne 0) { throw 'spc doctor failed.' }
+                  ./spc.exe download --with-php=8.4 --for-extensions="$env:EXTENSIONS"
+                  if ($LASTEXITCODE -ne 0) { throw 'spc download failed.' }
+                  ./spc.exe build "$env:EXTENSIONS" --build-micro -P "$env:GITHUB_WORKSPACE/tools/spc-inject-tree-sitter.php"
+                  if ($LASTEXITCODE -ne 0) { throw 'spc build failed.' }
                   ./spc.exe micro:combine ../../../build/symfony-lsp.phar -O ../../../build/symfony-lsp
+                  if ($LASTEXITCODE -ne 0) { throw 'spc micro:combine failed.' }
             - name: Build the Tree-sitter sidecar
               run: |
                   cmake -S ext/tree_sitter -B var/build/tree_sitter_cli -DCMAKE_BUILD_TYPE=Release
@@ -141,6 +145,10 @@ jobs:
                   & "dist/$package/symfony-lsp.exe" --version
                   $tree = "{{ path('homepage') }}" | & "dist/$package/symfony-lsp-tree-sitter.exe" twig | ConvertFrom-Json
                   if ($tree.nodes.Count -eq 0) { throw 'The Tree-sitter sidecar returned no nodes.' }
+                  $expected = if ($env:GITHUB_REF_TYPE -eq 'tag') { $env:GITHUB_REF_NAME.TrimStart('v') } else { 'dev' }
+                  # A nonexistent sidecar proves the Tree-sitter parser is compiled into the binary.
+                  php tools/smoke-test-server "dist/$package/symfony-lsp.exe" nonexistent-tree-sitter $expected
+                  if ($LASTEXITCODE -ne 0) { throw 'The server smoke test failed.' }
                   Compress-Archive "dist/$package" "dist/$package.zip"
             - uses: actions/upload-artifact@v7
               with:

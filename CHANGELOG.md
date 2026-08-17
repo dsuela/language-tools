@@ -9,6 +9,7 @@
 - Honor .gitignore rules during project discovery and source indexing while keeping dotenv files indexed
 - Skip package manager lock files during source indexing
 - Compile the Tree-sitter parser into the bundled Linux and macOS servers for in-process parsing
+- Compile the Tree-sitter parser into the bundled Windows server for in-process parsing
 
 ## 0.8.6 (2026-08-15)
 

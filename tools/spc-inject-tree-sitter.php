@@ -5,7 +5,9 @@
 
 use SPC\store\FileSystem;
 
-if ('before-php-buildconf' !== patch_point()) {
+// after-php-extract is the only pre-buildconf patch point that fires on
+// Windows as well as on Unix.
+if ('after-php-extract' !== patch_point()) {
     return;
 }
 
@@ -18,7 +20,7 @@ $target = SOURCE_PATH.'/php-src/ext/symfony_lsp_tree_sitter';
 FileSystem::removeDir($target);
 FileSystem::copyDir($source, $target);
 // PHP_ARG_ENABLE would let --disable-all veto the extension, so the injected
-// copy registers it unconditionally and statically instead.
+// copies register it unconditionally and statically instead.
 file_put_contents($target.'/config.m4', <<<'M4'
     PHP_NEW_EXTENSION([symfony_lsp_tree_sitter], [
         symfony_lsp_tree_sitter.c
@@ -29,4 +31,11 @@ file_put_contents($target.'/config.m4', <<<'M4'
       ], [no],, [-std=c11])
 
     M4);
+file_put_contents($target.'/config.w32', <<<'W32'
+    EXTENSION("symfony_lsp_tree_sitter", "symfony_lsp_tree_sitter.c", false, "/std:c11");
+    ADD_SOURCES(configure_module_dirname + "/vendor/tree-sitter/lib", "lib.c", "symfony_lsp_tree_sitter");
+    ADD_SOURCES(configure_module_dirname + "/vendor/twig/src", "parser.c", "symfony_lsp_tree_sitter");
+    ADD_SOURCES(configure_module_dirname + "/vendor/yaml/src", "parser.c scanner.c", "symfony_lsp_tree_sitter");
+
+    W32);
 logger()->info('Injected the Symfony Language Tools Tree-sitter extension into php-src.');
