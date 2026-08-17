@@ -2,7 +2,7 @@ import * as assert from 'node:assert/strict';
 import * as path from 'node:path';
 import * as vscode from 'vscode';
 import { State } from 'vscode-languageclient/node';
-import { serverEnvironment, serverStartupMessage } from '../../src/extension';
+import { serverEnvironment, serverStartupMessage, useSocketTransport } from '../../src/extension';
 import { indexStatusPollingEnabled } from '../../src/indexStatus';
 import {
     completions,
@@ -35,9 +35,10 @@ async function testServerEnvironment(): Promise<void> {
     const serverPath = path.join(workspace().uri.fsPath, serverName);
     assert.equal(serverEnvironment(), undefined);
     assert.equal(serverEnvironment('512M')?.SYMFONY_LSP_MEMORY_LIMIT, '512M');
+    assert.equal(useSocketTransport(), 'win32' === process.platform);
     assert.equal(
-        serverStartupMessage('1.2.3', serverPath, 'bundled'),
-        `Symfony Language Tools extension 1.2.3 starting on ${process.platform}-${process.arch}; server (bundled): ${serverPath}.`,
+        serverStartupMessage('1.2.3', serverPath, 'bundled', 'stdio'),
+        `Symfony Language Tools extension 1.2.3 starting on ${process.platform}-${process.arch}; server (bundled): ${serverPath}; transport: stdio.`,
     );
 }
 
