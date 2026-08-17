@@ -11,4 +11,5 @@ parameters:
     excludePaths:
         analyseAndScan:
             - tests/Fixtures/RuntimeApplication/*
+            - tools/spc-inject-tree-sitter.php
             - tools/vscode-guide-scenarios/*

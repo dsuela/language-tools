@@ -13,12 +13,14 @@ The generated Composer runtime is also licensed under the MIT License.
 
 ## Standalone PHP Runtime
 
-The standalone executable combines the language server with the minimal
-static PHP runtime published by static-php-cli.
+The Linux and macOS executables combine the language server with a static
+PHP runtime built from source with static-php-cli, including the Tree-sitter
+parser extension. The Windows executable uses the minimal static PHP runtime
+published by static-php-cli.
 
 | Component | License |
 | --- | --- |
-| PHP 8.4.20 | PHP License 3.01 |
+| PHP 8.4 series (Windows: PHP 8.4.20) | PHP License 3.01 |
 | phpmicro | Apache License 2.0 |
 | GNU libiconv 1.19 | GNU Lesser General Public License 2.1 |
 | zlib 1.3.2 | zlib License |
@@ -29,7 +31,10 @@ Corresponding source code is available from the
 [GNU libiconv](https://www.gnu.org/software/libiconv/) and
 [zlib](https://github.com/madler/zlib) projects.
 
-## Tree-sitter Sidecar
+## Tree-sitter Parser
+
+The Tree-sitter parser ships compiled into the Linux and macOS server
+binaries and as a standalone sidecar executable on every platform.
 
 | Component | Revision | License |
 | --- | --- | --- |
