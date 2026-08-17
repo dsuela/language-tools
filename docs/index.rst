@@ -76,7 +76,11 @@ from the extracted directory after verifying where the archive came from:
     $ xattr -dr com.apple.quarantine /path/to/symfony-lsp-v0.8.6-macos-arm64
 
 Run ``./symfony-lsp`` without arguments to start the Language Server Protocol
-connection over standard input and standard output.
+connection over standard input and standard output. Pass ``--socket=<port>``
+to connect to a client listening on that local port instead. On Windows, the
+bundled runtime cannot serve the protocol over standard input and output, so
+clients must use the socket transport there; the bundled VS Code extension
+does this automatically.
 
 The server raises PHP's ``memory_limit`` to ``2G`` when the configured limit
 is lower. Set the ``SYMFONY_LSP_MEMORY_LIMIT`` environment variable to
@@ -87,7 +91,7 @@ Upgrading
 ~~~~~~~~~
 
 Download the new archive for the same platform, stop the editor client and
-replace both executables together. Verify the installed version, then restart
+replace the executable. Verify the installed version, then restart
 or reload the editor:
 
 .. code-block:: terminal

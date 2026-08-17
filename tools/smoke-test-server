@@ -21,22 +21,36 @@ final class ServerConnection
     private $stdout;
     /** @var resource */
     private $stderr;
+    /** @var ?resource */
+    private $socket = null;
     private string $buffer = '';
     private int $stdoutOffset = 0;
     private int $stderrOffset = 0;
     private string $errorOutput = '';
     private int $silentDeadIterations = 0;
 
-    public function __construct(string $server)
+    public function __construct(string $server, bool $socketMode)
     {
         $outputPath = tempnam(sys_get_temp_dir(), 'lsp-smoke-out-');
         $errorPath = tempnam(sys_get_temp_dir(), 'lsp-smoke-err-');
         if (false === $outputPath || false === $errorPath) {
             throw new RuntimeException('Unable to create the smoke test output files.');
         }
-        progress(sprintf('Starting %s (stdout: %s, stderr: %s)', $server, $outputPath, $errorPath));
+        $command = [$server];
+        $listener = null;
+        if ($socketMode) {
+            $listener = stream_socket_server('tcp://127.0.0.1:0', $errorCode, $errorMessage);
+            if (false === $listener) {
+                throw new RuntimeException('Unable to listen for the server: '.$errorMessage);
+            }
+            $address = (string) stream_socket_get_name($listener, false);
+            $port = (int) substr($address, (int) strrpos($address, ':') + 1);
+            $command[] = '--socket='.$port;
+            progress('Listening on '.$address);
+        }
+        progress(sprintf('Starting %s (stdout: %s, stderr: %s)', implode(' ', $command), $outputPath, $errorPath));
         $process = proc_open(
-            [$server],
+            $command,
             [
                 ['pipe', 'r'],
                 ['file', $outputPath, 'w'],
@@ -58,14 +72,25 @@ final class ServerConnection
         $this->stdin = $pipes[0];
         $this->stdout = $stdout;
         $this->stderr = $stderr;
+        if (null !== $listener) {
+            $connection = stream_socket_accept($listener, READ_DEADLINE_SECONDS);
+            fclose($listener);
+            if (false === $connection) {
+                $this->fail('Symfony Language Tools did not connect to the socket within '.READ_DEADLINE_SECONDS.' seconds.');
+            }
+            stream_set_blocking($connection, false);
+            progress('Server connected');
+            $this->socket = $connection;
+        }
     }
 
     public function write(array $message): void
     {
         progress('Writing '.($message['method'] ?? 'response'));
         $json = json_encode($message, \JSON_THROW_ON_ERROR);
-        @fwrite($this->stdin, 'Content-Length: '.strlen($json)."\r\n\r\n".$json);
-        @fflush($this->stdin);
+        $channel = $this->socket ?? $this->stdin;
+        @fwrite($channel, 'Content-Length: '.strlen($json)."\r\n\r\n".$json);
+        @fflush($channel);
         progress('Wrote '.($message['method'] ?? 'response'));
     }
 
@@ -91,6 +116,10 @@ final class ServerConnection
     public function close(): void
     {
         progress('Closing');
+        if (null !== $this->socket) {
+            fclose($this->socket);
+            $this->socket = null;
+        }
         fclose($this->stdin);
         $deadline = microtime(true) + READ_DEADLINE_SECONDS;
         while (proc_get_status($this->process)['running']) {
@@ -127,11 +156,16 @@ final class ServerConnection
 
     private function fill(): bool
     {
-        fseek($this->stdout, $this->stdoutOffset);
-        $chunk = (string) stream_get_contents($this->stdout);
+        if (null !== $this->socket) {
+            $chunk = fread($this->socket, 8192);
+            $chunk = is_string($chunk) ? $chunk : '';
+        } else {
+            fseek($this->stdout, $this->stdoutOffset);
+            $chunk = (string) stream_get_contents($this->stdout);
+            $this->stdoutOffset += strlen($chunk);
+        }
         $filled = '' !== $chunk;
         $this->buffer .= $chunk;
-        $this->stdoutOffset += strlen($chunk);
         $filled = $this->drain() || $filled;
         if (!$filled) {
             if (!proc_get_status($this->process)['running'] && ++$this->silentDeadIterations > 3) {
@@ -164,12 +198,17 @@ final class ServerConnection
     }
 }
 
-if (!isset($argv[1])) {
-    fwrite(\STDERR, "Usage: smoke-test-server <server> [expected-version]\n");
+$arguments = array_slice($argv, 1);
+$socketMode = '--socket' === ($arguments[0] ?? null);
+if ($socketMode) {
+    array_shift($arguments);
+}
+if (!isset($arguments[0])) {
+    fwrite(\STDERR, "Usage: smoke-test-server [--socket] <server> [expected-version]\n");
     exit(2);
 }
 
-$connection = new ServerConnection($argv[1]);
+$connection = new ServerConnection($arguments[0], $socketMode);
 $connection->write(['jsonrpc' => '2.0', 'id' => 1, 'method' => 'initialize', 'params' => [
     'processId' => null,
     'rootUri' => null,
@@ -185,7 +224,7 @@ $connection->close();
 if (1 !== ($initialize['id'] ?? null) || !isset($initialize['result']['capabilities'])) {
     throw new RuntimeException('Symfony Language Tools did not initialize successfully.');
 }
-if (isset($argv[2]) && $argv[2] !== ($initialize['result']['serverInfo']['version'] ?? null)) {
+if (isset($arguments[1]) && $arguments[1] !== ($initialize['result']['serverInfo']['version'] ?? null)) {
     throw new RuntimeException('Symfony Language Tools reported an unexpected protocol version.');
 }
 if (2 !== ($shutdown['id'] ?? null) || !array_key_exists('result', $shutdown)) {

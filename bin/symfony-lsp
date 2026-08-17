@@ -6,6 +6,9 @@ use Symfony\Lsp\Server\MemoryLimit;
 use Symfony\Lsp\Server\ServerLogger;
 use Symfony\Lsp\Server\ServerVersion;
 
+use Amp\ByteStream\ReadableResourceStream;
+use Amp\ByteStream\WritableResourceStream;
+
 use function Amp\ByteStream\getStderr;
 use function Amp\ByteStream\getStdin;
 use function Amp\ByteStream\getStdout;
@@ -31,8 +34,15 @@ if (in_array($argv[1] ?? null, ['--version', '-V'], true)) {
     exit(0);
 }
 if (in_array($argv[1] ?? null, ['--help', '-h'], true)) {
-    fwrite(\STDOUT, "Usage: symfony-lsp [--help] [--version]\n");
+    fwrite(\STDOUT, "Usage: symfony-lsp [--help] [--version] [--socket=<port>]\n");
     exit(0);
+}
+
+$socketPort = null;
+foreach (array_slice($argv, 1) as $argument) {
+    if (1 === preg_match('/^--socket=(\d+)$/', $argument, $match)) {
+        $socketPort = (int) $match[1];
+    }
 }
 
 if (!function_exists('symfony_lsp_tree_sitter_parse')) {
@@ -48,7 +58,19 @@ if (!function_exists('symfony_lsp_tree_sitter_parse')) {
 $errorOutput = getStderr();
 $logger = new ServerLogger($errorOutput);
 try {
-    $exitCode = (new LanguageServerFactory())->create(getStdin(), getStdout(), $errorOutput)->run();
+    if (null !== $socketPort) {
+        $socket = @stream_socket_client('tcp://127.0.0.1:'.$socketPort, $errorCode, $errorMessage, 10);
+        if (false === $socket) {
+            fwrite(\STDERR, sprintf('Unable to connect to the client socket on port %d: %s%s', $socketPort, $errorMessage, \PHP_EOL));
+            exit(1);
+        }
+        $input = new ReadableResourceStream($socket);
+        $output = new WritableResourceStream($socket);
+    } else {
+        $input = getStdin();
+        $output = getStdout();
+    }
+    $exitCode = (new LanguageServerFactory())->create($input, $output, $errorOutput)->run();
 } catch (\Throwable $error) {
     $logger->fatal($error);
     exit(1);
