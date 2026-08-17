@@ -15,20 +15,32 @@ final class ServerConnection
 {
     /** @var resource */
     private $process;
-    /** @var list<resource> */
-    private array $pipes;
+    /** @var resource */
+    private $stdin;
+    /** @var resource */
+    private $stdout;
+    /** @var resource */
+    private $stderr;
     private string $buffer = '';
+    private int $stdoutOffset = 0;
+    private int $stderrOffset = 0;
     private string $errorOutput = '';
+    private int $silentDeadIterations = 0;
 
     public function __construct(string $server)
     {
-        progress('Starting '.$server);
+        $outputPath = tempnam(sys_get_temp_dir(), 'lsp-smoke-out-');
+        $errorPath = tempnam(sys_get_temp_dir(), 'lsp-smoke-err-');
+        if (false === $outputPath || false === $errorPath) {
+            throw new RuntimeException('Unable to create the smoke test output files.');
+        }
+        progress(sprintf('Starting %s (stdout: %s, stderr: %s)', $server, $outputPath, $errorPath));
         $process = proc_open(
             [$server],
             [
                 ['pipe', 'r'],
-                ['pipe', 'w'],
-                ['pipe', 'w'],
+                ['file', $outputPath, 'w'],
+                ['file', $errorPath, 'w'],
             ],
             $pipes,
             options: ['bypass_shell' => true],
@@ -36,19 +48,24 @@ final class ServerConnection
         if (!is_resource($process)) {
             throw new RuntimeException('Unable to start Symfony Language Tools.');
         }
-        $stdout = stream_set_blocking($pipes[1], false);
-        $stderr = stream_set_blocking($pipes[2], false);
-        progress(sprintf('Server started (non-blocking stdout: %s, stderr: %s)', var_export($stdout, true), var_export($stderr, true)));
+        $stdout = fopen($outputPath, 'rb');
+        $stderr = fopen($errorPath, 'rb');
+        if (false === $stdout || false === $stderr) {
+            throw new RuntimeException('Unable to open the smoke test output files.');
+        }
+        progress('Server started');
         $this->process = $process;
-        $this->pipes = $pipes;
+        $this->stdin = $pipes[0];
+        $this->stdout = $stdout;
+        $this->stderr = $stderr;
     }
 
     public function write(array $message): void
     {
         progress('Writing '.($message['method'] ?? 'response'));
         $json = json_encode($message, \JSON_THROW_ON_ERROR);
-        fwrite($this->pipes[0], 'Content-Length: '.strlen($json)."\r\n\r\n".$json);
-        fflush($this->pipes[0]);
+        @fwrite($this->stdin, 'Content-Length: '.strlen($json)."\r\n\r\n".$json);
+        @fflush($this->stdin);
         progress('Wrote '.($message['method'] ?? 'response'));
     }
 
@@ -62,7 +79,7 @@ final class ServerConnection
                 $this->fail('Symfony Language Tools sent no response within '.READ_DEADLINE_SECONDS.' seconds.');
             }
             if (microtime(true) > $nextReport) {
-                progress(sprintf('Still waiting (%d raw bytes so far)', strlen($this->buffer)));
+                progress(sprintf('Still waiting (%d raw bytes so far)', $this->stdoutOffset));
                 $nextReport = microtime(true) + 5;
             }
         }
@@ -74,7 +91,7 @@ final class ServerConnection
     public function close(): void
     {
         progress('Closing');
-        fclose($this->pipes[0]);
+        fclose($this->stdin);
         $deadline = microtime(true) + READ_DEADLINE_SECONDS;
         while (proc_get_status($this->process)['running']) {
             $this->fill();
@@ -83,8 +100,8 @@ final class ServerConnection
             }
         }
         $this->drain();
-        fclose($this->pipes[1]);
-        fclose($this->pipes[2]);
+        fclose($this->stdout);
+        fclose($this->stderr);
         $status = proc_close($this->process);
         if (0 !== $status) {
             throw new RuntimeException('Symfony Language Tools exited with status '.$status.":\n".$this->errorOutput);
@@ -110,15 +127,14 @@ final class ServerConnection
 
     private function fill(): bool
     {
-        $filled = false;
-        $chunk = fread($this->pipes[1], 8192);
-        if (is_string($chunk) && '' !== $chunk) {
-            $this->buffer .= $chunk;
-            $filled = true;
-        }
+        fseek($this->stdout, $this->stdoutOffset);
+        $chunk = (string) stream_get_contents($this->stdout);
+        $filled = '' !== $chunk;
+        $this->buffer .= $chunk;
+        $this->stdoutOffset += strlen($chunk);
         $filled = $this->drain() || $filled;
         if (!$filled) {
-            if (!proc_get_status($this->process)['running'] && feof($this->pipes[1])) {
+            if (!proc_get_status($this->process)['running'] && ++$this->silentDeadIterations > 3) {
                 $this->fail('Symfony Language Tools exited before responding.');
             }
             usleep(20000);
@@ -129,11 +145,13 @@ final class ServerConnection
 
     private function drain(): bool
     {
-        $chunk = fread($this->pipes[2], 8192);
-        if (!is_string($chunk) || '' === $chunk) {
+        fseek($this->stderr, $this->stderrOffset);
+        $chunk = (string) stream_get_contents($this->stderr);
+        if ('' === $chunk) {
             return false;
         }
         $this->errorOutput .= $chunk;
+        $this->stderrOffset += strlen($chunk);
 
         return true;
     }
