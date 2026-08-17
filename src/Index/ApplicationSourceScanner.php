@@ -8,6 +8,7 @@ use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
 use Symfony\Lsp\Document\DocumentStore;
 use Symfony\Lsp\Progress\ProgressReporterInterface;
+use Symfony\Lsp\Project\GitignoreMatcher;
 use Symfony\Lsp\Project\Project;
 use Symfony\Lsp\Project\ProjectRegistry;
 use Symfony\Lsp\Project\UriToPathConverter;
@@ -52,6 +53,7 @@ final class ApplicationSourceScanner
         private readonly SourceIndexPayloadCodec $codec,
         private readonly PhpRuntimeStructureHasher $runtimeStructureHasher,
         private readonly UriToPathConverter $uriToPathConverter,
+        private readonly GitignoreMatcher $gitignore,
         iterable $providers,
     ) {
         $providers = \is_array($providers) ? array_values($providers) : iterator_to_array($providers, false);
@@ -164,6 +166,9 @@ final class ApplicationSourceScanner
         $relativePath = $this->relativePath($project, $path);
         if (null === $relativePath) {
             return SourceFileChange::untracked();
+        }
+        if ($this->gitignoreExcluded($project->rootPath(), $path)) {
+            return SourceFileChange::ignored();
         }
 
         $projectKey = $project->rootPath();
@@ -303,6 +308,7 @@ final class ApplicationSourceScanner
             return;
         }
 
+        $dotenvPaths = [];
         $files = (new Finder())
             ->files()
             ->in($directory)
@@ -311,9 +317,28 @@ final class ApplicationSourceScanner
             ->ignoreVCS(false)
             ->ignoreUnreadableDirs()
             ->filter(fn (\SplFileInfo $file): bool => null !== $this->languageId($file->getPathname()));
-        foreach ($files as $file) {
-            yield $file->getPathname();
+        foreach ($this->gitignore->filter($files, $directory) as $path) {
+            if ('dotenv' === $this->languageId($path)) {
+                $dotenvPaths[$path] = true;
+            }
+            yield $path;
         }
+
+        foreach (glob($directory.'/.env*') ?: [] as $path) {
+            if (is_file($path) && !isset($dotenvPaths[$path])) {
+                yield $path;
+            }
+        }
+    }
+
+    private function gitignoreExcluded(string $rootPath, string $path): bool
+    {
+        // Symfony reads project-root dotenv files even when they are gitignored
+        if ('dotenv' === $this->languageId($path) && Path::canonicalize($rootPath) === \dirname(Path::canonicalize($path))) {
+            return false;
+        }
+
+        return $this->gitignore->isIgnored($rootPath, $path);
     }
 
     private function languageId(string $path): ?string

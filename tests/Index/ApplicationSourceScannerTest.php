@@ -25,6 +25,7 @@ use Symfony\Lsp\Index\SourceIndexProviderInterface;
 use Symfony\Lsp\Parser\TreeSitter\NativeTreeSitterParser;
 use Symfony\Lsp\Parser\TreeSitter\TreeSitterResultDecoder;
 use Symfony\Lsp\Parser\Yaml\YamlDocumentParser;
+use Symfony\Lsp\Project\GitignoreMatcher;
 use Symfony\Lsp\Project\Project;
 use Symfony\Lsp\Project\ProjectRegistry;
 use Symfony\Lsp\Project\UriToPathConverter;
@@ -181,6 +182,44 @@ PHP;
         self::assertStringNotContainsString('canary-value', $cache);
     }
 
+    public function testHonorsGitignoreWhileKeepingDotenvFiles(): void
+    {
+        mkdir($this->temporaryDirectory.'/.git');
+        mkdir($this->temporaryDirectory.'/tmp/phpstan', 0777, true);
+        file_put_contents($this->temporaryDirectory.'/.gitignore', "/tmp/\n/.env.local\n");
+        file_put_contents($this->temporaryDirectory.'/src/Controller.php', '<?php final class Controller {}');
+        file_put_contents($this->temporaryDirectory.'/tmp/phpstan/cache.php', '<?php return [];');
+        file_put_contents($this->temporaryDirectory.'/.env.local', "APP_DEBUG=1\n");
+        $provider = new RecordingSourceIndexProvider();
+        $scanner = $this->scanner($provider);
+
+        $scanner->indexAll();
+
+        $rootUri = 'file://'.$this->temporaryDirectory;
+        self::assertArrayHasKey($rootUri.'/src/Controller.php', $provider->sources);
+        self::assertArrayHasKey($rootUri.'/.env.local', $provider->sources);
+        self::assertArrayNotHasKey($rootUri.'/tmp/phpstan/cache.php', $provider->sources);
+    }
+
+    public function testLeavesSavedGitignoredFilesOutOfTheIndex(): void
+    {
+        mkdir($this->temporaryDirectory.'/.git');
+        mkdir($this->temporaryDirectory.'/tmp');
+        file_put_contents($this->temporaryDirectory.'/.gitignore', "/tmp/\n");
+        file_put_contents($this->temporaryDirectory.'/src/Controller.php', '<?php final class Controller {}');
+        $provider = new RecordingSourceIndexProvider();
+        $scanner = $this->scanner($provider);
+        $scanner->indexAll();
+
+        $path = $this->temporaryDirectory.'/tmp/cache.php';
+        file_put_contents($path, '<?php return [];');
+        $change = $scanner->refreshUri('file://'.$path);
+
+        self::assertFalse($change->requiresRuntimeRefresh());
+        self::assertSame([], $provider->replacements);
+        self::assertArrayNotHasKey('file://'.$path, $provider->sources);
+    }
+
     public function testIndexesReadableSourcesAroundUnreadableDirectories(): void
     {
         if ('Windows' === \PHP_OS_FAMILY || (\function_exists('posix_geteuid') && 0 === posix_geteuid())) {
@@ -261,6 +300,7 @@ PHP;
             new SourceIndexPayloadCodec(),
             new PhpRuntimeStructureHasher(),
             new UriToPathConverter(),
+            new GitignoreMatcher(),
             $providers,
         );
     }

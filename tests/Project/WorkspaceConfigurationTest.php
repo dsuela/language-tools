@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Lsp\Client\ClientInterface;
 use Symfony\Lsp\Document\PositionConverter;
 use Symfony\Lsp\Feature\Translation\TranslationConfigurationRegistry;
+use Symfony\Lsp\Project\GitignoreMatcher;
 use Symfony\Lsp\Project\Project;
 use Symfony\Lsp\Project\ProjectDiscovery;
 use Symfony\Lsp\Project\ProjectRegistry;
@@ -44,7 +45,7 @@ final class WorkspaceConfigurationTest extends TestCase
         $registry = new ProjectRegistry();
         $runtimeConfiguration = new RuntimeConfiguration();
         $configuration = new WorkspaceConfiguration(
-            new ProjectDiscovery(new UriToPathConverter()),
+            new ProjectDiscovery(new UriToPathConverter(), new GitignoreMatcher()),
             $registry,
             new WorkspaceTrustManager($this->client(), new WorkspaceTrust(), $this->runtimeInitializer()),
             $runtimeConfiguration,
@@ -78,7 +79,7 @@ final class WorkspaceConfigurationTest extends TestCase
         $registry = new ProjectRegistry();
         $runtimeConfiguration = new RuntimeConfiguration();
         $configuration = new WorkspaceConfiguration(
-            new ProjectDiscovery(new UriToPathConverter()),
+            new ProjectDiscovery(new UriToPathConverter(), new GitignoreMatcher()),
             $registry,
             new WorkspaceTrustManager($this->client(), new WorkspaceTrust(), $this->runtimeInitializer()),
             $runtimeConfiguration,

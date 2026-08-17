@@ -6,6 +6,11 @@ from the selected Symfony environment. Features based on project files remain
 available without running the application. Features that depend on the compiled
 container or another runtime service require runtime indexing.
 
+Project file scanning honors your ``.gitignore`` rules, so machine-generated
+files such as build caches are never indexed. Dotenv files like ``.env.local``
+are the exception: they stay indexed to power environment variable features,
+and only variable names are read.
+
 Supported Integrations
 ----------------------
 

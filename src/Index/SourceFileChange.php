@@ -6,6 +6,7 @@ final readonly class SourceFileChange
 {
     private const ContentOnly = 'content_only';
     private const FactsChanged = 'facts_changed';
+    private const Ignored = 'ignored';
     private const Unchanged = 'unchanged';
     private const Untracked = 'untracked';
 
@@ -23,6 +24,11 @@ final readonly class SourceFileChange
     public static function factsChanged(array $domains): self
     {
         return new self(self::FactsChanged, array_values(array_unique($domains)));
+    }
+
+    public static function ignored(): self
+    {
+        return new self(self::Ignored);
     }
 
     public static function unchanged(): self

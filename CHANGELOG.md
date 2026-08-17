@@ -6,6 +6,7 @@
 - Report PHP fatal errors on stderr instead of corrupting the JSON-RPC stdout channel
 - Raise the server memory limit to 2G and support SYMFONY_LSP_MEMORY_LIMIT and symfonyLsp.memoryLimit overrides
 - Skip unreadable directories during project discovery, source indexing, and template indexing
+- Honor .gitignore rules during project discovery and source indexing while keeping dotenv files indexed
 
 ## 0.8.6 (2026-08-15)
 

@@ -4,6 +4,7 @@ namespace Symfony\Lsp\Tests\Project;
 
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Lsp\Project\GitignoreMatcher;
 use Symfony\Lsp\Project\Project;
 use Symfony\Lsp\Project\ProjectDiscovery;
 use Symfony\Lsp\Project\ProjectRegistry;
@@ -32,7 +33,7 @@ final class ProjectDiscoveryTest extends TestCase
         ], \JSON_THROW_ON_ERROR));
         $uri = 'file://'.$this->temporaryDirectory;
 
-        $projects = (new ProjectDiscovery(new UriToPathConverter()))->discover([
+        $projects = (new ProjectDiscovery(new UriToPathConverter(), new GitignoreMatcher()))->discover([
             ['uri' => $uri, 'name' => 'application'],
         ]);
 
@@ -54,7 +55,7 @@ final class ProjectDiscoveryTest extends TestCase
                 'require' => ['symfony/framework-bundle' => '^8.0'],
             ], \JSON_THROW_ON_ERROR));
         }
-        $discovery = new ProjectDiscovery(new UriToPathConverter());
+        $discovery = new ProjectDiscovery(new UriToPathConverter(), new GitignoreMatcher());
         $workspace = [['uri' => 'file://'.$this->temporaryDirectory]];
 
         $projects = $discovery->discover($workspace);
@@ -72,6 +73,32 @@ final class ProjectDiscoveryTest extends TestCase
         self::assertSame($this->temporaryDirectory.'/apps/admin', $projects[0]->rootPath());
     }
 
+    public function testSkipsGitignoredProjectsUnlessExplicitlyConfigured(): void
+    {
+        mkdir($this->temporaryDirectory.'/.git');
+        mkdir($this->temporaryDirectory.'/ignored/app', 0777, true);
+        mkdir($this->temporaryDirectory.'/apps/admin', 0777, true);
+        file_put_contents($this->temporaryDirectory.'/.gitignore', "/ignored/\n");
+        foreach (['ignored/app', 'apps/admin'] as $path) {
+            file_put_contents($this->temporaryDirectory.'/'.$path.'/composer.json', json_encode([
+                'type' => 'project',
+                'require' => ['symfony/framework-bundle' => '^8.0'],
+            ], \JSON_THROW_ON_ERROR));
+        }
+        $discovery = new ProjectDiscovery(new UriToPathConverter(), new GitignoreMatcher());
+        $workspace = [['uri' => 'file://'.$this->temporaryDirectory]];
+
+        $projects = $discovery->discover($workspace);
+        self::assertSame(
+            [$this->temporaryDirectory.'/apps/admin'],
+            array_map(static fn (Project $project): string => $project->rootPath(), $projects),
+        );
+
+        $projects = $discovery->discover($workspace, ['ignored/app']);
+        self::assertCount(1, $projects);
+        self::assertSame($this->temporaryDirectory.'/ignored/app', $projects[0]->rootPath());
+    }
+
     public function testDiscoversProjectsAroundUnreadableDirectories(): void
     {
         if ('Windows' === \PHP_OS_FAMILY || (\function_exists('posix_geteuid') && 0 === posix_geteuid())) {
@@ -86,7 +113,7 @@ final class ProjectDiscoveryTest extends TestCase
         chmod($this->temporaryDirectory.'/volumes/mysql', 0000);
 
         try {
-            $projects = (new ProjectDiscovery(new UriToPathConverter()))->discover([
+            $projects = (new ProjectDiscovery(new UriToPathConverter(), new GitignoreMatcher()))->discover([
                 ['uri' => 'file://'.$this->temporaryDirectory],
             ]);
         } finally {
@@ -105,7 +132,7 @@ final class ProjectDiscoveryTest extends TestCase
             'require' => ['symfony/framework-bundle' => '^7.4'],
         ], \JSON_THROW_ON_ERROR));
 
-        $projects = (new ProjectDiscovery(new UriToPathConverter()))->discover([
+        $projects = (new ProjectDiscovery(new UriToPathConverter(), new GitignoreMatcher()))->discover([
             ['uri' => 'file://'.$this->temporaryDirectory],
         ]);
 
@@ -128,7 +155,7 @@ final class ProjectDiscoveryTest extends TestCase
     public function testIgnoresNonFrameworkProjectsAndInvalidComposerFiles(): void
     {
         file_put_contents($this->temporaryDirectory.'/composer.json', '{');
-        $discovery = new ProjectDiscovery(new UriToPathConverter());
+        $discovery = new ProjectDiscovery(new UriToPathConverter(), new GitignoreMatcher());
 
         self::assertSame([], $discovery->discover([
             ['uri' => 'file://'.$this->temporaryDirectory],
@@ -146,7 +173,7 @@ final class ProjectDiscoveryTest extends TestCase
 
     public function testIgnoresComposerPackages(): void
     {
-        $discovery = new ProjectDiscovery(new UriToPathConverter());
+        $discovery = new ProjectDiscovery(new UriToPathConverter(), new GitignoreMatcher());
         file_put_contents($this->temporaryDirectory.'/composer.json', json_encode([
             'name' => 'symfony/example-bundle',
             'type' => 'symfony-bundle',

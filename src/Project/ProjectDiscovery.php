@@ -16,6 +16,7 @@ final class ProjectDiscovery
 
     public function __construct(
         private readonly UriToPathConverter $uriToPathConverter,
+        private readonly GitignoreMatcher $gitignore,
     ) {
     }
 
@@ -103,8 +104,8 @@ final class ProjectDiscovery
             ->ignoreDotFiles(false)
             ->ignoreVCS(false)
             ->ignoreUnreadableDirs();
-        foreach ($files as $file) {
-            yield Path::canonicalize($file->getPath());
+        foreach ($this->gitignore->filter($files, $directory) as $path) {
+            yield \dirname($path);
         }
     }
 
