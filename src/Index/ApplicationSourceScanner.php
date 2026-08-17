@@ -37,6 +37,12 @@ final class ApplicationSourceScanner
         'yml' => 'yaml',
     ];
 
+    private const LOCK_FILES = [
+        'npm-shrinkwrap.json',
+        'package-lock.json',
+        'pnpm-lock.yaml',
+    ];
+
     /** @var list<SourceIndexProviderInterface> */
     private array $providers;
 
@@ -343,8 +349,12 @@ final class ApplicationSourceScanner
 
     private function languageId(string $path): ?string
     {
-        if (str_starts_with(basename($path), '.env')) {
+        $basename = basename($path);
+        if (str_starts_with($basename, '.env')) {
             return 'dotenv';
+        }
+        if (\in_array($basename, self::LOCK_FILES, true)) {
+            return null;
         }
 
         $extension = Path::getExtension($path, true);

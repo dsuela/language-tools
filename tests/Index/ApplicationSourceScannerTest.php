@@ -182,6 +182,23 @@ PHP;
         self::assertStringNotContainsString('canary-value', $cache);
     }
 
+    public function testSkipsPackageManagerLockFiles(): void
+    {
+        file_put_contents($this->temporaryDirectory.'/composer.json', '{}');
+        file_put_contents($this->temporaryDirectory.'/package-lock.json', '{}');
+        file_put_contents($this->temporaryDirectory.'/npm-shrinkwrap.json', '{}');
+        file_put_contents($this->temporaryDirectory.'/pnpm-lock.yaml', "lockfileVersion: '9.0'\n");
+        $provider = new RecordingSourceIndexProvider();
+
+        $this->scanner($provider)->indexAll();
+
+        $rootUri = 'file://'.$this->temporaryDirectory;
+        self::assertArrayHasKey($rootUri.'/composer.json', $provider->sources);
+        self::assertArrayNotHasKey($rootUri.'/package-lock.json', $provider->sources);
+        self::assertArrayNotHasKey($rootUri.'/npm-shrinkwrap.json', $provider->sources);
+        self::assertArrayNotHasKey($rootUri.'/pnpm-lock.yaml', $provider->sources);
+    }
+
     public function testHonorsGitignoreWhileKeepingDotenvFiles(): void
     {
         mkdir($this->temporaryDirectory.'/.git');

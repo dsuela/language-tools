@@ -7,6 +7,7 @@
 - Raise the server memory limit to 2G and support SYMFONY_LSP_MEMORY_LIMIT and symfonyLsp.memoryLimit overrides
 - Skip unreadable directories during project discovery, source indexing, and template indexing
 - Honor .gitignore rules during project discovery and source indexing while keeping dotenv files indexed
+- Skip package manager lock files during source indexing
 
 ## 0.8.6 (2026-08-15)
 
