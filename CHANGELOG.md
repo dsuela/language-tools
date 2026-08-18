@@ -5,6 +5,7 @@
 - Keep stray project output and error display off the project bridge stdout so the payload stays parseable
 - Decode the project bridge payload from its trailing JSON line instead of the whole stdout stream
 - Include the bridge error output in runtime indexing failure messages
+- Log runtime metadata failures to the server log instead of hiding them behind the generic notification
 
 ## 0.9.0 (2026-08-18)
 

@@ -7,6 +7,7 @@ use Amp\CancelledException;
 use Symfony\Lsp\Client\ClientInterface;
 use Symfony\Lsp\Index\ProjectIndexStatusRegistry;
 use Symfony\Lsp\Project\Project;
+use Symfony\Lsp\Server\ServerLogger;
 
 final class ReportingRuntimeInitializer implements RuntimeInitializerInterface
 {
@@ -14,6 +15,7 @@ final class ReportingRuntimeInitializer implements RuntimeInitializerInterface
         private readonly RuntimeInitializerInterface $initializer,
         private readonly ClientInterface $client,
         private readonly ProjectIndexStatusRegistry $statuses,
+        private readonly ServerLogger $logger,
     ) {
     }
 
@@ -23,7 +25,8 @@ final class ReportingRuntimeInitializer implements RuntimeInitializerInterface
             $this->initializer->initialize($project, $plan, $cancellation);
         } catch (CancelledException $error) {
             throw $error;
-        } catch (\Throwable) {
+        } catch (\Throwable $error) {
+            $this->logger->error($error);
             $stale = 'stale' === $this->statuses->status($project)['runtime']['state'];
             $this->client->notify('window/showMessage', [
                 'type' => 1,

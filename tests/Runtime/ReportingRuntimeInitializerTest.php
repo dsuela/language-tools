@@ -2,6 +2,7 @@
 
 namespace Symfony\Lsp\Tests\Runtime;
 
+use Amp\ByteStream\WritableBuffer;
 use Amp\Cancellation;
 use PHPUnit\Framework\TestCase;
 use Symfony\Lsp\Client\ClientInterface;
@@ -10,6 +11,7 @@ use Symfony\Lsp\Project\Project;
 use Symfony\Lsp\Runtime\ReportingRuntimeInitializer;
 use Symfony\Lsp\Runtime\RuntimeInitializerInterface;
 use Symfony\Lsp\Runtime\RuntimeRefreshPlan;
+use Symfony\Lsp\Server\ServerLogger;
 
 final class ReportingRuntimeInitializerTest extends TestCase
 {
@@ -20,7 +22,7 @@ final class ReportingRuntimeInitializerTest extends TestCase
         $project = new Project('/workspace', 'file:///workspace', '^8.0');
         $statuses->runtimeReady($project);
         $statuses->runtimeFailed($project);
-        $initializer = new ReportingRuntimeInitializer($this->failingInitializer(), $client, $statuses);
+        $initializer = new ReportingRuntimeInitializer($this->failingInitializer(), $client, $statuses, new ServerLogger(null));
 
         $initializer->initialize($project);
 
@@ -39,7 +41,7 @@ final class ReportingRuntimeInitializerTest extends TestCase
         $statuses = new ProjectIndexStatusRegistry();
         $project = new Project('/workspace', 'file:///workspace', '^8.0');
         $statuses->runtimeFailed($project);
-        $initializer = new ReportingRuntimeInitializer($this->failingInitializer(), $client, $statuses);
+        $initializer = new ReportingRuntimeInitializer($this->failingInitializer(), $client, $statuses, new ServerLogger(null));
 
         $initializer->initialize($project);
 
@@ -47,6 +49,22 @@ final class ReportingRuntimeInitializerTest extends TestCase
             'Symfony Language Tools could not initialize runtime metadata for "/workspace". Static-only features remain active.',
             $client->notifications[0]['params']['message'],
         );
+    }
+
+    public function testLogsTheUnderlyingErrorWithRedaction(): void
+    {
+        $client = new ReportingClient();
+        $statuses = new ProjectIndexStatusRegistry();
+        $project = new Project('/workspace', 'file:///workspace', '^8.0');
+        $statuses->runtimeFailed($project);
+        $log = new WritableBuffer();
+        $initializer = new ReportingRuntimeInitializer($this->failingInitializer(), $client, $statuses, new ServerLogger($log));
+
+        $initializer->initialize($project);
+
+        $log->close();
+        self::assertSame("[error] secret=[redacted]\n", $log->buffer());
+        self::assertSame(['window/showMessage'], array_column($client->notifications, 'method'));
     }
 
     private function failingInitializer(): RuntimeInitializerInterface
