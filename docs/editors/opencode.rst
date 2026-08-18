@@ -76,10 +76,10 @@ OpenCode doesn't currently request completion, rename, code actions, document
 links or code lenses from custom language servers. Use VS Code or Neovim when
 you need those interactive editor features.
 
-OpenCode doesn't support the file-watching and index-management capabilities
-used by the editor integrations. Restart OpenCode after changing Composer
-dependencies or application code and configuration that affect runtime
-metadata. The next server process rebuilds the indexes.
+OpenCode sends watched-file notifications after its built-in editing tools
+write a file, so Symfony Language Tools refreshes its source and runtime indexes
+without restarting OpenCode. Files changed outside those tools are refreshed
+the next time OpenCode accesses them through its LSP integration.
 
 Configuration
 -------------
