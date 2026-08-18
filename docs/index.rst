@@ -73,7 +73,7 @@ from the extracted directory after verifying where the archive came from:
 
 .. code-block:: terminal
 
-    $ xattr -dr com.apple.quarantine /path/to/symfony-lsp-v0.8.6-macos-arm64
+    $ xattr -dr com.apple.quarantine /path/to/symfony-lsp-v0.9.0-macos-arm64
 
 Run ``./symfony-lsp`` without arguments to start the Language Server Protocol
 connection over standard input and standard output. Pass ``--socket=<port>``
