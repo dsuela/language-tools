@@ -6,6 +6,13 @@ function bridgeTranslationsSection(SymfonyLspBridgeContext $context): ?array
     if (interface_exists(Symfony\Component\Translation\TranslatorBagInterface::class)) {
         try {
             $kernel = $context->kernel();
+            // Catalogue caches are mtime-fresh at second granularity, so an edit
+            // in the same second as the cache write would be served stale.
+            if ($context->targetedRefresh() && method_exists($kernel, 'getCacheDir') && is_string($cacheDirectory = $kernel->getCacheDir())) {
+                foreach (glob($cacheDirectory.'/translations/*') ?: [] as $cachedCatalogue) {
+                    @unlink($cachedCatalogue);
+                }
+            }
             $container = $kernel->getContainer();
             if ($container->has('translator')) {
                 $translator = $container->get('translator');

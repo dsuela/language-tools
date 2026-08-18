@@ -16,6 +16,7 @@
 - Add a `--socket` server option that connects to a listening client
 - Use the socket transport in the VS Code extension on Windows
 - Stream the source index to an appendable store instead of holding every payload in memory
+- Discard stale translation catalogue caches during targeted runtime refreshes
 
 ## 0.8.6 (2026-08-15)
 

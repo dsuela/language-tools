@@ -72,6 +72,52 @@ final class BridgeTest extends TestCase
         @rmdir($this->temporaryDirectory.'/var');
     }
 
+    public function testTargetedRefreshDiscardsStaleTranslationCatalogueCaches(): void
+    {
+        $this->writeRouteApplication();
+        mkdir($this->temporaryDirectory.'/var/cache/translations', 0777, true);
+        $catalogue = $this->temporaryDirectory.'/var/cache/translations/catalogue.en.stale.php';
+        file_put_contents($catalogue, '<?php return [];');
+
+        exec(\sprintf(
+            '%s %s --project=%s --sections=translations --targeted-refresh=1 2>&1',
+            escapeshellarg(\PHP_BINARY),
+            escapeshellarg(\dirname(__DIR__, 2).'/resources/bridge.php'),
+            escapeshellarg($this->temporaryDirectory),
+        ), $output, $exitCode);
+
+        self::assertSame(0, $exitCode, implode("\n", $output));
+        self::assertFileDoesNotExist($catalogue);
+        $this->removeVarDirectory();
+    }
+
+    public function testInitialIndexKeepsTranslationCatalogueCaches(): void
+    {
+        $this->writeRouteApplication();
+        mkdir($this->temporaryDirectory.'/var/cache/translations', 0777, true);
+        $catalogue = $this->temporaryDirectory.'/var/cache/translations/catalogue.en.stale.php';
+        file_put_contents($catalogue, '<?php return [];');
+
+        exec(\sprintf(
+            '%s %s --project=%s --sections=translations 2>&1',
+            escapeshellarg(\PHP_BINARY),
+            escapeshellarg(\dirname(__DIR__, 2).'/resources/bridge.php'),
+            escapeshellarg($this->temporaryDirectory),
+        ), $output, $exitCode);
+
+        self::assertSame(0, $exitCode, implode("\n", $output));
+        self::assertFileExists($catalogue);
+        $this->removeVarDirectory();
+    }
+
+    private function removeVarDirectory(): void
+    {
+        @unlink($this->temporaryDirectory.'/var/cache/translations/catalogue.en.stale.php');
+        @rmdir($this->temporaryDirectory.'/var/cache/translations');
+        @rmdir($this->temporaryDirectory.'/var/cache');
+        @rmdir($this->temporaryDirectory.'/var');
+    }
+
     public function testNormalizesStructuredRouteOutput(): void
     {
         $this->writeRouteApplication();
@@ -502,6 +548,10 @@ final class BridgeTest extends TestCase
                 private string $contents = '';
                 public function write(string $contents): void { $this->contents .= $contents; }
                 public function fetch(): string { return $this->contents; }
+            }
+            namespace Symfony\Component\Translation;
+            interface TranslatorBagInterface
+            {
             }
             namespace App;
             final class Kernel

@@ -30,6 +30,11 @@ final class SymfonyLspBridgeContext
         return $this->debug;
     }
 
+    public function targetedRefresh(): bool
+    {
+        return $this->targetedRefresh;
+    }
+
     public function kernel(): object
     {
         if ($this->kernelError instanceof Throwable) {
