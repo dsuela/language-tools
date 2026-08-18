@@ -1,5 +1,7 @@
 # Changelog
 
+## Unreleased
+
 ## 0.9.0 (2026-08-18)
 
 - Ignore Composer packages when discovering full-stack applications
