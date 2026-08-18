@@ -18,6 +18,7 @@
 - Stream the source index to an appendable store instead of holding every payload in memory
 - Discard stale translation catalogue caches during targeted runtime refreshes
 - Skip persisting and restoring empty source facts payloads
+- Benchmark source index scaling and enforce per-file memory budgets in CI
 
 ## 0.8.6 (2026-08-15)
 

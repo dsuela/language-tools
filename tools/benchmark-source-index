@@ -1,0 +1,305 @@
+#!/usr/bin/env php
+<?php
+
+// Measures source index scaling on synthetic projects and enforces per-file
+// memory budgets and a linear-scaling budget across two project sizes.
+
+use Amp\ByteStream\ReadableBuffer;
+use Amp\ByteStream\WritableBuffer;
+use Fabpot\JsonRpc\ContentLengthJsonRpcTransport;
+use Fabpot\JsonRpc\JsonRpcDispatcher;
+use Fabpot\JsonRpc\JsonRpcPeer;
+use Fabpot\JsonRpc\JsonRpcValueDecoding;
+use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Lsp\Index\ApplicationSourceScanner;
+use Symfony\Lsp\Index\PersistentSourceIndexStore;
+use Symfony\Lsp\Index\ProjectIndexStatusRegistry;
+use Symfony\Lsp\Parser\TreeSitter\NativeTreeSitterParser;
+use Symfony\Lsp\Parser\TreeSitter\TreeSitterParserInterface;
+use Symfony\Lsp\Parser\TreeSitter\TreeSitterResultDecoder;
+use Symfony\Lsp\Project\Project;
+use Symfony\Lsp\Server\ServerLogger;
+
+require dirname(__DIR__).'/vendor/autoload.php';
+
+if (!function_exists('symfony_lsp_tree_sitter_parse')) {
+    fwrite(\STDERR, "The Tree-sitter extension is not loaded. Run through: composer source-index:benchmark\n");
+    exit(1);
+}
+
+const SMALL_PROJECT_FILES = 1500;
+const LARGE_PROJECT_FILES = 6000;
+
+function generateProject(string $root, int $target): void
+{
+    (new Filesystem())->remove($root);
+    foreach (['.git', 'src/Controller', 'src/Service', 'src/Entity', 'templates/partials', 'translations', 'config/packages'] as $directory) {
+        mkdir("$root/$directory", 0777, true);
+    }
+    $counts = [
+        'controllers' => (int) round($target * 0.25),
+        'services' => (int) round($target * 0.25),
+        'entities' => (int) round($target * 0.10),
+        'templates' => (int) round($target * 0.15),
+        'partials' => (int) round($target * 0.10),
+        'translations' => (int) round($target * 0.10),
+        'config' => (int) round($target * 0.05),
+    ];
+    $id = static fn (int $i): string => str_pad((string) $i, 5, '0', \STR_PAD_LEFT);
+
+    file_put_contents("$root/composer.json", '{"name":"benchmark/source-index","require":{"symfony/framework-bundle":"^7.0"},"autoload":{"psr-4":{"App\\\\":"src/"}}}');
+    file_put_contents("$root/templates/base.html.twig", "<!DOCTYPE html>\n<html><body>{% block body %}{% endblock %}</body></html>\n");
+    for ($i = 0; $i < $counts['controllers']; ++$i) {
+        $n = $id($i);
+        $serviceRef = $id($i % $counts['services']);
+        $templateRef = $id($i % $counts['templates']);
+        $domainRef = $id($i % $counts['translations']);
+        file_put_contents("$root/src/Controller/Controller$n.php", <<<PHP
+            <?php
+
+            namespace App\\Controller;
+
+            use App\\Service\\Service$serviceRef;
+            use Symfony\\Bundle\\FrameworkBundle\\Controller\\AbstractController;
+            use Symfony\\Component\\HttpFoundation\\Response;
+            use Symfony\\Component\\Routing\\Attribute\\Route;
+            use Symfony\\Contracts\\Translation\\TranslatorInterface;
+
+            final class Controller$n extends AbstractController
+            {
+                public function __construct(
+                    private readonly Service$serviceRef \$service,
+                    private readonly TranslatorInterface \$translator,
+                ) {
+                }
+
+                #[Route('/page-$n', name: 'app_page_$n')]
+                public function show(): Response
+                {
+                    return \$this->render('page$templateRef.html.twig', [
+                        'value' => \$this->service->compute($i),
+                        'title' => \$this->translator->trans('title.page', [], 'domain$domainRef'),
+                    ]);
+                }
+
+                #[Route('/page-$n/delete', name: 'app_page_{$n}_delete', methods: ['POST'])]
+                public function delete(): Response
+                {
+                    return \$this->redirectToRoute('app_page_$n');
+                }
+            }
+            PHP);
+    }
+    for ($i = 0; $i < $counts['services']; ++$i) {
+        $n = $id($i);
+        file_put_contents("$root/src/Service/Service$n.php", <<<PHP
+            <?php
+
+            namespace App\\Service;
+
+            use Symfony\\Component\\DependencyInjection\\Attribute\\Autowire;
+            use Symfony\\Component\\EventDispatcher\\Attribute\\AsEventListener;
+            use Symfony\\Component\\HttpKernel\\Event\\RequestEvent;
+
+            final class Service$n
+            {
+                public function __construct(
+                    #[Autowire(param: 'benchmark.factor_$n')]
+                    private readonly int \$factor,
+                ) {
+                }
+
+                #[AsEventListener(event: RequestEvent::class)]
+                public function onRequest(RequestEvent \$event): void
+                {
+                }
+
+                public function compute(int \$value): int
+                {
+                    return \$value * \$this->factor + $i;
+                }
+            }
+            PHP);
+    }
+    for ($i = 0; $i < $counts['entities']; ++$i) {
+        $n = $id($i);
+        file_put_contents("$root/src/Entity/Entity$n.php", <<<PHP
+            <?php
+
+            namespace App\\Entity;
+
+            use Doctrine\\ORM\\Mapping as ORM;
+
+            #[ORM\\Entity]
+            #[ORM\\Table(name: 'entity_$n')]
+            class Entity$n
+            {
+                #[ORM\\Id]
+                #[ORM\\GeneratedValue]
+                #[ORM\\Column]
+                private ?int \$id = null;
+
+                #[ORM\\Column(length: 255)]
+                private string \$name = '';
+
+                public function getName(): string
+                {
+                    return \$this->name;
+                }
+            }
+            PHP);
+    }
+    for ($i = 0; $i < $counts['templates']; ++$i) {
+        $n = $id($i);
+        $routeRef = $id($i % $counts['controllers']);
+        $partialRef = $id($i % $counts['partials']);
+        $domainRef = $id($i % $counts['translations']);
+        file_put_contents("$root/templates/page$n.html.twig", <<<TWIG
+            {% extends 'base.html.twig' %}
+
+            {% block body %}
+                <h1>{{ 'title.page'|trans({}, 'domain$domainRef') }}</h1>
+                <a href="{{ path('app_page_$routeRef') }}">{{ 'link.show'|trans({}, 'domain$domainRef') }}</a>
+                {% include 'partials/_card$partialRef.html.twig' with { value: value } %}
+            {% endblock %}
+            TWIG);
+    }
+    for ($i = 0; $i < $counts['partials']; ++$i) {
+        $n = $id($i);
+        $routeRef = $id($i % $counts['controllers']);
+        file_put_contents("$root/templates/partials/_card$n.html.twig", <<<TWIG
+            <div class="card card-$n">
+                <a href="{{ path('app_page_$routeRef') }}">{{ value }}</a>
+            </div>
+            TWIG);
+    }
+    for ($i = 0; $i < $counts['translations']; ++$i) {
+        $n = $id($i);
+        $lines = ["title.page: 'Page $n'", "link:", "    show: 'Show $n'"];
+        for ($k = 0; $k < 10; ++$k) {
+            $lines[] = "key.extra_$k: 'Extra translation $k for domain $n'";
+        }
+        file_put_contents("$root/translations/domain$n.en.yaml", implode("\n", $lines)."\n");
+    }
+    for ($i = 0; $i < $counts['config']; ++$i) {
+        $n = $id($i);
+        $serviceRef = $id($i % $counts['services']);
+        file_put_contents("$root/config/packages/benchmark$n.yaml", <<<YAML
+            parameters:
+                benchmark.factor_$serviceRef: $i
+
+            services:
+                benchmark.service_$n:
+                    class: App\\Service\\Service$serviceRef
+            YAML);
+    }
+}
+
+/**
+ * @return array{0: ApplicationSourceScanner, 1: ProjectIndexStatusRegistry, 2: PersistentSourceIndexStore}
+ */
+function bootScanner(): array
+{
+    $resources = dirname(__DIR__).'/resources';
+    $container = new ContainerBuilder();
+    $container->setParameter('server.version', 'benchmark');
+    $container->setParameter('bridge.source', $resources.'/bridge.php');
+    (new PhpFileLoader($container, new FileLocator($resources)))->load('services.php');
+    $container->getDefinition(ApplicationSourceScanner::class)->setPublic(true);
+    $container->getDefinition(ProjectIndexStatusRegistry::class)->setPublic(true);
+    $container->getDefinition(PersistentSourceIndexStore::class)->setPublic(true);
+    $container->compile();
+    $peer = new JsonRpcPeer(
+        new ContentLengthJsonRpcTransport(new ReadableBuffer(''), new WritableBuffer()),
+        valueDecoding: JsonRpcValueDecoding::AssociativeArrays,
+    );
+    $container->set(JsonRpcPeer::class, $peer);
+    $container->set(JsonRpcDispatcher::class, new JsonRpcDispatcher($peer));
+    $container->set(ServerLogger::class, new ServerLogger(null));
+    $container->set(TreeSitterParserInterface::class, new NativeTreeSitterParser(new TreeSitterResultDecoder()));
+
+    /** @var ApplicationSourceScanner $scanner */
+    $scanner = $container->get(ApplicationSourceScanner::class);
+    /** @var ProjectIndexStatusRegistry $statuses */
+    $statuses = $container->get(ProjectIndexStatusRegistry::class);
+    /** @var PersistentSourceIndexStore $store */
+    $store = $container->get(PersistentSourceIndexStore::class);
+
+    return [$scanner, $statuses, $store];
+}
+
+/**
+ * @return array{milliseconds: float, peakBytes: int, retainedBytes: int, indexedFiles: int, ready: bool}
+ */
+function measureScan(Project $project): array
+{
+    [$scanner, $statuses, $store] = bootScanner();
+    gc_collect_cycles();
+    $baseline = memory_get_usage();
+    memory_reset_peak_usage();
+    $start = hrtime(true);
+    $scanner->refreshProject($project);
+    $milliseconds = (hrtime(true) - $start) / 1_000_000;
+    $peak = memory_get_peak_usage() - $baseline;
+    gc_collect_cycles();
+    $retained = memory_get_usage() - $baseline;
+    $ready = 'ready' === $statuses->status($project)['source']['state'];
+    $indexedFiles = count($store->loadMetadata($project));
+
+    return [
+        'milliseconds' => round($milliseconds, 1),
+        'peakBytes' => $peak,
+        'retainedBytes' => $retained,
+        'indexedFiles' => $indexedFiles,
+        'ready' => $ready,
+    ];
+}
+
+$fixtureRoot = dirname(__DIR__).'/var/build/source-index-benchmark';
+$measurements = [];
+foreach ([SMALL_PROJECT_FILES, LARGE_PROJECT_FILES] as $target) {
+    $root = $fixtureRoot.'/'.$target;
+    generateProject($root, $target);
+    $root = (string) realpath($root);
+    $project = new Project($root, 'file://'.$root, '^7.0');
+
+    $cold = measureScan($project);
+    gc_collect_cycles();
+    $warm = measureScan($project);
+    $measurements[] = ['targetFiles' => $target, 'cold' => $cold, 'warm' => $warm];
+}
+
+[$small, $large] = $measurements;
+$perFile = static fn (int|float $value, array $measurement): float => $value / max(1, $measurement['cold']['indexedFiles']);
+$coldSmallMsPerFile = $perFile($small['cold']['milliseconds'], $small);
+$coldLargeMsPerFile = $perFile($large['cold']['milliseconds'], $large);
+$scalingRatio = $coldLargeMsPerFile / max(0.001, $coldSmallMsPerFile);
+$kib = 1024;
+
+$result = [
+    'measurements' => $measurements,
+    'coldMillisecondsPerFile' => round($coldLargeMsPerFile, 3),
+    'coldScalingRatio' => round($scalingRatio, 2),
+    'coldPeakKibPerFile' => round($perFile($large['cold']['peakBytes'], $large) / $kib, 1),
+    'coldRetainedKibPerFile' => round($perFile($large['cold']['retainedBytes'], $large) / $kib, 1),
+    'warmPeakKibPerFile' => round($perFile($large['warm']['peakBytes'], $large) / $kib, 1),
+    'warmRetainedKibPerFile' => round($perFile($large['warm']['retainedBytes'], $large) / $kib, 1),
+    'targets' => [
+        'indexesReady' => $small['cold']['ready'] && $small['warm']['ready'] && $large['cold']['ready'] && $large['warm']['ready'],
+        'indexesComplete' => $large['cold']['indexedFiles'] > 0.9 * LARGE_PROJECT_FILES && $small['cold']['indexedFiles'] > 0.9 * SMALL_PROJECT_FILES,
+        // The historical quadratic cycle-collection regression measures ~1.9
+        // at these sizes; healthy scans measure ~1.1.
+        'coldScalesLinearly' => $scalingRatio < 1.5,
+        'coldUnder25MillisecondsPerFile' => $coldLargeMsPerFile < 25,
+        'coldPeakUnder26KibPerFile' => $perFile($large['cold']['peakBytes'], $large) < 26 * $kib,
+        'coldRetainedUnder16KibPerFile' => $perFile($large['cold']['retainedBytes'], $large) < 16 * $kib,
+        'warmPeakUnder56KibPerFile' => $perFile($large['warm']['peakBytes'], $large) < 56 * $kib,
+        'warmRetainedUnder40KibPerFile' => $perFile($large['warm']['retainedBytes'], $large) < 40 * $kib,
+    ],
+];
+
+echo json_encode($result, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES | \JSON_THROW_ON_ERROR)."\n";
+exit(in_array(false, $result['targets'], true) ? 1 : 0);

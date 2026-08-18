@@ -45,6 +45,7 @@
         "runtime-fixture:install": "composer update --working-dir=tests/Fixtures/RuntimeApplication --no-interaction --no-progress --with-all-dependencies",
         "server:benchmark": "./tools/benchmark-server bin/symfony-lsp tests/Fixtures/RuntimeApplication",
         "runtime-refresh:benchmark": "./tools/benchmark-runtime-refresh bin/symfony-lsp tests/Fixtures/RuntimeApplication",
+        "source-index:benchmark": "./tools/php-with-tree-sitter tools/benchmark-source-index",
         "test": "./tools/php-with-tree-sitter vendor/bin/phpunit --no-progress",
         "phpstan": "phpstan analyze --no-progress",
         "cs-check": "php-cs-fixer fix --show-progress=none --dry-run --diff",
