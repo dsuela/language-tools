@@ -53,6 +53,7 @@ final class PhpRuntimeStructureHasherTest extends TestCase
     {
         yield 'PHP configuration' => ['config/services.php', 'return new class'];
         yield 'kernel' => ['src/Kernel.php', 'final class Kernel'];
+        yield 'kernel outside src' => ['app/Kernel.php', 'final class Kernel extends BaseKernel'];
         yield 'dependency injection extension' => ['src/DependencyInjection/AppExtension.php', 'final class AppExtension'];
         yield 'event subscriber' => ['src/EventSubscriber/AppSubscriber.php', 'final class AppSubscriber'];
         yield 'form type' => ['src/Form/AppType.php', 'final class AppType'];

@@ -45,10 +45,7 @@ final class SymfonyLspBridgeContext
         }
 
         try {
-            $kernelClass = 'App\\Kernel';
-            if (!class_exists($kernelClass)) {
-                throw new RuntimeException('The default App\\Kernel class was not found.');
-            }
+            $kernelClass = $this->resolveKernelClass();
             $tracking = $_SERVER['SYMFONY_DISABLE_RESOURCE_TRACKING'] ?? null;
             if ($this->targetedRefresh) {
                 $skipAll = filter_var($tracking, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
@@ -90,6 +87,63 @@ final class SymfonyLspBridgeContext
             $this->kernelError = $error;
             throw $error;
         }
+    }
+
+    private function resolveKernelClass(): string
+    {
+        if (class_exists('App\\Kernel')) {
+            return 'App\\Kernel';
+        }
+
+        foreach ($this->autoloadedKernelCandidates() as $candidate) {
+            if (!class_exists($candidate)) {
+                continue;
+            }
+            if (interface_exists(Symfony\Component\HttpKernel\KernelInterface::class)
+                && !is_subclass_of($candidate, Symfony\Component\HttpKernel\KernelInterface::class)
+            ) {
+                continue;
+            }
+
+            return $candidate;
+        }
+
+        throw new RuntimeException('No kernel class was found. Expected App\\Kernel or a Kernel class at a Composer PSR-4 autoload root.');
+    }
+
+    /** @return string[] */
+    private function autoloadedKernelCandidates(): array
+    {
+        $root = rtrim($this->project, '/\\');
+        $composerFile = $root.'/composer.json';
+        if (!is_file($composerFile)) {
+            return [];
+        }
+
+        try {
+            $composer = json_decode((string) file_get_contents($composerFile), true, 512, JSON_THROW_ON_ERROR);
+        } catch (JsonException) {
+            return [];
+        }
+        $psr4 = is_array($composer) ? ($composer['autoload']['psr-4'] ?? null) : null;
+        if (!is_array($psr4)) {
+            return [];
+        }
+
+        $candidates = [];
+        foreach ($psr4 as $prefix => $paths) {
+            if (!is_string($prefix) || !str_ends_with($prefix, '\\')) {
+                continue;
+            }
+            foreach (is_array($paths) ? $paths : [$paths] as $path) {
+                if (is_string($path) && is_file($root.'/'.trim($path, '/').'/Kernel.php')) {
+                    $candidates[] = $prefix.'Kernel';
+                    break;
+                }
+            }
+        }
+
+        return $candidates;
     }
 
     private function removeDirectory(string $directory): void

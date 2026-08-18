@@ -4,7 +4,7 @@ namespace Symfony\Lsp\Index;
 
 final class PhpRuntimeStructureHasher
 {
-    private const EXECUTED_SOURCE_PATTERN = '/\b(?:extends|implements)\s+[^;{]*(?:AbstractExtension|AbstractType|Bundle|CompilerPassInterface|EnvVarProcessorInterface|EventSubscriberInterface|ExtensionInterface|FormTypeInterface|LoaderInterface|ServiceSubscriberInterface)\b/';
+    private const EXECUTED_SOURCE_PATTERN = '/\b(?:extends|implements)\s+[^;{]*(?:AbstractExtension|AbstractType|Bundle|CompilerPassInterface|EnvVarProcessorInterface|EventSubscriberInterface|ExtensionInterface|FormTypeInterface|Kernel|LoaderInterface|ServiceSubscriberInterface)\b/';
 
     public function hash(string $relativePath, string $text): ?string
     {
