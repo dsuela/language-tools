@@ -68,6 +68,7 @@ final class ProjectRuntimeInitializerTest extends TestCase
         $configuration->configure([
             'phpCommand' => ['project-php', '--flag'],
             'environment' => 'test',
+            'runtimeTimeout' => 42.5,
         ]);
         $initializer = new ProjectRuntimeInitializer(
             new BridgeInstaller($source, 'test', new Filesystem()),
@@ -90,6 +91,7 @@ final class ProjectRuntimeInitializerTest extends TestCase
         self::assertSame('--debug=1', $processRunner->command[5]);
         self::assertSame('--sections=routes,container', $processRunner->command[6]);
         self::assertSame($this->temporaryDirectory, $processRunner->workingDirectory);
+        self::assertSame(42.5, $processRunner->timeout);
     }
 
     public function testRejectsRuntimeIndexingWithoutDebugMode(): void
@@ -282,6 +284,7 @@ final class CapturingProcessRunner implements ProcessRunnerInterface
     /** @var list<non-empty-list<string>> */
     public array $commands = [];
     public string $workingDirectory = '';
+    public ?float $timeout = null;
 
     /** @var list<ProcessResult> */
     private array $results;
@@ -291,11 +294,12 @@ final class CapturingProcessRunner implements ProcessRunnerInterface
         $this->results = array_values($results);
     }
 
-    public function run(array $command, string $workingDirectory, ?Cancellation $cancellation = null): ProcessResult
+    public function run(array $command, string $workingDirectory, ?Cancellation $cancellation = null, ?float $timeout = null): ProcessResult
     {
         $this->command = $command;
         $this->commands[] = $command;
         $this->workingDirectory = $workingDirectory;
+        $this->timeout = $timeout;
 
         return array_shift($this->results) ?? throw new \LogicException('No process result was configured.');
     }
