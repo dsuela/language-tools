@@ -68,6 +68,7 @@ final class ProjectRuntimeInitializerTest extends TestCase
         $configuration->configure([
             'phpCommand' => ['project-php', '--flag'],
             'environment' => 'test',
+            'kernelClass' => 'App\\CustomKernel',
         ]);
         $initializer = new ProjectRuntimeInitializer(
             new BridgeInstaller($source, 'test', new Filesystem()),
@@ -87,8 +88,9 @@ final class ProjectRuntimeInitializerTest extends TestCase
         self::assertSame('project-php', $processRunner->command[0]);
         self::assertSame('--flag', $processRunner->command[1]);
         self::assertSame('--environment=test', $processRunner->command[4]);
-        self::assertSame('--debug=1', $processRunner->command[5]);
-        self::assertSame('--sections=routes,container', $processRunner->command[6]);
+        self::assertSame('--kernel-class=App\CustomKernel', $processRunner->command[5]);
+        self::assertSame('--debug=1', $processRunner->command[6]);
+        self::assertSame('--sections=routes,container', $processRunner->command[7]);
         self::assertSame($this->temporaryDirectory, $processRunner->workingDirectory);
     }
 

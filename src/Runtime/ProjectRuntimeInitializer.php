@@ -30,6 +30,7 @@ final class ProjectRuntimeInitializer implements RuntimeInitializerInterface
             $bridge,
             '--project='.$project->rootPath(),
             '--environment='.$this->configuration->environment($project),
+            '--kernel-class='.$this->configuration->kernelClass($project),
             '--debug=1',
             '--sections='.implode(',', $sections),
             ...($plan->preservesContainer() ? ['--targeted-refresh=1'] : []),

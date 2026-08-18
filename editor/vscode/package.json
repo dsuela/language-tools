@@ -121,6 +121,12 @@
           "scope": "resource",
           "description": "Project console path used for cache maintenance."
         },
+        "symfonyLsp.kernelClass": {
+          "type": "string",
+          "default": "App\\Kernel",
+          "scope": "resource",
+          "description": "Fully-qualified Symfony kernel class used for runtime indexing."
+        },
         "symfonyLsp.environment": {
           "type": "string",
           "default": "dev",

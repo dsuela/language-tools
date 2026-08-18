@@ -41,7 +41,7 @@ require __DIR__.'/bridge/sections/stimulus.php';
 require __DIR__.'/bridge/sections/configuration.php';
 require __DIR__.'/bridge/sections/environment.php';
 
-$options = getopt('', ['project:', 'environment::', 'debug::', 'sections::', 'targeted-refresh::', 'rebuild-container::']);
+$options = getopt('', ['project:', 'environment::', 'kernel-class::', 'debug::', 'sections::', 'targeted-refresh::', 'rebuild-container::']);
 $project = $options['project'] ?? null;
 if (!is_string($project) || '' === $project) {
     fwrite(STDERR, "The --project option is required.\n");
@@ -74,6 +74,8 @@ if (!preg_match('/^(?:v)?([0-9]+\.[0-9]+)(?:\.|$)/', $version, $matches)) {
 
 $environmentOption = $options['environment'] ?? 'dev';
 $environment = is_string($environmentOption) ? $environmentOption : 'dev';
+$kernelClassOption = $options['kernel-class'] ?? 'App\\Kernel';
+$kernelClass = is_string($kernelClassOption) && '' !== $kernelClassOption ? $kernelClassOption : 'App\\Kernel';
 $debugOption = $options['debug'] ?? '1';
 $debug = !in_array($debugOption, ['0', 'false'], true);
 $requestedSections = $options['sections'] ?? '';

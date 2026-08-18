@@ -12,6 +12,7 @@ final class SymfonyLspBridgeContext
         private bool $debug,
         private bool $targetedRefresh,
         private bool $rebuildContainer,
+        private string $kernelClass = 'App\\Kernel',
     ) {
     }
 
@@ -45,9 +46,9 @@ final class SymfonyLspBridgeContext
         }
 
         try {
-            $kernelClass = 'App\\Kernel';
+            $kernelClass = $this->kernelClass;
             if (!class_exists($kernelClass)) {
-                throw new RuntimeException('The default App\\Kernel class was not found.');
+                throw new RuntimeException(sprintf('The configured kernel class "%s" was not found.', $kernelClass));
             }
             $tracking = $_SERVER['SYMFONY_DISABLE_RESOURCE_TRACKING'] ?? null;
             if ($this->targetedRefresh) {

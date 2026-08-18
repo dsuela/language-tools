@@ -63,6 +63,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
             phpCommand: configuration.get<string[]>('phpCommand', ['php']),
             consolePath: configuration.get<string>('consolePath', 'bin/console'),
             environment: configuration.get<string>('environment', 'dev'),
+            kernelClass: configuration.get<string>('kernelClass', 'App\\Kernel'),
             debug: configuration.get<boolean>('debug', true),
             runtimeIndexing: configuration.get<boolean>('runtimeIndexing', true),
             projectRoots: configuration.get<string[]>('projectRoots', []),

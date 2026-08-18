@@ -10,6 +10,7 @@ final class RuntimeConfiguration
     private array $phpCommand = ['php'];
     private string $consolePath = 'bin/console';
     private string $environment = 'dev';
+    private string $kernelClass = 'App\\Kernel';
     private bool $debug = true;
     private bool $runtimeIndexing = true;
 
@@ -47,6 +48,10 @@ final class RuntimeConfiguration
         $environment = $initializationOptions['environment'] ?? null;
         if (\is_string($environment) && '' !== $environment) {
             $this->environment = $environment;
+        }
+        $kernelClass = $initializationOptions['kernelClass'] ?? null;
+        if (\is_string($kernelClass) && '' !== $kernelClass) {
+            $this->kernelClass = $kernelClass;
         }
 
         $debug = $initializationOptions['debug'] ?? null;
@@ -107,6 +112,13 @@ final class RuntimeConfiguration
         $environment = $this->setting($project, 'environment', $this->environment);
 
         return \is_string($environment) && '' !== $environment ? $environment : $this->environment;
+    }
+
+    public function kernelClass(?Project $project = null): string
+    {
+        $kernelClass = $this->setting($project, 'kernelClass', $this->kernelClass);
+
+        return \is_string($kernelClass) && '' !== $kernelClass ? $kernelClass : $this->kernelClass;
     }
 
     public function debug(?Project $project = null): bool
