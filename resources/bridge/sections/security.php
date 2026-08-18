@@ -18,9 +18,9 @@ function bridgeSecuritySection(SymfonyLspBridgeContext $context): ?array
                     break;
                 }
             }
-        } catch (Throwable $error) {
+        } catch (Throwable) {
             $complete = false;
-            $context->addError('security', $error->getMessage());
+            $context->addError('security');
         }
     }
     if ($securityEnabled) {
@@ -102,9 +102,9 @@ function bridgeSecuritySection(SymfonyLspBridgeContext $context): ?array
             } catch (Throwable $error) {
                 $warnings[] = 'Voters: '.$error->getMessage();
             }
-        } catch (Throwable $error) {
+        } catch (Throwable) {
             $complete = false;
-            $context->addError('security', $error->getMessage());
+            $context->addError('security');
         }
     }
     ksort($firewalls);

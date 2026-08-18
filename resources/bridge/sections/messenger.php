@@ -184,9 +184,9 @@ function bridgeMessengerSection(SymfonyLspBridgeContext $context): ?array
             } catch (Throwable $error) {
                 $warnings[] = 'Routing: '.$error->getMessage();
             }
-        } catch (Throwable $error) {
+        } catch (Throwable) {
             $complete = false;
-            $context->addError('messenger', $error->getMessage());
+            $context->addError('messenger');
         }
     }
     ksort($buses);

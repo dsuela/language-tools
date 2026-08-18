@@ -37,8 +37,8 @@ function bridgeTwigSection(SymfonyLspBridgeContext $context): ?array
                     }
                 }
             }
-        } catch (Throwable $error) {
-            $context->addError('twig', $error->getMessage());
+        } catch (Throwable) {
+            $context->addError('twig');
         }
     }
     usort($paths, static fn (array $a, array $b): int => [$a['namespace'], $a['path']] <=> [$b['namespace'], $b['path']]);

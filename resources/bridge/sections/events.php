@@ -39,9 +39,9 @@ function bridgeEventsSection(SymfonyLspBridgeContext $context): ?array
                     ];
                 }
             }
-        } catch (Throwable $error) {
+        } catch (Throwable) {
             $complete = false;
-            $context->addError('events', $error->getMessage());
+            $context->addError('events');
         }
     }
     usort($eventItems, static fn (array $left, array $right): int => $left['name'] <=> $right['name']);

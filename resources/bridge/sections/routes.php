@@ -7,7 +7,7 @@ function bridgeRoutesSection(SymfonyLspBridgeContext $context): ?array
     if (!class_exists(Symfony\Component\Console\Input\ArrayInput::class)
         || !class_exists(Symfony\Component\Console\Output\BufferedOutput::class)
     ) {
-        $context->addError('routes', 'Symfony Console is unavailable.');
+        $context->addError('routes');
     } else {
         try {
             $kernel = $context->kernel();
@@ -83,8 +83,8 @@ function bridgeRoutesSection(SymfonyLspBridgeContext $context): ?array
                 'resources' => [],
                 'warnings' => [],
             ];
-        } catch (Throwable $error) {
-            $context->addError('routes', $error->getMessage());
+        } catch (Throwable) {
+            $context->addError('routes');
         }
     }
 

@@ -53,8 +53,8 @@ function bridgeMetadataSection(SymfonyLspBridgeContext $context): ?array
                 }
                 $formsComplete = count($forms) === count($types);
             }
-        } catch (Throwable $error) {
-            $context->addError('metadata', $error->getMessage());
+        } catch (Throwable) {
+            $context->addError('metadata');
         }
     }
 
@@ -82,8 +82,8 @@ function bridgeMetadataSection(SymfonyLspBridgeContext $context): ?array
                 $constraints[$name] = ['name' => $name, 'class' => $class, 'options' => $options];
             }
             $constraintsComplete = is_dir($directory) && [] !== $constraints;
-        } catch (Throwable $error) {
-            $context->addError('metadata', $error->getMessage());
+        } catch (Throwable) {
+            $context->addError('metadata');
         }
     }
 

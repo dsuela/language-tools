@@ -48,9 +48,9 @@ function bridgeConfigurationSection(SymfonyLspBridgeContext $context): ?array
                 $warnings[] = sprintf('%s: %s', $bundle::class, $error->getMessage());
             }
         }
-    } catch (Throwable $error) {
+    } catch (Throwable) {
         $complete = false;
-        $context->addError('configuration', $error->getMessage());
+        $context->addError('configuration');
     }
     usort($bundles, static fn (array $left, array $right): int => $left['alias'] <=> $right['alias']);
     sort($warnings);

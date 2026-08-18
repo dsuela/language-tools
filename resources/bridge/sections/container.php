@@ -7,7 +7,7 @@ function bridgeContainerSection(SymfonyLspBridgeContext $context): ?array
     if (!class_exists(Symfony\Component\Console\Input\ArrayInput::class)
         || !class_exists(Symfony\Component\Console\Output\BufferedOutput::class)
     ) {
-        $context->addError('container', 'Symfony Console is unavailable.');
+        $context->addError('container');
     } else {
         try {
             $kernel = $context->kernel();
@@ -48,8 +48,8 @@ function bridgeContainerSection(SymfonyLspBridgeContext $context): ?array
                 'warnings' => [],
             ];
             $section['generation'] = hash('sha256', json_encode($section, JSON_THROW_ON_ERROR));
-        } catch (Throwable $error) {
-            $context->addError('container', $error->getMessage());
+        } catch (Throwable) {
+            $context->addError('container');
         }
     }
 
