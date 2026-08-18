@@ -52,6 +52,9 @@ final class ApplicationSourceScanner
     /** @var array<string, array<string, SourceIndexMetadata>> */
     private array $entries = [];
 
+    /** @var array<class-string, list<\ReflectionProperty>> */
+    private array $factsProperties = [];
+
     /** @param iterable<SourceIndexProviderInterface> $providers */
     public function __construct(
         private readonly ProjectRegistry $projects,
@@ -227,13 +230,19 @@ final class ApplicationSourceScanner
             foreach ($this->providers as $provider) {
                 $name = $provider->name();
                 $data = $provider->replace($project, $document);
-                $payloads[$name] = $this->codec->encode($data);
+                $payloads[$name] = $this->encodePayload($data);
                 $previousPayload = $previousPayloads[$name] ?? null;
                 if ($payloads[$name] === $previousPayload) {
                     continue;
                 }
                 $factsChanged = true;
-                if (\is_string($previousPayload)) {
+                if ('' === $previousPayload) {
+                    // An empty payload restores nothing, so only new runtime
+                    // declarations require a runtime refresh.
+                    if ([] === $provider->runtimeDeclarations($data)) {
+                        continue;
+                    }
+                } elseif (\is_string($previousPayload)) {
                     try {
                         $previousData = $this->codec->decode($previousPayload);
                         if ($this->codec->encode($provider->runtimeDeclarations($data)) === $this->codec->encode($provider->runtimeDeclarations($previousData))) {
@@ -334,6 +343,9 @@ final class ApplicationSourceScanner
                         if (!\is_string($payload)) {
                             throw new \UnexpectedValueException('A source index provider payload is missing.');
                         }
+                        if ('' === $payload) {
+                            continue;
+                        }
                         $provider->restore($project, $this->codec->decode($payload));
                     }
                 } catch (\Throwable $error) {
@@ -351,7 +363,7 @@ final class ApplicationSourceScanner
             $document = new SourceDocument($this->uri($project, $path), $languageId, $text);
             $payloads = [];
             foreach ($this->providers as $provider) {
-                $payloads[$provider->name()] = $this->codec->encode($provider->index($project, $document));
+                $payloads[$provider->name()] = $this->encodePayload($provider->index($project, $document));
             }
             $runtimeStructure = $this->runtimeStructureHasher->hash($relativePath, $text);
             $entries[$relativePath] = $this->entry($path, $languageId, hash('sha256', $text), $runtimeStructure);
@@ -452,6 +464,38 @@ final class ApplicationSourceScanner
             'languageId' => $languageId,
             'runtimeStructure' => $runtimeStructure,
         ];
+    }
+
+    private function encodePayload(mixed $data): string
+    {
+        return $this->isEmptyFacts($data) ? '' : $this->codec->encode($data);
+    }
+
+    /**
+     * Facts with no content beside their URI restore nothing, so their
+     * payloads are persisted as empty markers. New scalar properties make
+     * facts non-empty, which errs toward keeping payloads.
+     */
+    private function isEmptyFacts(mixed $data): bool
+    {
+        if (!\is_object($data)) {
+            return [] === $data || null === $data || '' === $data;
+        }
+        // Cached per-class properties read the value slots directly; reflecting
+        // through the instance would materialize and retain each object's
+        // property table.
+        $properties = $this->factsProperties[$data::class] ??= (new \ReflectionClass($data::class))->getProperties();
+        foreach ($properties as $property) {
+            if ('uri' === $property->getName()) {
+                continue;
+            }
+            $value = $property->getValue($data);
+            if ([] !== $value && null !== $value && '' !== $value) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private function belongsToProject(Project $project, string $path): bool

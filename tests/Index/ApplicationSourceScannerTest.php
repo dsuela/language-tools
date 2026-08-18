@@ -9,11 +9,15 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Lsp\Document\Document;
 use Symfony\Lsp\Document\DocumentStore;
+use Symfony\Lsp\Document\Position;
 use Symfony\Lsp\Document\PositionConverter;
+use Symfony\Lsp\Document\Range;
 use Symfony\Lsp\Feature\Configuration\YamlConfigurationParser;
 use Symfony\Lsp\Feature\Environment\EnvironmentExtractor;
 use Symfony\Lsp\Feature\Environment\EnvironmentIndexRegistry;
 use Symfony\Lsp\Feature\Environment\EnvironmentSourceIndexer;
+use Symfony\Lsp\Feature\Route\RouteDeclaration;
+use Symfony\Lsp\Feature\Route\RouteSourceFacts;
 use Symfony\Lsp\Feature\Security\SecurityExtractor;
 use Symfony\Lsp\Feature\Security\SecuritySourceIndexer;
 use Symfony\Lsp\Feature\Security\SecuritySourceIndexRegistry;
@@ -89,6 +93,38 @@ final class ApplicationSourceScannerTest extends TestCase
 
         self::assertSame(1, $thirdProvider->extractions);
         self::assertSame(0, $thirdProvider->restores);
+    }
+
+    public function testStoresEmptyFactsAsMarkersAndSkipsTheirRestores(): void
+    {
+        file_put_contents($this->temporaryDirectory.'/src/Empty.php', '<?php final class Empty1 {}');
+        file_put_contents($this->temporaryDirectory.'/src/Full.php', '<?php final class Full {}');
+        $firstProvider = new ObjectFactsSourceIndexProvider(['src/Full.php']);
+        $this->scanner($firstProvider)->indexAll();
+
+        $cache = (string) file_get_contents($this->temporaryDirectory.'/var/symfony-lsp/test/index/source.jsonl');
+        self::assertStringContainsString('"objectFacts":""', $cache);
+        self::assertSame(2, $firstProvider->extractions);
+
+        $secondProvider = new ObjectFactsSourceIndexProvider(['src/Full.php']);
+        $this->scanner($secondProvider)->indexAll();
+
+        self::assertSame(0, $secondProvider->extractions);
+        self::assertSame(1, $secondProvider->restores);
+        self::assertSame(['file://'.$this->temporaryDirectory.'/src/Full.php'], $secondProvider->restoredUris);
+    }
+
+    public function testReportsContentOnlyChangesWhenEmptyFactsGainNoRuntimeDeclarations(): void
+    {
+        $path = $this->temporaryDirectory.'/src/Empty.php';
+        file_put_contents($path, '<?php final class Empty1 {}');
+        $provider = new ObjectFactsSourceIndexProvider([]);
+        $scanner = $this->scanner($provider);
+        $scanner->indexAll();
+
+        file_put_contents($path, '<?php final class Empty2 {}');
+
+        self::assertSame([], $scanner->refreshUri('file://'.$path)->domains());
     }
 
     public function testReportsChangesLimitedToRouteFacts(): void
@@ -383,6 +419,88 @@ PHP;
             new GitignoreMatcher(),
             $providers,
         );
+    }
+}
+
+final class ObjectFactsSourceIndexProvider implements SourceIndexProviderInterface
+{
+    public int $extractions = 0;
+    public int $restores = 0;
+
+    /** @var list<string> */
+    public array $restoredUris = [];
+
+    /** @param list<string> $pathsWithFacts */
+    public function __construct(private readonly array $pathsWithFacts)
+    {
+    }
+
+    public function name(): string
+    {
+        return 'objectFacts';
+    }
+
+    public function begin(Project $project): void
+    {
+    }
+
+    public function index(Project $project, SourceDocument $document): RouteSourceFacts
+    {
+        ++$this->extractions;
+
+        return $this->extract($project, $document);
+    }
+
+    public function restore(Project $project, mixed $data): void
+    {
+        if (!$data instanceof RouteSourceFacts) {
+            throw new \UnexpectedValueException();
+        }
+        ++$this->restores;
+        $this->restoredUris[] = $data->uri();
+    }
+
+    public function finish(Project $project): void
+    {
+    }
+
+    public function replace(Project $project, SourceDocument $document): RouteSourceFacts
+    {
+        return $this->extract($project, $document);
+    }
+
+    public function runtimeDeclarations(mixed $data): array
+    {
+        if (!$data instanceof RouteSourceFacts) {
+            throw new \UnexpectedValueException();
+        }
+
+        return $data->declarations();
+    }
+
+    public function remove(Project $project, string $uri): void
+    {
+    }
+
+    public function overlay(Project $project, Document $document): void
+    {
+    }
+
+    public function removeOverlay(Project $project, string $uri): void
+    {
+    }
+
+    private function extract(Project $project, SourceDocument $document): RouteSourceFacts
+    {
+        foreach ($this->pathsWithFacts as $path) {
+            if ($document->uri() === $project->rootUri().'/'.$path) {
+                $range = new Range(new Position(0, 0), new Position(0, 1));
+
+                return new RouteSourceFacts($document->uri(), [new RouteDeclaration($path, $document->uri(), $range)], []);
+            }
+        }
+
+        return new RouteSourceFacts($document->uri(), [], []);
     }
 }
 
