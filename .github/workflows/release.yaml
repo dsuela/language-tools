@@ -50,6 +50,12 @@ jobs:
                   curl -fsSL https://github.com/box-project/box/releases/download/4.6.7/box.phar -o var/build/release/box.phar
                   echo 'f49a711985219c9e0ef9faa49a95d8ab47385b8b8966dc5ac0ca10f9ac318e6b  var/build/release/box.phar' | shasum -a 256 -c
                   php var/build/release/box.phar compile --no-parallel
+            - name: Trust the preinstalled AWS SAM formula
+              if: runner.os == 'macOS'
+              run: |
+                  if brew tap | grep -Fxq aws/tap; then
+                      brew trust --formula aws/tap/aws-sam-cli
+                  fi
             - name: Build the standalone server
               working-directory: var/build/release
               env:
