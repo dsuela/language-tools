@@ -15,6 +15,9 @@ use Symfony\Lsp\Project\UriToPathConverter;
 
 use function Amp\delay;
 
+/**
+ * @phpstan-import-type SourceIndexMetadata from SourceIndexStoreInterface
+ */
 final class ApplicationSourceScanner
 {
     private const EXCLUDED_DIRECTORIES = [
@@ -46,7 +49,7 @@ final class ApplicationSourceScanner
     /** @var list<SourceIndexProviderInterface> */
     private array $providers;
 
-    /** @var array<string, array<string, array{size: int, modifiedAt: int, hash: string, languageId: string, runtimeStructure: ?string, providers: array<string, string>}>> */
+    /** @var array<string, array<string, SourceIndexMetadata>> */
     private array $entries = [];
 
     /** @param iterable<SourceIndexProviderInterface> $providers */
@@ -86,14 +89,13 @@ final class ApplicationSourceScanner
         $progressMessage = 'Source index ready';
 
         try {
-            $cached = $this->store->load($project);
+            $cached = $this->store->loadMetadata($project);
             try {
                 $entries = $this->scan($project, $cached, $cancellation);
             } catch (InvalidSourceIndexEntry) {
                 $entries = $this->scan($project, [], $cancellation);
             }
             $this->entries[$project->rootPath()] = $entries;
-            $this->store->save($project, $entries);
             $this->statuses->sourceReady($project);
         } catch (CancelledException $error) {
             $progressMessage = 'Source indexing canceled';
@@ -179,7 +181,7 @@ final class ApplicationSourceScanner
 
         $projectKey = $project->rootPath();
         $indexed = \array_key_exists($projectKey, $this->entries);
-        $entries = $indexed ? $this->entries[$projectKey] : $this->store->load($project);
+        $entries = $indexed ? $this->entries[$projectKey] : $this->store->loadMetadata($project);
         $sourceFileChange = SourceFileChange::factsChanged([]);
         if ($deleted || !is_file($path)) {
             if (!isset($entries[$relativePath])) {
@@ -189,6 +191,7 @@ final class ApplicationSourceScanner
                 $provider->remove($project, $uri);
             }
             unset($entries[$relativePath]);
+            $this->store->appendDeletion($project, $relativePath);
         } elseif (null === $languageId = $this->languageId($path)) {
             return SourceFileChange::untracked();
         } else {
@@ -205,6 +208,13 @@ final class ApplicationSourceScanner
             if (null === $cachedEntry) {
                 $sourceFileChange = SourceFileChange::untracked();
             }
+            $previousPayloads = [];
+            if (null !== $cachedEntry) {
+                try {
+                    $previousPayloads = $this->store->loadPayloads($project, $relativePath);
+                } catch (\UnexpectedValueException) {
+                }
+            }
             $document = new SourceDocument($uri, $languageId, $text);
             $payloads = [];
             $factsChanged = false;
@@ -218,15 +228,18 @@ final class ApplicationSourceScanner
                 $name = $provider->name();
                 $data = $provider->replace($project, $document);
                 $payloads[$name] = $this->codec->encode($data);
-                $previousPayload = $cachedEntry['providers'][$name] ?? null;
+                $previousPayload = $previousPayloads[$name] ?? null;
                 if ($payloads[$name] === $previousPayload) {
                     continue;
                 }
                 $factsChanged = true;
                 if (\is_string($previousPayload)) {
-                    $previousData = $this->codec->decode($previousPayload);
-                    if ($this->codec->encode($provider->runtimeDeclarations($data)) === $this->codec->encode($provider->runtimeDeclarations($previousData))) {
-                        continue;
+                    try {
+                        $previousData = $this->codec->decode($previousPayload);
+                        if ($this->codec->encode($provider->runtimeDeclarations($data)) === $this->codec->encode($provider->runtimeDeclarations($previousData))) {
+                            continue;
+                        }
+                    } catch (\UnexpectedValueException) {
                     }
                 }
                 $changedProviders[] = $name;
@@ -236,20 +249,20 @@ final class ApplicationSourceScanner
                     ? SourceFileChange::contentOnly()
                     : SourceFileChange::factsChanged($changedProviders);
             }
-            $entries[$relativePath] = $this->entry($path, $languageId, $hash, $runtimeStructure, $payloads);
+            $entries[$relativePath] = $this->entry($path, $languageId, $hash, $runtimeStructure);
+            $this->store->append($project, $relativePath, $entries[$relativePath], $payloads);
         }
 
         $this->entries[$projectKey] = $entries;
-        $this->store->save($project, $entries);
         $this->statuses->sourceReady($project);
 
         return $sourceFileChange;
     }
 
     /**
-     * @param array<string, array{size: int, modifiedAt: int, hash: string, languageId: string, runtimeStructure: ?string, providers: array<string, string>}> $cached
+     * @param array<string, SourceIndexMetadata> $cached
      *
-     * @return array<string, array{size: int, modifiedAt: int, hash: string, languageId: string, runtimeStructure: ?string, providers: array<string, string>}>
+     * @return array<string, SourceIndexMetadata>
      */
     private function scan(Project $project, array $cached, ?Cancellation $cancellation): array
     {
@@ -257,37 +270,46 @@ final class ApplicationSourceScanner
             $provider->begin($project);
         }
 
-        // Threshold-triggered cycle collection is quadratic over a scan: parser
-        // ASTs are cyclic, so collections fire every few files and each one
-        // walks the ever-growing live facts graph. Collect on a fixed file
-        // cadence instead.
-        $gcWasEnabled = gc_enabled();
-        if ($gcWasEnabled) {
-            gc_disable();
-        }
-
+        $writer = $this->store->beginRewrite($project);
         try {
-            $entries = $this->scanSourceFiles($project, $cached, $cancellation, $gcWasEnabled);
-        } finally {
+            // Threshold-triggered cycle collection is quadratic over a scan: parser
+            // ASTs are cyclic, so collections fire every few files and each one
+            // walks the ever-growing live facts graph. Collect on a fixed file
+            // cadence instead.
+            $gcWasEnabled = gc_enabled();
             if ($gcWasEnabled) {
-                gc_collect_cycles();
-                gc_enable();
+                gc_disable();
             }
-        }
 
-        foreach ($this->providers as $provider) {
-            $provider->finish($project);
-        }
+            try {
+                $entries = $this->scanSourceFiles($project, $cached, $writer, $cancellation, $gcWasEnabled);
+            } finally {
+                if ($gcWasEnabled) {
+                    gc_collect_cycles();
+                    gc_enable();
+                }
+            }
 
-        return $entries;
+            foreach ($this->providers as $provider) {
+                $provider->finish($project);
+            }
+
+            $writer->commit();
+
+            return $entries;
+        } catch (\Throwable $error) {
+            $writer->abort();
+
+            throw $error;
+        }
     }
 
     /**
-     * @param array<string, array{size: int, modifiedAt: int, hash: string, languageId: string, runtimeStructure: ?string, providers: array<string, string>}> $cached
+     * @param array<string, SourceIndexMetadata> $cached
      *
-     * @return array<string, array{size: int, modifiedAt: int, hash: string, languageId: string, runtimeStructure: ?string, providers: array<string, string>}>
+     * @return array<string, SourceIndexMetadata>
      */
-    private function scanSourceFiles(Project $project, array $cached, ?Cancellation $cancellation, bool $collectCycles): array
+    private function scanSourceFiles(Project $project, array $cached, SourceIndexWriterInterface $writer, ?Cancellation $cancellation, bool $collectCycles): array
     {
         $entries = [];
         $fileCount = 0;
@@ -306,8 +328,9 @@ final class ApplicationSourceScanner
             $cachedEntry = $cached[$relativePath] ?? null;
             if (null !== $cachedEntry && $this->isFresh($path, $languageId, $cachedEntry)) {
                 try {
+                    $payloads = $this->store->loadPayloads($project, $relativePath);
                     foreach ($this->providers as $provider) {
-                        $payload = $cachedEntry['providers'][$provider->name()] ?? null;
+                        $payload = $payloads[$provider->name()] ?? null;
                         if (!\is_string($payload)) {
                             throw new \UnexpectedValueException('A source index provider payload is missing.');
                         }
@@ -317,6 +340,7 @@ final class ApplicationSourceScanner
                     throw new InvalidSourceIndexEntry(previous: $error);
                 }
                 $entries[$relativePath] = $cachedEntry;
+                $writer->add($relativePath, $cachedEntry, $payloads);
                 continue;
             }
 
@@ -330,7 +354,8 @@ final class ApplicationSourceScanner
                 $payloads[$provider->name()] = $this->codec->encode($provider->index($project, $document));
             }
             $runtimeStructure = $this->runtimeStructureHasher->hash($relativePath, $text);
-            $entries[$relativePath] = $this->entry($path, $languageId, hash('sha256', $text), $runtimeStructure, $payloads);
+            $entries[$relativePath] = $this->entry($path, $languageId, hash('sha256', $text), $runtimeStructure);
+            $writer->add($relativePath, $entries[$relativePath], $payloads);
             // Only parsing produces cyclic garbage; restores must not pay for
             // full walks of the live facts graph.
             if ($collectCycles && 0 === ++$parsedCount % 256) {
@@ -400,7 +425,7 @@ final class ApplicationSourceScanner
     }
 
     /**
-     * @param array{size: int, modifiedAt: int, hash: string, languageId: string, runtimeStructure: ?string, providers: array<string, string>} $entry
+     * @param SourceIndexMetadata $entry
      */
     private function isFresh(string $path, string $languageId, array $entry): bool
     {
@@ -410,11 +435,9 @@ final class ApplicationSourceScanner
     }
 
     /**
-     * @param array<string, string> $providers
-     *
-     * @return array{size: int, modifiedAt: int, hash: string, languageId: string, runtimeStructure: ?string, providers: array<string, string>}
+     * @return SourceIndexMetadata
      */
-    private function entry(string $path, string $languageId, string $hash, ?string $runtimeStructure, array $providers): array
+    private function entry(string $path, string $languageId, string $hash, ?string $runtimeStructure): array
     {
         $size = filesize($path);
         $modifiedAt = filemtime($path);
@@ -428,7 +451,6 @@ final class ApplicationSourceScanner
             'hash' => $hash,
             'languageId' => $languageId,
             'runtimeStructure' => $runtimeStructure,
-            'providers' => $providers,
         ];
     }
 

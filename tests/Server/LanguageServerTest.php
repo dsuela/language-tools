@@ -108,7 +108,7 @@ final class LanguageServerTest extends TestCase
             self::assertIsArray($messages[0]['result'] ?? null);
             self::assertIsArray($messages[0]['result']['serverInfo'] ?? null);
             self::assertSame($version, $messages[0]['result']['serverInfo']['version'] ?? null);
-            self::assertFileExists($root.'/var/symfony-lsp/'.$version.'/index/source.json');
+            self::assertFileExists($root.'/var/symfony-lsp/'.$version.'/index/source.jsonl');
             self::assertCount(1, glob($root.'/var/symfony-lsp/'.$version.'/*/bridge.php') ?: []);
         } finally {
             $this->removeDirectory($root.'/var/symfony-lsp/'.$version);

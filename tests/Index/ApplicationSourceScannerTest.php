@@ -62,11 +62,12 @@ final class ApplicationSourceScannerTest extends TestCase
         self::assertSame(1, $firstProvider->extractions);
         self::assertSame(0, $firstProvider->restores);
 
-        $cachePath = $this->temporaryDirectory.'/var/symfony-lsp/test/index/source.json';
-        /** @var array{entries: array<string, array{runtimeStructure?: ?string, providers: array<string, string>}>} $cache */
-        $cache = json_decode((string) file_get_contents($cachePath), true, 512, \JSON_THROW_ON_ERROR);
-        unset($cache['entries']['src/Controller.php']['runtimeStructure']);
-        file_put_contents($cachePath, json_encode($cache, \JSON_THROW_ON_ERROR));
+        $cachePath = $this->temporaryDirectory.'/var/symfony-lsp/test/index/source.jsonl';
+        $this->rewriteCacheRecord($cachePath, 'src/Controller.php', static function (array $record): array {
+            unset($record['runtimeStructure']);
+
+            return $record;
+        });
 
         $secondProvider = new RecordingSourceIndexProvider();
         $this->scanner($secondProvider)->indexAll();
@@ -74,10 +75,14 @@ final class ApplicationSourceScannerTest extends TestCase
         self::assertSame(0, $secondProvider->extractions);
         self::assertSame(1, $secondProvider->restores);
 
-        /** @var array{entries: array<string, array{runtimeStructure?: ?string, providers: array<string, string>}>} $cache */
-        $cache = json_decode((string) file_get_contents($cachePath), true, 512, \JSON_THROW_ON_ERROR);
-        $cache['entries']['src/Controller.php']['providers']['recording'] = 'invalid';
-        file_put_contents($cachePath, json_encode($cache, \JSON_THROW_ON_ERROR));
+        $this->rewriteCacheRecord($cachePath, 'src/Controller.php', static function (array $record): array {
+            $providers = $record['providers'];
+            \assert(\is_array($providers));
+            $providers['recording'] = 'invalid';
+            $record['providers'] = $providers;
+
+            return $record;
+        });
 
         $thirdProvider = new RecordingSourceIndexProvider();
         $this->scanner($thirdProvider)->indexAll();
@@ -180,7 +185,7 @@ PHP;
         ))->indexAll();
 
         self::assertSame(['APP_SECRET'], $indexes->forProject($this->project)->names());
-        $cache = (string) file_get_contents($this->temporaryDirectory.'/var/symfony-lsp/test/index/source.json');
+        $cache = (string) file_get_contents($this->temporaryDirectory.'/var/symfony-lsp/test/index/source.jsonl');
         self::assertStringNotContainsString('canary-value', $cache);
     }
 
@@ -257,7 +262,7 @@ PHP;
         }
 
         self::assertSame(1, $provider->extractions);
-        self::assertFileExists($this->temporaryDirectory.'/var/symfony-lsp/test/index/source.json');
+        self::assertFileExists($this->temporaryDirectory.'/var/symfony-lsp/test/index/source.jsonl');
     }
 
     public function testRestoresCycleCollectionAfterScanning(): void
@@ -332,6 +337,23 @@ PHP;
 
         self::assertSame([$secondUri], $provider->removals);
         self::assertSame([$firstUri => hash('sha256', '<?php final class NewFirstVersion { public function value(): int { return 2; } }')], $provider->sources);
+    }
+
+    /**
+     * @param callable(array<string, mixed>): array<string, mixed> $mutate
+     */
+    private function rewriteCacheRecord(string $cachePath, string $relativePath, callable $mutate): void
+    {
+        $lines = explode("\n", rtrim((string) file_get_contents($cachePath), "\n"));
+        foreach ($lines as $index => $line) {
+            /** @var array<string, mixed> $record */
+            $record = json_decode($line, true, 512, \JSON_THROW_ON_ERROR);
+            if ($relativePath !== ($record['path'] ?? null)) {
+                continue;
+            }
+            $lines[$index] = json_encode($mutate($record), \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_SLASHES);
+        }
+        file_put_contents($cachePath, implode("\n", $lines)."\n");
     }
 
     private function securityIndexer(): SecuritySourceIndexer

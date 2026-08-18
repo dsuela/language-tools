@@ -15,6 +15,7 @@
 - Remove the Tree-sitter sidecar executable in favor of the compiled-in parser
 - Add a `--socket` server option that connects to a listening client
 - Use the socket transport in the VS Code extension on Windows
+- Stream the source index to an appendable store instead of holding every payload in memory
 
 ## 0.8.6 (2026-08-15)
 
