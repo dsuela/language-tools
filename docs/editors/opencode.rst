@@ -11,6 +11,8 @@ Installing the Server
 Use the `standalone guide`_ to download a release and make ``symfony-lsp``
 available on ``PATH``.
 
+The OpenCode integration is supported on Linux and macOS.
+
 Configuring OpenCode
 --------------------
 
