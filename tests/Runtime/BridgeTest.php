@@ -54,6 +54,47 @@ final class BridgeTest extends TestCase
         yield 'prerelease' => ['42.7.0-RC1'];
     }
 
+    public function testKeepsStrayProjectOutputOffTheStdoutPayload(): void
+    {
+        file_put_contents($this->temporaryDirectory.'/vendor/autoload.php', <<<'PHP'
+            <?php
+            namespace Composer;
+            final class InstalledVersions
+            {
+                public static function getPrettyVersion(string $package): ?string
+                {
+                    return '42.7.3';
+                }
+            }
+            namespace App;
+            echo "stray autoload output\n";
+            trigger_error('Loading something deprecated.', \E_USER_DEPRECATED);
+            PHP);
+        $stdoutFile = $this->temporaryDirectory.'/stdout.log';
+        $stderrFile = $this->temporaryDirectory.'/stderr.log';
+
+        exec(\sprintf(
+            '%s -d display_errors=1 -d error_reporting=-1 %s --project=%s --environment=test --debug=0 1>%s 2>%s',
+            escapeshellarg(\PHP_BINARY),
+            escapeshellarg(\dirname(__DIR__, 2).'/resources/bridge.php'),
+            escapeshellarg($this->temporaryDirectory),
+            escapeshellarg($stdoutFile),
+            escapeshellarg($stderrFile),
+        ), $output, $exitCode);
+
+        $stdout = (string) file_get_contents($stdoutFile);
+        $stderr = (string) file_get_contents($stderrFile);
+        @unlink($stdoutFile);
+        @unlink($stderrFile);
+        self::assertSame(0, $exitCode, $stdout.$stderr);
+        $result = json_decode($stdout, true, 512, \JSON_THROW_ON_ERROR);
+        self::assertIsArray($result);
+        self::assertIsArray($result['project'] ?? null);
+        self::assertSame('42.7.3', $result['project']['symfonyVersion']);
+        self::assertStringContainsString('stray autoload output', $stderr);
+        self::assertStringContainsString('Deprecated', $stderr);
+    }
+
     public function testRebuildsContainerCacheBeforeLoadingSections(): void
     {
         $this->writeRouteApplication();

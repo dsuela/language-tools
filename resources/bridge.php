@@ -5,6 +5,25 @@ if (PHP_VERSION_ID < 80100) {
     exit(1);
 }
 
+// Stdout must stay payload-only; display_errors=stderr is not honored by every SAPI, so log errors to stderr instead.
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
+ini_set('error_log', '');
+ob_start();
+register_shutdown_function(static function (): void {
+    $stray = '';
+    while (ob_get_level() > 0) {
+        $buffer = ob_get_clean();
+        if (!is_string($buffer)) {
+            break;
+        }
+        $stray = $buffer.$stray;
+    }
+    if ('' !== $stray) {
+        fwrite(STDERR, $stray);
+    }
+});
+
 require __DIR__.'/bridge/context.php';
 require __DIR__.'/bridge/support.php';
 require __DIR__.'/bridge/container.php';

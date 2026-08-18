@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Keep stray project output and error display off the project bridge stdout so the payload stays parseable
+- Decode the project bridge payload from its trailing JSON line instead of the whole stdout stream
+- Include the bridge error output in runtime indexing failure messages
+
 ## 0.9.0 (2026-08-18)
 
 - Ignore Composer packages when discovering full-stack applications

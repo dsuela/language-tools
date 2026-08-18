@@ -37,16 +37,11 @@ final class ProjectRuntimeInitializer implements RuntimeInitializerInterface
         ], $project->rootPath(), $cancellation);
 
         if (0 !== $result->exitCode()) {
-            throw new \RuntimeException(\sprintf('The project bridge failed with status %d.', $result->exitCode()));
+            throw new \RuntimeException(\sprintf('The project bridge failed with status %d.', $result->exitCode()).$this->failureDetail($result));
         }
 
-        try {
-            $snapshot = json_decode($result->stdout(), true, 512, \JSON_THROW_ON_ERROR);
-        } catch (\JsonException $error) {
-            throw new \RuntimeException('The project bridge returned invalid JSON.', 0, $error);
-        }
-
-        if (!\is_array($snapshot) || 1 !== ($snapshot['schemaVersion'] ?? null)) {
+        $snapshot = $this->decodeSnapshot($result);
+        if (1 !== ($snapshot['schemaVersion'] ?? null)) {
             throw new \RuntimeException('The project bridge returned an unsupported snapshot.');
         }
 
@@ -75,5 +70,45 @@ final class ProjectRuntimeInitializer implements RuntimeInitializerInterface
 
             throw new \RuntimeException('The project bridge could not load runtime metadata'.$detail.'.');
         }
+    }
+
+    /**
+     * The bridge emits its payload as a single trailing JSON line, so stray
+     * output around it must not break snapshot decoding.
+     *
+     * @return array<array-key, mixed>
+     */
+    private function decodeSnapshot(ProcessResult $result): array
+    {
+        foreach (array_reverse(preg_split('/\R/', $result->stdout()) ?: []) as $line) {
+            $line = trim($line);
+            if ('' === $line) {
+                continue;
+            }
+
+            try {
+                $decoded = json_decode($line, true, 512, \JSON_THROW_ON_ERROR);
+            } catch (\JsonException) {
+                continue;
+            }
+            if (\is_array($decoded)) {
+                return $decoded;
+            }
+        }
+
+        throw new \RuntimeException('The project bridge returned invalid JSON.'.$this->failureDetail($result));
+    }
+
+    private function failureDetail(ProcessResult $result): string
+    {
+        $stderr = trim($result->stderr());
+        if ('' === $stderr) {
+            return '';
+        }
+        if (\strlen($stderr) > 1000) {
+            $stderr = substr($stderr, 0, 1000).'...';
+        }
+
+        return ' Bridge error output: '.$stderr;
     }
 }
