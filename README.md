@@ -36,6 +36,15 @@ vim.lsp.enable('symfony_lsp')
 See the [Neovim guide](docs/editors/neovim.rst) for installation, workspace
 trust, configuration and troubleshooting.
 
+### OpenCode
+
+Install `symfony-lsp` from a standalone release, then configure it as a custom
+language server. OpenCode can use Symfony-aware diagnostics and navigation while
+its coding agent works on the project.
+
+See the [OpenCode guide](docs/editors/opencode.rst) for configuration, workspace
+trust, supported features and platform limitations.
+
 ### Standalone Server
 
 Download the archive for your platform from
@@ -62,6 +71,7 @@ compatible with its Symfony version.
 - [Supported Symfony integrations](docs/features/index.rst)
 - [Visual Studio Code guide](docs/editors/vscode.rst)
 - [Neovim guide](docs/editors/neovim.rst)
+- [OpenCode guide](docs/editors/opencode.rst)
 - [Standalone server guide](docs/index.rst)
 - [Changelog](CHANGELOG.md)
 

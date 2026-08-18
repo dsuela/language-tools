@@ -7,18 +7,19 @@ services, templates, translations and more. It implements the Language Server
 Protocol, so its Symfony features are independent of any particular editor, and
 it runs alongside a general PHP language server instead of replacing it.
 
-Setting Up Your Editor
+Setting Up Your Client
 ----------------------
 
-Start with the page for your editor. Each page covers installation,
-configuration and troubleshooting, and all editors expose the same Symfony
-language features:
+Symfony Language Tools officially supports the following clients. Use the
+corresponding page for installation, configuration and troubleshooting:
 
 * `VS Code`_: install the Symfony Language Tools extension from the
   Marketplace. It bundles the language server, so no separate download is
   needed;
 * `Neovim`_: install the server with Mason or from a standalone release, then
-  enable it through ``nvim-lspconfig``.
+  enable it through ``nvim-lspconfig``;
+* `OpenCode`_: install the standalone server, then configure it as a custom
+  language server for Symfony-aware diagnostics and navigation.
 
 Any other editor with a Language Server Protocol client can run the
 standalone server: see `installing a release`_ below and configure your client
@@ -122,5 +123,6 @@ locally built parser extension on Unix systems. Verify that it starts:
 
 .. _`VS Code`: editors/vscode.rst
 .. _`Neovim`: editors/neovim.rst
+.. _`OpenCode`: editors/opencode.rst
 .. _`supported integrations`: features/index.rst
 .. _`release metadata`: https://symfony.com/releases.json
