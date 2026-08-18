@@ -43,7 +43,7 @@ language server. OpenCode can use Symfony-aware diagnostics and navigation while
 its coding agent works on the project.
 
 See the [OpenCode guide](docs/editors/opencode.rst) for configuration, workspace
-trust, supported features and platform limitations.
+trust, supported features and troubleshooting.
 
 ### Standalone Server
 

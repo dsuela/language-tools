@@ -11,14 +11,6 @@ Installing the Server
 Use the `standalone guide`_ to download a release and make ``symfony-lsp``
 available on ``PATH``.
 
-The OpenCode integration is supported on Linux and macOS.
-
-.. warning::
-
-    OpenCode starts custom language servers over standard input and standard
-    output. The self-contained Symfony Language Tools server can't use that
-    transport on Windows. Use the VS Code extension on Windows instead.
-
 Configuring OpenCode
 --------------------
 
