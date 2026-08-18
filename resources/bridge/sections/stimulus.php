@@ -44,8 +44,8 @@ function bridgeStimulusSection(SymfonyLspBridgeContext $context): ?array
                 }
                 $complete = [] === $warnings;
             }
-        } catch (Throwable $error) {
-            $warnings[] = 'Stimulus: '.$error->getMessage();
+        } catch (Throwable) {
+            $warnings[] = 'The Stimulus controllers are unavailable.';
         }
     }
 
@@ -100,8 +100,8 @@ function bridgeStimulusUxControllers(string $projectRoot, string $controllersJso
 {
     try {
         $configuration = json_decode((string) file_get_contents($controllersJson), true, 512, JSON_THROW_ON_ERROR);
-    } catch (Throwable $error) {
-        $warnings[] = 'Stimulus controllers.json: '.$error->getMessage();
+    } catch (Throwable) {
+        $warnings[] = 'The Stimulus controllers.json configuration is unreadable.';
 
         return [];
     }
@@ -126,8 +126,8 @@ function bridgeStimulusUxControllers(string $projectRoot, string $controllersJso
         }
         try {
             $packageMetadata = json_decode((string) file_get_contents($packageJson), true, 512, JSON_THROW_ON_ERROR);
-        } catch (Throwable $error) {
-            $warnings[] = sprintf('Stimulus package metadata for %s: %s', $composerPackage, $error->getMessage());
+        } catch (Throwable) {
+            $warnings[] = sprintf('The Stimulus package metadata for %s is unreadable.', $composerPackage);
             continue;
         }
         $packageDirectory = dirname($packageJson);

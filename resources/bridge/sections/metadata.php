@@ -47,8 +47,8 @@ function bridgeMetadataSection(SymfonyLspBridgeContext $context): ?array
                             'options' => $optionNames,
                             'requiredOptions' => $required,
                         ];
-                    } catch (Throwable $error) {
-                        $warnings[] = sprintf('Form %s: %s', $type, $error->getMessage());
+                    } catch (Throwable) {
+                        $warnings[] = sprintf('The %s form metadata is unavailable.', $type);
                     }
                 }
                 $formsComplete = count($forms) === count($types);

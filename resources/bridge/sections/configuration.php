@@ -44,8 +44,8 @@ function bridgeConfigurationSection(SymfonyLspBridgeContext $context): ?array
                     'class' => $bundle::class,
                     'tree' => normalizeConfigNode($tree),
                 ];
-            } catch (Throwable $error) {
-                $warnings[] = sprintf('%s: %s', $bundle::class, $error->getMessage());
+            } catch (Throwable) {
+                $warnings[] = sprintf('The %s configuration tree is unavailable.', $bundle::class);
             }
         }
     } catch (Throwable) {

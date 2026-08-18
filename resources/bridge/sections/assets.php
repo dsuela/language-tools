@@ -113,11 +113,11 @@ function bridgeAssetsSection(SymfonyLspBridgeContext $context): ?array
                     ksort($importMap);
                     $importMapComplete = is_array($entries);
                 }
-            } catch (Throwable $error) {
-                $warnings[] = 'Import map: '.$error->getMessage();
+            } catch (Throwable) {
+                $warnings[] = 'The import map is unavailable.';
             }
-        } catch (Throwable $error) {
-            $warnings[] = 'AssetMapper: '.$error->getMessage();
+        } catch (Throwable) {
+            $warnings[] = 'The AssetMapper assets are unavailable.';
         }
     }
 

@@ -99,8 +99,8 @@ function bridgeSecuritySection(SymfonyLspBridgeContext $context): ?array
                         $voters[$definition['class']] = ['class' => $definition['class']];
                     }
                 }
-            } catch (Throwable $error) {
-                $warnings[] = 'Voters: '.$error->getMessage();
+            } catch (Throwable) {
+                $warnings[] = 'The security voters are unavailable.';
             }
         } catch (Throwable) {
             $complete = false;

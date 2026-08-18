@@ -93,8 +93,8 @@ function bridgeMessengerSection(SymfonyLspBridgeContext $context): ?array
                         'transports' => array_values(array_filter(is_array($senders) ? $senders : [], 'is_string')),
                     ];
                 }
-            } catch (Throwable $error) {
-                $warnings[] = 'Configuration: '.$error->getMessage();
+            } catch (Throwable) {
+                $warnings[] = 'The messenger configuration is unavailable.';
             }
             foreach (array_keys($buses) as $bus) {
                 try {
@@ -135,8 +135,8 @@ function bridgeMessengerSection(SymfonyLspBridgeContext $context): ?array
                             ];
                         }
                     }
-                } catch (Throwable $error) {
-                    $warnings[] = sprintf('%s: %s', $bus, $error->getMessage());
+                } catch (Throwable) {
+                    $warnings[] = sprintf('The %s handlers locator is unavailable.', $bus);
                 }
             }
             if ([] === $handlers) {
@@ -181,8 +181,8 @@ function bridgeMessengerSection(SymfonyLspBridgeContext $context): ?array
                     $messages[$message] ??= ['class' => $message, 'transports' => []];
                     $messages[$message]['transports'] = array_values(array_filter(is_array($senderNames) ? $senderNames : [], 'is_string'));
                 }
-            } catch (Throwable $error) {
-                $warnings[] = 'Routing: '.$error->getMessage();
+            } catch (Throwable) {
+                $warnings[] = 'The messenger routing is unavailable.';
             }
         } catch (Throwable) {
             $complete = false;

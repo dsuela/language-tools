@@ -2,7 +2,9 @@
 
 ## Unreleased
 
+- Support OpenCode as a custom LSP client on Linux and macOS
 - Discover kernels outside the App namespace through the Composer PSR-4 autoload roots
+- Keep application error details out of bridge section warnings
 - Keep stray project output and error display off the project bridge stdout so the payload stays parseable
 - Decode the project bridge payload from its trailing JSON line instead of the whole stdout stream
 - Include the bridge error output in runtime indexing failure messages
